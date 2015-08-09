@@ -1,0 +1,106 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Cache-Control" content="public, max-age=800000" />
+    <meta http-equiv="Pragma" content="public, max-age=800000" />
+    <title>Image Widget</title>
+
+</head>
+<body id="body">
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+
+    <span id="TBtooltip" data-default="Displays images from the server"   />
+    <span id="attrib0" data-type="checkbox" data-name="3D Shadow" data-default="false" />
+    <span id="attrib1" data-type="input" data-name="Border Width" data-default="0" />
+    <span id="attrib2" data-type="file" data-name="File" data-default="" />
+    <span id="ontop" data-default="false" />
+
+    <div id="group">
+        <div id="widget" draggable="false" style="height: 100px; width: 100px; border: 1px solid #808080; border-radius: 3px; position: absolute; left: 0px; top: 0px;">
+        </div>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script>
+
+        var imageLoc = "../images/"
+        var img = new Image()
+        img.style.setAttribute("width", "100%")
+        img.style.setAttribute("height", "100%")
+
+        img.onload = function () {
+            imgHeight = this.naturalHeight                                              // Image aspect ratio and native dimensions
+            imgWidth = this.naturalWidth
+            document.getElementById("widget").appendChild(img)
+            if (!_toolbox) _widgetID.style.setProperty("border", _attribs[1].value + "px solid #808080")
+            scale(imgScaleX, imgScaleY)
+        }
+
+        function toolboxStart() {           // called when loaded in toolbox
+            setImage("")
+            _widgetID.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
+            _widgetID.style.setProperty("height", parseInt(_widgetID.style.getPropertyValue("width")) + "px");
+            return true
+        }
+
+        function startEdit() {              // called when editing started
+            return true
+        }
+
+        function endEdit(param0) {                // called when editing finishes
+            widgetStart("endEdit")
+            return true
+        }
+
+        function startDesign() {            // called when switching to design mode
+            return true
+        }
+
+        function endDesign() {            // called when switching to design mode
+            return true
+        }
+
+        // Called from framework for design time changes
+        function designAction(func, channel, scope, data) {
+            switch (func) {
+                case "load":                                            // channel event updates
+                    setTimeout(setImage, 100, _attribs[2].value)        // Give server time to save file
+                    break;
+                default:
+                    return false;
+            }
+        }
+
+        var imgScaleX = 0, imgScaleY = 0, imgHeight, imgWidth;
+        function scale(scaleX, scaleY) {    // manage scaling
+            imgScaleX = scaleX
+            imgScaleY = scaleY
+            _widgetID.style.setProperty("width", (_iniWidth * scaleX - 10) + "px");
+            _widgetID.style.setProperty("height", (imgHeight * _iniWidth * scaleY / imgWidth - 10) + "px");
+            fwFunc("adjustSize", "width", _iniWidth * scaleX)
+            fwFunc("adjustSize", "height", imgHeight * _iniWidth * scaleY / imgWidth)
+            return true
+        }
+
+        //// Widget specific functions
+        function widgetStart(mode) {            // widget specific startup
+            if (_attribs[0].value === true) _widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
+            else _widgetID.style.setProperty("box-shadow", "none")
+            if (mode !== "endEdit") setImage(_attribs[2].value)
+            return true;
+        }
+
+        function setImage(imageName) {
+            if (imageName == "") imageName = "blank.jpg"
+            img.src = imageLoc + imageName
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,116 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Automation Widget (XXXXXX)</title>
+</head>
+<body id="body" spellcheck="false">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15px;
+            color: #4C4C4C;
+            overflow: hidden;
+        }
+
+        .yellow {
+            border-color: #c09853 !important;
+            background-color: #c09853;
+            color: #c09853;
+        }
+        .white {
+            border-color: #ffffff !important;
+            background-color: #ffffff;
+            color: #ffffff;
+        }
+        .grey {
+            border-color: #acacac !important;
+            background-color: #acacac;
+            color: #acacac;
+        }
+        .black {
+            border-color: #4c4c4c !important;
+            background-color: #4c4c4c;
+            color: #4c4c4c;
+        }
+        .blue {
+            border-color: #3a87ad !important;
+            background-color: #3a87ad;
+            color: #3a87ad;
+        }
+        .red {
+            border-color: #b94a48 !important;
+            background-color: #b94a48;
+            color: #b94a48;
+        }
+        .green {
+            border-color: #468847 !important;
+            background-color: #468847;
+            color: #468847;
+        }
+    </style>
+
+    <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
+
+    <div id="group" style="height: 40px; width: 210px; overflow: hidden;">
+        <div id="widget" contenteditable="false" draggable="false"><i><b>Lorem Ipsum</b></i></div>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script>
+
+        // Widget specific variables
+        var myVariable;
+
+        function widgetStart(mode) {                            // widget specific startup. Return true if successful, or return false to abort loading
+            return true;
+        }
+
+        function startDesign() {                                // called when switching to design mode
+            return true;
+        }
+
+        function menuUpdate() {                                 // called when widget option menu requires updating
+            return true;
+        }
+
+        function endDesign() {                                  // called when switching from design mode
+            return true;
+        }
+
+        function scale(scaleX, scaleY) {                        // manage scaling
+            return true;
+        }
+
+        function feed(channel, scope, data) {                   // Called for incoming channel events
+            switch (scope.toLowerCase()) {
+                case "value":
+
+                    break;
+            }
+            return true;
+        }
+
+        function ini(channel, scope, data) {                    // Called to set initial channel status
+            switch (scope.toLowerCase()) {
+                case "value":
+                    feed(channel, scope, data);
+                    break;
+            }
+        }
+</script>
+</body>
+</html>

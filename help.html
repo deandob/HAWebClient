@@ -1,0 +1,105 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8; Cache-Control: no-cache; pragma: no-cache; max-age=0" />   <!-- TESTING ONLY, REMOVE FOR PRODUCTION AS IT STOPS CACHING, ALSO REMOVE A SIMILAR ONE ON THE SVG OBJECT TYPE DYNAMICALLY LOADED IN LOADWIDGET-->  
+    <title>Home Automation Client</title>
+    <meta name="description" content="">
+    <meta id="version" content="0.75">
+    <meta name="viewport" content="width=device-width">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/icons.css">
+    <!--<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans:400,700">-->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="mainbody" draggable="false">
+    <div class="sidebar">
+        <div class="tabs-left">
+            <h4>&nbsp;&nbsp;&nbsp;Help Options</h4>
+            <h6>&nbsp;</h6>
+            <ul id="sidebarList" class="nav nav-tabs">
+                <li id="tabStarting" class="active"><a class="pointer" data-target="#starting" data-toggle="tab" onclick="startHelp()"><i class="icon-home icon-large"></i> <span>Starting</span></a></li>
+                <li id="tabDashboard"><a class="pointer" data-target="#dashboard" data-toggle="tab" onclick="dashHelp()"><i class="icon-settings icon-large"></i> <span>Dashboard</span></a></li>
+                <li id="tabAutomation"><a class="pointer" data-target="#automation" data-toggle="tab" onclick="autoHelp()"><i class="icon-diary icon-large"></i> <span>Automation</span></a></li>
+                <li id="tabDesign"><a class="pointer" data-target="#design" data-toggle="tab" onclick="designHelp()"><i class="icon-lightning icon-large"></i> <span>Designer</span></a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
+        <div class="tab-pane fade in active" id="starting">
+            <h4>Start here</h4><br />
+            Instructions
+        </div>
+        <div class="tab-pane fade" id="dashboard">
+            <h4>Using the dashboard</h4><br />
+            <br />
+        </div>
+
+        <div class="tab-pane fade" id="automation">
+            <h4>Automation</h4>
+        </div>
+
+        <div class="tab-pane fade" id="design">
+            <h4>Design</h4>
+        </div>
+    </div>
+    <script src="js/jquery-2.0.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <style>
+
+    </style>
+    <script>
+        "use strict";
+
+        // Startup function after DOM is loaded and all content loaded
+        window.onload = function () {
+            enableTooltip()
+            //$("#sidebarList a:first").tab("show")
+        }
+
+        function startHelp() {
+            //alert('console');
+        }
+
+        function autoHelp() {
+            //alert('general');
+        }
+        function designHelp() {
+            //alert('general');
+        }
+
+        function recvHost(msg) {
+            switch (msg.ClassName) {
+                case "AUTOMATION":
+                    if (msg.Scope.toString().indexOf("GET:NAMES") != -1) {
+                        //alert("XXXXt understand server message class: " + msg.ClassName + " scope: " + msg.Scope + " data: " + msg.Data)
+                        var triggers = JSON.parse(msg.Data)[""]
+                        if (triggers.length == 0) addListEntry("triggerNameList", "<i>no saved triggers<i>");
+                        for (var trigger in triggers) {
+                            addListEntry("triggerNameList", triggers[trigger]);
+                            //alert(triggers[trigger])
+                        }
+                        for (var ee = 0; ee < 40; ee++) {
+                            addListEntry("triggerNameList", ee);
+                        }
+
+                        //alert("XXXXt understand server message class: " + msg.ClassName + " scope: " + msg.Scope + " data: " + msg.Data)
+                    }
+                    break;
+                case "YYYY":
+                    break;
+                default:
+                    //alert("Don't understand server message class: " + msg.ClassName + " scope: " + msg.Scope + " data: " + msg.Data)
+            }
+        }
+
+        // enable bootstrap tooltips
+        function enableTooltip() {
+            $(".tip").tooltip({ delay: { show: 1000 } });
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,640 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Graph Widget</title>
+</head>
+<body id="body">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .tooltip {
+            border: 2px solid #b6c9a6;
+            background-color: #dff0d8;
+            color: #468847;
+        }
+
+        .triangle {
+            font-size: 0px;
+            line-height: 0%;
+            width: 0px;
+            border-top: 10px solid #66A867;
+            border-left: 5px solid #eeeeee;
+            border-right: 5px solid #cccccc;
+        }
+    </style>
+
+    <span id="TBtooltip" data-default="Graph live and historical data" />
+    <span id="attrib0" data-type="channel" data-name="Series 1" data-default="" />
+    <span id="attrib1" data-type="checkbox" data-name="Series 1 Area Fill" data-default="false" />
+    <span id="attrib2" data-type="dropdown" data-name="blue, green, red, yellow, grey" data-default="blue" />
+    <span id="attrib3" data-type="channel" data-name="Series 2" data-default="" />
+    <span id="attrib4" data-type="checkbox" data-name="Series 2 Area Fill" data-default="false" />
+    <span id="attrib5" data-type="dropdown" data-name="blue, green, red, yellow, grey" data-default="green" />
+    <span id="attrib6" data-type="channel" data-name="Series 3" data-default="" />
+    <span id="attrib7" data-type="checkbox" data-name="Series 3 Area Fill" data-default="false" />
+    <span id="attrib8" data-type="dropdown" data-name="blue, green, red, yellow, grey" data-default="red" />
+    <span id="attrib9" data-type="channel" data-name="Series 4" data-default="" />
+    <span id="attrib10" data-type="checkbox" data-name="Series 4 Area Fill" data-default="false" />
+    <span id="attrib11" data-type="dropdown" data-name="blue, green, red, yellow, grey" data-default="yellow" />
+    <span id="attrib12" data-type="channel" data-name="Series 5" data-default="" />
+    <span id="attrib13" data-type="checkbox" data-name="Series 5 Area Fill" data-default="false" />
+    <span id="attrib14" data-type="dropdown" data-name="blue, green, red, yellow, grey" data-default="grey" />
+    <span id="attrib15" data-type="input" data-name="Chart Title" data-default="" />
+    <span id="attrib16" data-type="input" data-name="X Axis" data-default="Time" />
+    <span id="attrib17" data-type="input" data-name="Y Axis" data-default="" />
+    <span id="attrib18" data-type="input" data-name="Initial History (hrs)" data-default="24" />
+    <span id="ontop" data-default="true" />
+
+    <div id="callout" class="triangle" style="position: absolute; z-index: 101; opacity: 0; transition: opacity 0.2s ease-in-out 0.3s"></div>
+    <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 1; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.2s ease-in-out 0.3s">Loading...</div>
+    
+    <div id="group">
+        <svg id="widget" width="500" height="500" style="position: absolute; left: 0px; top: 0px;">
+            <style type="text/css">
+                svg {
+                    shape-rendering: crispEdges;
+                }
+
+                .axis path, .axis line { /* X and Y axis */
+                    fill: none;
+                    stroke: #D0D0D0;
+                }
+
+                .x.axis line { /* grid lines */
+                    stroke: #D0D0D0;
+                    stroke-opacity: 0.5;
+                }
+
+                .y.axis line { /* grid lines */
+                    stroke: #D0D0D0;
+                    stroke-opacity: 0.4;
+                }
+
+                .x.axis text, .y.axis text {
+                    opacity: 0.5;
+                }
+
+                .x.axis .label, .y.axis .label {
+                    opacity: 1;
+                    font-style: italic;
+                }
+
+                .x.axis .minor, y.axis .minor {
+                    stroke: #D0D0D0;
+                    stroke-opacity: 0.3;
+                }
+
+                text {
+                    font-family: "Open Sans", Arial, Helvetica, sans-serif;
+                    font-weight: normal;
+                    font-style: normal;
+                }
+
+                .title {
+                    font-weight: normal;
+                    font-size: 16px;
+                    opacity: 1;
+                }
+
+                .max, .min {
+                    fill: red;
+                }
+
+                .seriesline {
+                    fill: none !important;
+                    stroke-width: 2;
+                    stroke-opacity: 1;
+                }
+
+                .seriesarea {
+                    fill-opacity: 0.2;
+                    stroke: none !important;
+                }
+
+                .legendtext {
+                    text-anchor: end;
+                    stroke: none !important;
+                }
+
+                .blue {
+                    stroke: #3a87ad;
+                    fill: #3a87ad;
+                }
+
+                .green {
+                    stroke: #468847;
+                    fill: #468847;
+                }
+
+                .red {
+                    stroke: #b94a48;
+                    fill: #b94a48;
+                }
+
+                .yellow {
+                    stroke: #c09853;
+                    fill: #c09853;
+                }
+
+                .grey {
+                    stroke: #999;
+                    fill: #999;
+                }
+            </style>
+
+            <g id="svgGroup">
+                <g id="noScale">
+                </g>
+                <g id="scale">
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <script src="../widgetFramework.js"></script>
+    <script src="../js/d3.min.js"></script>
+    <script>
+
+        //TODO: buttons for different timescales (1 hour, 1 day, 1 month)
+
+
+        function toolboxStart() {           // called when loaded in toolbox
+            _widgetID.height.baseVal.value = parent.TBWidth                // ensure when dragging height is 100
+            tooltip.style.setProperty("opacity", "0");                    
+            chart.append("path")                // random line to show in toolbox
+                .attr("d", "M0,40 L10,70 L20,60 L30,30 L40,35 L50,45 L60,80 L70,70 L80,85 L90,60 L100,65")
+                .attr("stroke", "red")
+                .attr("stroke-width", "2")
+                .attr("fill", "none")
+        }
+
+        function endEdit() {                // called when editing finishes
+        }
+        
+        function startDesign() {            // called when switching to design mode
+            tooltip.style.setProperty("opacity", "0");
+            zoom.x()            // disable zoom
+            for (var i = 0; i < 5; i++) {
+                chart.select("#seriesLine" + i).remove()
+                chart.select("#seriesArea" + i).remove()
+            }
+        }
+
+        function endDesign() {              // called when switching from design mode
+            zoom.x(x)           // enable zoom
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+            scaleChart(scaleX, scaleY);
+        }
+
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            return processFeed(channel, data);              // current values
+        }
+
+        // Called from framework for initial channel status 
+        function ini(channel, scope, data) {
+            return;
+        }
+
+        // Result set in JSON of any channel history request 
+        function history(channel, scope, data) {
+            load(channel, data);
+        }
+
+        function clicked(event) {
+            switch (event.which) {
+                case 3:
+                    alert('right pressed');
+                    break;
+                default:
+            }
+        }
+
+        //// Widget specific functions
+        var oldDomain, historyHrs, xAxis, yAxis, x, y, width, height, clipPath, title, yLabel, xLabel, bground, zoom, drag, tooltip, callout, ttTimeout, loaded = false;
+        var maxVal = 1;
+        var minVal = 0;
+        var POINTS_GAP = 5;          // default spacing between points
+        //TODO: MAXPOINTS SHOULD BE ADJUSTED BASED ON WIDTH, AND DROP VALUES IF ARRAY RESOLUTION IS LESS THAN A PIXEL
+        var MAXPOINTS = 100000;        //how many data points to keep in the display buffer for panning
+        var xTitle = "";
+        var yTitle = "";
+        var chartTitle = "";
+        var margin = { top: 25, right: 2, bottom: 45, left: 55 }
+
+        var chart = d3.select("#widget");
+
+        callout = document.getElementById("callout");
+        tooltip = document.getElementById("tooltip");
+
+        // chart background to grab for panning
+        bground = chart.append("rect")
+            .attr("fill", "white");
+
+        // setup Axis
+        x = d3.time.scale();
+        y = d3.scale.linear();
+
+        xAxis = d3.svg.axis();
+        yAxis = d3.svg.axis();
+
+        chart.append("g")
+            .attr("class", "x axis");
+        chart.append("g")
+            .attr("class", "y axis");
+
+        // ensure the chart that is outside the axis does not get drawn
+        clipPath = chart.append("clipPath")
+            .attr("id", "clip")
+            .append("rect");
+
+        // Zoom and drag events
+        if (!_toolbox) {
+            zoom = d3.behavior.zoom()
+                .on("zoom", zoomed);
+            drag = d3.behavior.drag()
+                .on("dragstart", start_drag)
+                .on("dragend", stop_drag);
+        }
+
+        // setup axis titles from host after charts have been initialized
+        title = chart.append("text")
+            .attr("class", "title")
+            .attr("text-anchor", "middle")
+
+        yLabel = chart.select(".y.axis")
+            .append("text")
+            .attr("class", "label")
+            .attr("text-anchor", "middle")
+
+        xLabel = chart.select(".x.axis")
+            .append("text")
+            .attr("class", "label")
+            .attr("text-anchor", "middle")
+
+        var legend = chart.append("g")
+            .attr("class", "legend")
+            .attr("y", 25)
+            .attr("height", 100)
+            .attr("width", 100);
+
+        // Setup data array
+        var series = [];
+        var serie = function (name) {
+            this.FQN = name;
+            this.name = "";
+            this.data = [];
+            this.color = null;
+            this.lineElement = null;
+            this.areaElement = null;
+            this.d3Line = null;
+            this.d3Area = null;
+        }
+        for (var i = 0; i < 5; i++) {
+            series.push(new serie(""))
+        }
+
+        function widgetStart(mode) {            // widget specific startup after object is loaded
+            _widgetID.style.setProperty("left", margin.left + "px")
+            _widgetID.style.setProperty("top", margin.top + "px")
+            historyHrs = parseFloat(_attribs[18].value)
+            if (isNaN(historyHrs)) historyHrs = 24;
+
+            for (var i = 0; i < 5; i++) {
+                series[i].FQN = _attribs[i * 3].value        // extract name from svg _attribs
+                if (series[i].FQN != "") {         // only load up series if it has a name
+                    numSeries = i;
+                    fwFunc("history", series[i].FQN, Date.now() - 1000 * 3600 * historyHrs, Date.now())
+                    series[i].name = series[i].FQN.split("/")[2]
+                    series[i].color = _attribs[i * 3 + 2].value
+                    //series[i].d3Line = d3.svg.line().interpolate("monotone")              // smooth curves
+                    series[i].d3Line = d3.svg.line()
+                    series[i].lineElement = chart.append("path")
+                        .attr("clip-path", "url(#clip)")
+                        .attr("id", "seriesLine" + i)
+                        .attr("class", "seriesline " + series[i].color)
+                        .data([series[i].data])
+                    if (_attribs[i * 3 + 1].value == true) {  // if area fill
+                        series[i].d3Area = d3.svg.area().interpolate("monotone")
+                        series[i].d3Area = d3.svg.area()
+                        series[i].areaElement = chart.append("path")
+                            .attr("clip-path", "url(#clip)")
+                            .attr("id", "seriesArea" + i)
+                            .attr("class", "seriesarea " + series[i].color)
+                            .data([series[i].data])
+                        //series[i].areaElement.append("title").text(series[i].name)           // tooltip for area
+                    }
+                }
+            }
+            chartTitle = _attribs[15].value;
+            xTitle = _attribs[16].value;
+            yTitle = _attribs[17].value;
+
+            return true;
+        }
+
+        // Show tooltip when hovering over line
+        function lineMouseover(d, i) {
+            var dataX = x.invert(d3.mouse(this.parentNode)[0]);                         //find the mouse's horizontal coordinate relative to the drawing container, invert the scale to find the x value at the mouse point
+            
+            var j = d.length;
+            while ((j--) && (d[j].x > dataX));                                          //scan through the data array to find the value closest to the mouse
+
+            var closest = 0;
+            if (j >= 0) {
+                if (isNaN(d[j + 1]) || (dataX - d[j].x < d[j + 1].x - dataX))           //d[j] will now be the first datapoint *less than* the mousepoint compare it with d[j+1] to see which is closer to the mouse:
+                    closest = j;
+                else
+                    closest = j + 1;
+            }
+            tooltip.innerText = series[i].name + " " + d[closest].y + " at " + d[closest].x.getHours() + ":" + d[closest].x.getMinutes() + ":" + d[closest].x.getSeconds();
+            var top = parseInt(d3.event.pageY) - tooltip.clientHeight - 12
+            tooltip.style.setProperty("opacity", "1");
+            tooltip.style.setProperty("left", parseInt(d3.event.pageX) - parseInt(tooltip.clientWidth / 2) + "px");
+            callout.style.setProperty("opacity", "1");
+            callout.style.setProperty("left", parseInt(d3.event.pageX - 5) + "px");
+            if (top > 0) {
+                tooltip.style.setProperty("top", top + "px");
+                callout.style.setProperty("top", top + tooltip.clientHeight + 2 + "px");
+            } else {
+                tooltip.style.setProperty("top", parseInt(d3.event.pageY) + 12 + "px");
+                callout.style.setProperty("top", parseInt(d3.event.pageY) + 2 + "px");
+                tooltip.style.setProperty("translate", "scale(1,-1)");
+            }
+
+            clearTimeout(ttTimeout);
+            ttTimeout = setTimeout(fadeTT, 3000);
+        }
+
+        function fadeTT() {
+            tooltip.style.setProperty("opacity", "0")
+            callout.style.setProperty("opacity", "0")
+            tooltip.addEventListener("transitionend", fadeFinish, true);
+        }
+
+        // send tooltip off screen when faded
+        function fadeFinish() {
+            tooltip.style.setProperty("left", "-200px")
+            callout.style.setProperty("left", "-200px")
+            tooltip.removeEventListener("transitionend", fadeFinish, true);
+        }
+
+        // Adjust all chart elements that have height or width settings
+        function scaleChart(scaleX, scaleY) {
+            width = _iniWidth * scaleX - margin.left - margin.right;
+            height = _iniHeight * scaleY - margin.top - margin.bottom;
+            _widgetID.width.baseVal.value = width;
+
+            if (_toolbox == true) {
+                width = _iniWidth * scaleX;
+                height = _iniHeight * scaleY;
+            }
+
+            //windowPoints = width / POINTS_GAP    // number of points to display in the view window
+
+            clipPath
+                .attr("width", width)
+                .attr("height", height)
+
+            x
+                .domain([new Date(new Date().valueOf() - 1000 * 3600 * historyHrs), new Date])       // assumes seconds
+                .range([0, width])
+            .nice();
+            //.nice(d3.time.second);
+            oldDomain = x.domain();
+
+            y
+                .domain([minVal, maxVal])
+                .range([height, 0]);
+
+
+            xAxis
+                .scale(x)
+                .orient("bottom")
+                //.tickFormat(d3.time.format("%H:%M.%S"))  
+                //.ticks(d3.time.seconds, 10)              
+                .tickSize(-height)
+                .ticks(7 * scaleX)                  // adjust number of ticks based on size of graph
+
+            yAxis
+                .scale(y)
+                .orient("left")
+                .tickSize(-width);
+
+            title
+                .attr("x", width / 2)
+                .attr("y", 0 - (margin.top / 2))
+                .text(chartTitle);
+
+            yLabel
+                .text(yTitle)
+                .attr("transform", "rotate(-90, -40, 0) translate(-" + ((height / 2) + margin.top) + ")");
+
+            xLabel
+                .text(xTitle)
+                .attr("x", width / 2)
+                .attr("y", margin.bottom - 5);
+
+            bground
+                .attr("width", width)
+                .attr("height", height)
+
+            if (_toolbox == false) {
+                chart.call(zoom.x(x));      // enable x axis zoom
+                chart.call(drag);           // enable drag events
+            }
+
+            chart.selectAll(".x.axis").attr("transform", "translate(0," + height + ")").call(xAxis)
+            chart.selectAll(".y.axis").call(yAxis)
+
+            adjustLegend();
+        }
+
+        function adjustLegend() {
+            legend.selectAll("rect").remove()
+            legend.selectAll("text").remove()
+            for (i = 0; i < 5; i++) {
+                if (series[i].name != "") {
+                    legend.append("rect")
+                         .attr("x", width - 15)
+                         .attr("y", i * 25 + margin.top / 2)
+                         .attr("width", 10)
+                         .attr("height", 10)
+                         .attr("class", series[i].color);
+                    var currVal = ""
+                    if (series[i].data.length !== 0) currVal = " (" + series[i].data[series[i].data.length - 1].y + ")"
+                    legend.append("text")
+                        .attr("x", width - 25)
+                        .attr("y", i * 25 + 10 + margin.top / 2)
+                        .attr("height", 30)
+                        .attr("width", 100)
+                        .attr("class", "legendtext " + series[i].color)
+                        .text(series[i].name + currVal);
+                }
+            }
+        }
+
+        // Draw the chart lines, circles and areas
+        function render() {
+            for (var i = 0; i < 5; i++) {
+                if (series[i].name != "") {
+                    if (series[i].d3Area != null) {             // only render the area svg if fill is specified
+                        series[i].d3Area
+                            .x(function (d) { return x(d.x); })
+                            .y0(height)
+                            .y1(function (d) { return y(d.y); });
+                        series[i].areaElement
+                            .attr("d", series[i].d3Area)
+                    }
+                    series[i].d3Line
+                        .x(function (d) { return x(d.x); })
+                        .y(function (d) { return y(d.y); });
+                    series[i].lineElement
+                        .attr("d", series[i].d3Line)
+                        .on("mouseover", lineMouseover)
+                    }
+            }
+            adjustLegend();
+        }
+
+        // feed from the server
+        function processFeed(instance, feedVal) {
+            for (var i = 0; i < 5; i++) {
+                if (series[i].name == instance && loaded !== false) {                   // Don't add values until history data is loaded
+                    if (+feedVal * 1.2 > maxVal) {             // auto adjust y axis based on min, max +- 20%
+                        maxVal = +feedVal * 1.2;
+                        y.domain([minVal, maxVal])
+                        yAxis.scale(y)
+                        if (_designing == false) zoomed()
+                    }
+                    if (+feedVal * 0.8 < minVal) {
+                        minVal = +feedVal * 0.8;
+                        y.domain([minVal, maxVal])
+                        yAxis.scale(y)
+                        if (_designing == false) zoomed()
+                    }
+
+                    //TODO: If PC time is different to server time, will get gaps between end of history & first new point plotted. Could ask the server for time and use the delta as an adjustment factor
+                    series[i].data.push({ "x": new Date(), "y": +feedVal });
+
+                    if (series[i].data.length >= MAXPOINTS) series[i].data.shift();       //remove the old value if array is too large
+
+                    if (_designing == false) {
+                        render();
+                        adjustZoom(series[i].data[series[i].data.length - 1].x);                 // slide graph to the show the new value
+                    }
+
+                }
+            }
+        }
+
+        // load JSON dataset from the server
+        function load(instance, loadVal) {
+            tooltip.style.setProperty("left", "50%");                                // show loading tooltip
+            tooltip.style.setProperty("top", "50%");                                
+            loaded = true;
+            var loadArr = JSON.parse(loadVal);
+            if (loadArr.length > 0) {
+                for (var i = 0; i < 5; i++) {
+                    if (series[i].name == instance) {
+                        for (var lp = 0; lp < loadArr.length; lp++) {
+                            var rec = loadArr[lp].split(",")
+                            var JSTime = new Date((rec[0] - 621355968000000000) / 10000)         // Convert from .NET Date to JS Date by subtracting UnixEpoc and dividing by PC ticks
+                            series[i].data.push({ "x": JSTime, "y": +rec[1] })
+                            if (series[i].data.length >= MAXPOINTS) series[i].data.shift();       //remove the old value if array is too large
+                        }
+                        if (d3.max(series[i].data, function (d) { return d.y }) > maxVal) maxVal = d3.max(series[i].data, function (d) { return d.y })
+                        if (d3.min(series[i].data, function (d) { return d.y }) < minVal) minVal = d3.min(series[i].data, function (d) { return d.y })
+                        y.domain([minVal, maxVal])      // Adjust scales
+                        yAxis.scale(y)
+                        zoomed()
+                        render()
+                    }
+                }
+            }
+            tooltip.style.setProperty("left", "-200px");                                // remove loading tooltip
+        }
+
+        // Move view window between these two dates
+        function adjustZoom(endX) {
+            var oldStart = x.domain()[0]
+            var oldEnd = x.domain()[1]
+            d3.transition().duration(300).tween("zoom", function () {
+                var ix = d3.interpolate(0, endX.valueOf() - oldEnd.valueOf());     // interpolate between 0 and the delta of old domain end and new
+                return function (t) {
+                    zoom.x(x.domain([new Date(oldStart.valueOf() + ix(t)), new Date(oldEnd.valueOf() + ix(t))]));       // shuffle the chart to the new end point
+                    zoomed();
+                };
+            });
+        }
+
+
+        // Zoom event
+        function zoomed() {
+            if (_designing == false) {
+                chart.select(".y.axis").call(yAxis);
+                if (x.domain()[1].valueOf() > Date.now()) {                // dont allow panning into the future
+                    if (oldDomain[1] - oldDomain[0] !== x.domain()[1] - x.domain()[0]) {
+                        zoom.x(x.domain([x.domain()[0], oldDomain[1]]));                    // scaling, scale lower value only
+                    } else {
+                        zoom.x(x.domain([oldDomain[0], oldDomain[1]]));                     // panning, don't move
+                        return
+                    }
+                }
+                chart.select(".x.axis").call(xAxis);
+                for (var i = 0; i < 5; i++) {
+                    if (series[i].name != "") {
+                        if (series[i].d3Area != null) chart.select("#seriesArea" + i).attr("d", series[i].d3Area(series[i].data));
+                        chart.select("#seriesLine" + i).attr("d", series[i].d3Line(series[i].data));
+                    }
+                }
+                oldDomain = x.domain();
+            }
+        }
+
+        // Drag events
+        function start_drag() {
+            chart.style("cursor", "e-resize")
+        }
+
+        function stop_drag() {
+            if (!_designing) {
+                chart.style("cursor", "default");
+                if (x.domain()[0] < series[0].data[0].x) {                       // scrolling & out of data, get more data
+                    for (var i = 0; i < 5; i++) {
+                        if (series[i].name != "") {
+                            tooltip.style.setProperty("left", "50%");                                // show loading tooltip
+                            tooltip.style.setProperty("top", "50%");
+                            tooltip.innerText = "Loading..."
+                            fwFunc("history", series[i].FQN, x.domain()[0].valueOf(), series[0].data[0].x.valueOf())
+                        }
+                    }
+                }
+            }
+        }
+
+    </script>
+</body>
+</html>

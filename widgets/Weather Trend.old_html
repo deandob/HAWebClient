@@ -1,0 +1,155 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<!-- Attribution: http://www.alessioatzeni.com/meteocons/ -->
+<head>
+    <title>Weather Trend Widget</title>
+</head>
+<body id="body">
+    <style > 
+        body {
+            overflow: hidden;
+        }
+
+@font-face {
+    font-family: 'MeteoconsRegular';
+    src: url('../fonts/meteocons-webfont.woff') format('woff'),
+         url('../fonts/meteocons-webfont.svg#MeteoconsRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.icon:before {
+	font-family: 'MeteoconsRegular';
+	content: attr(data-icon);
+}
+
+        .yellow {
+            color: #c09853;
+        }
+
+        .white {
+            color: #ffffff;
+        }
+
+        .grey {
+            color: #acacac;
+        }
+
+        .black {
+            color: #4c4c4c;
+        }
+
+        .blue {
+            color: #3a87ad;
+        }
+
+        .red {
+            color: #b94a48;
+        }
+
+        .green {
+            color: #468847;
+        }
+
+        .noSelect {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+    </style >
+
+    <span id="TBtooltip" data-default="Outlook" />
+    <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
+    <span id="attrib1" data-type="dropdown" data-name="blue, green, red, yellow, grey, white" data-default="blue" />
+    <span id="ontop" data-default="true" />
+
+
+    <div id="group">
+        <div id="scale">
+            <div id="widget" style="opacity: 1; position: absolute; left: 0px; top: 0px; width: 100px; height: 100px; text-align: left; overflow: hidden; font-size:5em"><a id="icon" class="icon noselect" data-icon="H"></a></div>
+        </div>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script>
+        var icon = document.getElementById("icon");
+
+        // Called from framework when widget starts
+        function widgetStart(param) {                               // widget specific startup
+            _widgetID.setAttribute("class", "icon noselect " + _attribs[1].value);          // color
+            return true;
+        }
+
+        function scale(scaleX, scaleY) {
+            _widgetID.style.setProperty("font-size", 5 * scaleX + "em")
+            _widgetID.style.setProperty("width", 100 * scaleX + "px")
+            _widgetID.style.setProperty("height", 100 * scaleX + "px")
+        }
+
+        function endEdit(param0) {                  // called when editing finishes
+            widgetStart()
+        }
+
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            var iconLetter = ""
+            switch (data.toLowerCase()) {
+                case "sunny":
+                    iconLetter = "B"
+                    break;
+                case "cloudy":
+                    iconLetter = "Y"
+                    break;
+                case "rain":
+                    iconLetter = "R"
+                    break;
+                case "clear":
+                    iconLetter = "C"
+                    break;
+                case "partly cloudy":
+                    iconLetter = "H"
+                    break;
+                case "hazy":
+                    iconLetter = "A"
+                    break;
+                case "light rain":
+                    iconLetter = "Q"
+                    break;
+                case "windy":
+                    iconLetter = "F"
+                    break;
+                case "fog":
+                    iconLetter = "J"
+                    break;
+                case "shower":
+                    iconLetter = "T"
+                    break;
+                case "dusty":
+                    iconLetter = "E"
+                    break;
+                case "frost":
+                    iconLetter = "U"
+                    break;
+                case "snow":
+                    iconLetter = "W"
+                    break;
+                case "storm":
+                    iconLetter = "O"
+                    break;
+                case "light shower":
+                    iconLetter = "T"
+                    break;
+                default:
+            }
+            icon.setAttribute("data-icon", iconLetter)
+        }
+
+        // Called from framework for initial channel status
+        function ini(channel, scope, data) {
+            return feed(channel, scope, data);
+        }
+
+    </script>
+</body>
+</html>

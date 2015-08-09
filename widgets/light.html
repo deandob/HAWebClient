@@ -1,0 +1,229 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Light Widget</title>
+</head>
+<body id="body">
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+
+    <span id="TBtooltip" data-default="Light status and control" />
+    <span id="attrib0" data-type="channel" data-name="Channel" data-default="" />
+    <span id="attrib1" data-type="checkbox" data-name="Dimmer" data-default="false" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <svg id="widget" width="50" height="50" style="position: absolute; left: 0px; top: 0px; cursor:pointer">
+            <style type="text/css">
+                .lightColor {
+                    fill: rgb(50,50,50);
+                    fill-opacity: 1;
+                    stroke: rgb(100,100,100);
+                    stroke-opacity: 1;
+                }
+            </style>
+            <defs>
+                <radialGradient id="lightRadialGradient" cx="50%" cy="50%" fx="50%" fy="50%" r="50%">
+                    <stop id="startStop" offset="0%" stop-color="rgb(255, 255, 0)" stop-opacity="1" />
+                    <stop id="endStop" offset="100%" stop-color="rgb(255, 255, 0)" stop-opacity="0" />
+                </radialGradient>
+            </defs>
+
+            <g id="svgGroup">
+                <g id="noScale">
+
+                </g>
+                <g id="scale">
+                    <rect id="lightRect" x="0" y="0" width="50" height="50" fill="url(#lightRadialGradient)" opacity="0" />
+                    <g id="icon">
+                        <circle r="5" cy="25" cx="25" class="lightColor" stroke-width="3" id="svg_1" />
+                        <rect ry="1" rx="1" height="8" width="2" y="8.17734" x="24" class="lightColor" stroke-width="2" id="svg_2" />
+                        <rect ry="1" rx="1" height="8" width="2" y="33.7747" x="24" class="lightColor" stroke-width="2" id="svg_3" />
+                        <rect ry="1" rx="1" height="8" width="2" y="21" x="36.767" class="lightColor" transform="rotate(-90 37.7644 25)" stroke-width="2" id="svg_4" />
+                        <rect ry="1" rx="1" height="8" width="2" y="29.6245" x="33.6245" class="lightColor" transform="rotate(-45 34.6246 33.6246)" stroke-width="2" id="svg_5" />
+                        <rect ry="1" rx="1" height="8" width="2" y="11.816" x="33.085" class="lightColor" transform="rotate(45 34.0853 15.8157)" stroke-width="2" id="svg_6" />
+                        <rect ry="1" rx="1" height="8" width="2" y="21" x="11.2112" class="lightColor" transform="rotate(-90 12.2116 25)" stroke-width="2" id="svg_7" />
+                        <rect ry="1" rx="1" height="8" width="2" y="30.1333" x="14.8361" class="lightColor" transform="rotate(45 15.8361 34.1332)" stroke-width="2" id="svg_8" />
+                        <rect ry="1" rx="1" height="8" width="2" y="11.8458" x="14.8458" class="lightColor" transform="rotate(-45 15.8464 15.8464)" stroke-width="2" id="svg_9" />
+                    </g>
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <script src="../widgetFramework.js"></script>
+    <script>
+        function startDesign() {            // called when switching to design mode
+            _groupID.removeEventListener("mousedown", startPress, false);        // remove mouse listeners so editing mouse functions work
+            _groupID.removeEventListener("mouseup", stopPress, false);
+            _groupID.removeEventListener("mouseout", mouseExit, false);
+        }
+
+        function endDesign() {              // called when switching from design mode
+            _groupID.addEventListener("mousedown", startPress, false);
+            _groupID.addEventListener("mouseup", stopPress, false);
+            _groupID.addEventListener("mouseout", mouseExit, false);
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+        }
+
+        function toolboxStart() {           // called when loaded in toolbox
+        }
+
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            setVal(+data.toString().split(",")[0] / 100, ONOFF_AMI_TIME);       // emulate a short press, if value is passed with watts (val,watts) ignore watts
+        }
+
+        // Called from framework for initial channel status
+        function ini(channel, scope, data) {
+            switch (scope.toLowerCase()) {
+                case "value":                     // light state changed remotely
+                    feed(channel, scope, data);
+                    break;
+            }
+        }
+
+        //// Widget specific functions
+        var lightIDs, iconID, channelFqn, channelName, channelClass, dimmer, lightRect;
+        function widgetStart(mode) {            // widget specific startup
+            lightRect = document.getElementById("lightRect");
+            channelFqn = _attribs[0].value;
+            channelClass = channelFqn.split("/")[1];
+            channelName = channelFqn.split("/")[2]
+            dimmer = _attribs[1].value;
+            _groupID.addEventListener("mousedown", startPress, false);
+            _groupID.addEventListener("mouseup", stopPress, false);
+            _groupID.addEventListener("mouseout", mouseExit, false);
+            fwFunc("setTooltip", channelName);
+            return true;
+        }
+
+        iconIDs = document.getElementsByClassName("lightColor");
+        lightID = document.getElementById("lightRect");
+
+        var lightVal = 0;                           // Light state value
+        var dimVal = 0.5;                           // save the dim value as the max value for on for short press
+        var DIM_PRESS_TIME = 400;                   // mSec time before press turns from click to dimmer
+        var ONOFF_AMI_TIME = 400;                   // mSec for animation turning on the light to full
+        var DIM_RAMP_TIME = 4000;                   // msec timer for ramping up or down
+        var SERVER_SEND_INTERVAL = 200;             // send light value to server every 100ms when dimming so light changes in real time
+        var startPressTime;
+        var timeoutID;
+        var oldVal = 0;                                                             // starting point
+        var newVal = 0;
+        var frames = 0;
+        var oldTime = 0;
+        var frameRate = 1000 / 60;                                                  //msec at 60 fps
+        var aniDuration = 0;
+        var aniHandle;
+        var aniDelay;
+        var lastSendTime;
+
+        function startPress() {
+            startPressTime = new Date().getTime();
+            if (dimmer) timeoutID = setTimeout(dim, DIM_PRESS_TIME);      // Timer to see if mouse press is longer (dim) or shorter (on/off)
+        }
+
+        function stopPress() {
+            var endLight;
+            if (!dimmer) startPressTime = new Date().getTime();                 // force short press (no dim) for lights without dimmer function
+            if ((new Date().getTime() - startPressTime) <= DIM_PRESS_TIME) {    // elapsed time
+                clearTimeout(timeoutID);                                        // short press
+                if (lightVal != 0) {                                            // light is on so turn off
+                    endLight = 0;
+                } else {
+                    if (dimmer) {
+                        endLight = dimVal;                                      // light is a dimmer, short press so turn on to saved dimmer value
+                    } else {
+                        endLight = 1;                                           // light not a dimmer so turn the light fully on
+                    }
+                }
+                setVal(endLight, ONOFF_AMI_TIME);                               // animate the light
+            } else {
+                cancelAnimationFrame(aniHandle);                                // stop ramping
+                if (lightVal != 0) dimVal = lightVal;                           // Save the dimmer on value for future ON requests (ramp to this value)
+                frames = 0;
+                endLight = lightVal;
+            }
+            channelSend(channelFqn, "action", parseInt(endLight * 100));           // update the light with the final value
+        }
+
+        // if pressing for a long time invoke dimmer ramp function
+        function dim() {
+            if (lightVal === 0) {
+                setVal(1, DIM_RAMP_TIME);                                           // long press so start the ramp up
+            } else {
+                setVal(0, DIM_RAMP_TIME);                                           // long press so start the ramp down
+            }
+        }
+
+        function mouseExit() {                                                      // Mouse has drifted off the element while still ramping, so cancel ramp
+            if ((frames != 0) && (aniDelay == DIM_RAMP_TIME)) stopPress();
+        }
+
+        // Light value between 0 and 1
+        function setVal(val, delay) {
+            if (val !== lightVal) {        // Don't activate if the light value requested is same as current state, or I'm currently animating
+                aniDelay = delay;
+                var lightEndState;
+                if (val <= 0.01) lightEndState = "off";
+                if (val >= 0.99) lightEndState = "on";
+                if ((val > 0) && (val < 1) && (delay === ONOFF_AMI_TIME)) lightEndState = "on (dimmer " + parseInt(val * 100) + "%)";
+                if (channelName !== undefined) fwFunc("updateStatus", "Light " + channelName + " is " + lightEndState);
+                oldVal = lightVal;
+                newVal = val;
+                aniDuration = delay * Math.abs(newVal - oldVal) / frameRate;        // number of frames to end & compensate for current light level
+                lastSendTime = new Date().getTime();                                // Last time we send a message to the server when dimming
+                oldTime = lastSendTime - frameRate;                                 // dummy up a previous frame
+                animate();
+            }
+        }
+
+        function animate() {
+            var currTime = new Date().getTime();                                    // compensate for any animation CPU delays by normalising the framerate based on elapsed time
+            frames = frames + (currTime - oldTime) / frameRate;
+            oldTime = currTime;
+            var aniVal = easeLin(frames, oldVal, (newVal - oldVal), aniDuration);   // Calculate the intermediatary animation value
+            if (aniVal >= 0.95) aniVal = 1;
+            if (aniVal <= 0.05) aniVal = 0;
+            lightVal = aniVal;
+            lightID.setAttribute("opacity", aniVal);
+            var intensity = parseInt(255 * aniVal);
+            for (var item = 0; item < iconIDs.length; item++) {
+                iconIDs[item].style.setProperty("fill", "rgb(" + intensity + "," + intensity + ", 0)");
+                iconIDs[item].style.setProperty("stroke", "rgb(" + intensity + "," + intensity + ", 0)");
+            }
+            if (frames <= aniDuration) {
+                aniHandle = requestAnimationFrame(animate);                         // call requestAnimationFrame to continue animating
+                if (aniDelay === DIM_RAMP_TIME) {                                    // If dimming, send the new light value to the server every 100msec
+                    if (currTime - lastSendTime > SERVER_SEND_INTERVAL) {
+                        fwFunc("updateStatus", "Dimming " + channelName + " light to " + parseInt(lightVal * 100) + "%");
+                        channelSend(channelFqn, "action", parseInt(lightVal * 100));
+                        lastSendTime = currTime;
+                    }
+                }
+            } else {
+                cancelAnimationFrame(aniHandle);                                    // finished
+                frames = 0;                                                         // flag that dimming has stopped
+                if (aniDelay === DIM_RAMP_TIME) {                                   // restart in the opposite direction if we have come to the end of the dim ramp
+                    if (newVal === 1) {
+                        setVal(0, DIM_RAMP_TIME);
+                    } else {
+                        setVal(1, DIM_RAMP_TIME);
+                    }
+                }
+            }
+        }
+
+        // Easing algorythm t: current time, b: beginning value, c: change In value, d: duration, s: overshoot. http://www.gizma.com/easing/
+        function easeLin(t, b, c, d) {
+            return c * t / d + b;
+        }
+    </script>
+</body>
+</html>

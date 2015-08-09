@@ -1,0 +1,300 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Text Widget</title>
+</head>
+<body id="body">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15px;
+            color: #4C4C4C;
+            overflow: hidden;
+        }
+
+        .noSelect {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+
+        .select {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+        }
+
+        .sizeString {
+            position: absolute;
+            visibility: hidden;
+            height: auto;
+            width: auto;
+            white-space: nowrap;
+        }
+
+        .yellow {
+            border-color: #c09853 !important;
+            background-color: #c09853;
+            color: #c09853;
+        }
+
+        .white {
+            border-color: #ffffff !important;
+            background-color: #ffffff;
+            color: #ffffff;
+        }
+
+        .grey {
+            border-color: #acacac !important;
+            background-color: #acacac;
+            color: #acacac;
+        }
+
+        .black {
+            border-color: #4c4c4c !important;
+            background-color: #4c4c4c;
+            color: #4c4c4c;
+        }
+
+        .blue {
+            border-color: #3a87ad !important;
+            background-color: #3a87ad;
+            color: #3a87ad;
+        }
+
+        .red {
+            border-color: #b94a48 !important;
+            background-color: #b94a48;
+            color: #b94a48;
+        }
+
+        .green {
+            border-color: #468847 !important;
+            background-color: #468847;
+            color: #468847;
+        }
+
+        .colorStyle {
+            -webkit-border-radius: 3px;
+            border-radius: 3px;
+            border: 3px solid #dcdcdc;
+            padding: 2px 6px;
+            position: relative;
+            top: -1px;
+        }
+
+        .buttonStyle {
+            font-size: 14px;
+            font-family: 'Open Sans';
+            -webkit-border-radius: 2px;
+            border-radius: 2px;
+            border: 1px solid #dcdcdc;
+            padding: 1px 5px;
+            text-decoration: none;
+            background: -webkit-gradient( linear, left top, left bottom, color-stop(5%, #ededed), color-stop(100%, #dfdfdf) );
+            background: -ms-linear-gradient( top, #ededed 5%, #dfdfdf 100% );
+            background-color: #ededed;
+            color: #777777;
+            display: inline-block;
+        }
+            .buttonStyle:hover {
+                background: -webkit-gradient( linear, left top, left bottom, color-stop(5%, #dfdfdf), color-stop(100%, #ededed) );
+                background: -ms-linear-gradient( top, #dfdfdf 5%, #ededed 100% );
+                background-color: #dfdfdf;
+            }
+            .buttonStyle:active {
+                position: relative;
+                top: 1px;
+            }
+    </style>
+
+    <span id="TBtooltip" data-default="Text labels including channel status" />
+
+    <span id="attrib0" data-type="data" data-name="Text" data-default="label text" />
+    <span id="attrib1" data-type="channel" data-name="Source" data-default="" />
+    <span id="attrib2" data-type="input" data-name="Font Size" data-default="14" />
+    <span id="attrib3" data-type="dropdown" data-name="left, center, right" data-default="left" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <div id="buttons" style="display: none; height: 25px; position: absolute; left: 0px; top: 0px; z-index: 999">
+            <a href="#" id="bold" class="buttonStyle"><b>B</b></a>
+            <a href="#" id="italic" class="buttonStyle"><b><i>I</i></b></a>
+            <button id="colorButton" class="colorStyle black">&nbsp;</button>
+            <a href="#" id="incFont" class="buttonStyle"><b>+</b></a>
+            <a href="#" id="decFont" class="buttonStyle"><b>-</b></a>
+            <a href="#" id="remFormat" class="buttonStyle"><b>X</b></a>
+            <a href="#" id="insCh" class="buttonStyle"><b>#</b></a>
+        </div>
+        <div id="widget" class="noSelect" style="position: absolute; left: 0px; top: 0px; width: 170px; height: 45px; text-align: left; overflow: hidden;"><b><i>label text</i></b></div>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script>
+        var buttons = document.getElementById("buttons");
+        var buttonHeight = parseInt(buttons.style.getPropertyValue("height"));
+        var colorCounter = 0;
+        var COLORS = ["black", "grey", "green", "red", "yellow", "blue", "white"];
+        var fontSize = 3;
+        var oldChVal;
+
+        function toolboxStart() {           // called when loaded in toolbox
+            _widgetID.style.setAttribute("text-align", "center");
+        }
+
+        function startEdit() {              // called when editing started
+            document.body.setAttribute("spellcheck", "true");
+            document.getElementById("bold").addEventListener("mousedown", execBold);
+            document.getElementById("italic").addEventListener("mousedown", execItalic);
+            document.getElementById("colorButton").addEventListener("mousedown", setColor);
+            document.getElementById("incFont").addEventListener("mousedown", execInc);
+            document.getElementById("decFont").addEventListener("mousedown", execDec);
+            document.getElementById("remFormat").addEventListener("mousedown", removeFormat);
+            document.getElementById("insCh").addEventListener("mousedown", insertCh);
+            //fwFunc("setTooltip", "'B' bold, 'I' italic, '█' color, '+,-' font size, '#' channel")
+            fwFunc("adjustSize", "topOffset", -1 * buttonHeight);    // Make room for the editing buttons
+            _widgetID.style.setProperty("height", _widgetID.scrollHeight + buttonHeight + "px");
+            _widgetID.style.setProperty("top", buttonHeight + "px");
+            buttons.style.setProperty("display", "inline");
+            _widgetID.setAttribute("class", "select");
+        }
+
+        function endEdit(param0) {                // called when editing finishes
+            document.body.setAttribute("spellcheck", "false");
+            fwFunc("adjustSize", "topOffset", buttonHeight);    // reset height
+            _widgetID.style.setProperty("height", _widgetID.scrollHeight + "px");
+            _widgetID.style.setProperty("top", "0px");
+            document.getElementById("bold").removeEventListener("mousedown", execBold);
+            document.getElementById("italic").removeEventListener("mousedown", execItalic);
+            document.getElementById("colorButton").removeEventListener("mousedown", setColor);
+            document.getElementById("incFont").removeEventListener("mousedown", execInc);
+            document.getElementById("decFont").removeEventListener("mousedown", execDec);
+            document.getElementById("remFormat").removeEventListener("mousedown", removeFormat);
+            document.getElementById("insCh").removeEventListener("mousedown", insertCh);
+            buttons.style.setProperty("display", "none");
+            fwFunc("setAttrib", 0, _widgetID.innerHTML);         // save
+            _widgetID.setAttribute("class", "noSelect");
+            //fwFunc("setTooltip", "")
+            widgetStart();
+        }
+
+        function startDesign() {            // called when switching to design mode
+            _widgetID.contentEditable = "true";
+            _widgetID.innerHTML = _attribs[0].value;
+        }
+
+        function endDesign() {            // called when switching to design mode
+            _widgetID.contentEditable = "false";
+            setText(_widgetID.innerHTML, oldChVal);
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+            _widgetID.setAttribute("class", "noSelect");
+            _widgetID.style.setProperty("width", (_iniWidth * scaleX) + "px");
+            fwFunc("adjustSize", "width", _iniWidth * scaleX);
+            if (!_toolbox) _widgetID.style.setProperty("height", (_iniHeight * scaleY - buttonHeight) + "px");
+            fwFunc("adjustSize", "height", _iniHeight * scaleY);
+        }
+
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            if (scope.toUpperCase() === "TIME") {
+                if (+data === 0) data = "No Date"
+                else if (parseInt(data) > 10000) data = new Date(+data).toLocaleString("en-us", { day: "numeric", month: "short", year: "2-digit", hour: "numeric", minute: "numeric" })
+            }
+            setText(_attribs[0].value, data);
+        }
+
+        // Called from framework for initial channel status 
+        function ini(channel, scope, data) {
+            feed(channel, scope, data);
+        }
+
+        //// Widget specific functions
+        function widgetStart(mode) {            // widget specific startup
+            _widgetID.innerHTML = _attribs[0].value;
+            _widgetID.style.setProperty("font-size", _attribs[2].value + "px");
+            _widgetID.style.setAttribute("text-align", _attribs[3].value);
+            return true;
+        }
+
+        function execBold(ev) {
+            formatSel("bold");
+            ev.stopPropagation();
+        }
+
+        function execItalic(ev) {
+            formatSel("italic");
+            ev.stopPropagation();
+        }
+
+        function execInc(ev) {
+            formatSel('fontSize', 1);
+            ev.stopPropagation();
+        }
+
+        function execDec(ev) {
+            formatSel('fontSize', -1);
+            ev.stopPropagation();
+        }
+
+        function removeFormat(ev) {
+            formatSel('removeFormat', '0');
+            ev.stopPropagation();
+        }
+
+        function insertCh(ev) {
+            var selRange = window.getSelection().getRangeAt(0);
+            var node = document.createTextNode("[#]");
+            selRange.insertNode(node);
+            ev.stopPropagation();
+        }
+
+        function setColor(ev) {
+            if (window.getSelection().getRangeAt(0) != "") {
+                var swatchColor = document.getElementById("colorButton").currentStyle.getPropertyValue("background-color");
+                formatSel("ForeColor", swatchColor);
+            } else {        // no text selected, so increment the color swatch
+                colorCounter = colorCounter + 1;
+                if (COLORS[colorCounter] == undefined) colorCounter = 0;
+                document.getElementById("colorButton").setAttribute("class", "colorStyle " + COLORS[colorCounter]);
+            }
+            ev.stopPropagation();
+        }
+
+        // Format text using contenteditable execCommand
+        function formatSel(func, val) {
+            if (func == "fontSize") {
+                fontSize = fontSize + val;
+                if (fontSize > 7) fontSize = 7;
+                if (fontSize < 1) fontSize = 1;
+                val = fontSize;
+            }
+            document.execCommand(func, false, val);
+        }
+
+        function setText(newText, serverVal) {
+            if (newText.indexOf("[#]") >= 0 && serverVal !== undefined) {
+                _widgetID.innerHTML = newText.replace(newText.slice(newText.indexOf("["), newText.indexOf("]") + 1), serverVal);        // replace [#] with the server variable
+            } else {
+                _widgetID.innerHTML = newText;
+            }
+            oldChVal = serverVal;
+        }
+    </script>
+</body>
+</html>

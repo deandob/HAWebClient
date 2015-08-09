@@ -1,0 +1,140 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dial Widget</title>
+</head>
+<body id="body">
+    <style>
+        body {
+            overflow: hidden;
+        }
+    </style>
+
+    <span id="TBtooltip" data-default="Displays current and average channel values"  />
+    <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
+    <span id="attrib1" data-type="channel" data-name="Average" data-default="" />
+    <span id="attrib2" data-type="input" data-name="Range" data-default="100" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <svg id="widget" width="100" height="80" style="position: absolute; left: 0px; top: 0px; z-index:4">
+            <style type="text/css">
+                text {
+                    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+                    font-weight: normal;
+                    font-style: normal;
+                    font-size: 20px;
+                    text-align: center;
+                    pointer-events: none;
+                }
+            </style>
+
+            <g id="svgGroup" style="position: absolute; left: 0px; top: 0px;">
+                <g id=" noScale">
+                </g>
+                <g id="scale">
+                    <path id="seg1" fill="none" stroke="rgb(0, 134, 0)" d="M13.46,66.27 A40,40,0,0,1,10.1,52.79" stroke-width="20" />
+                    <path id="seg2" fill="none" stroke="rgb(50, 134, 0)" d="M10.01,50.7 A40,40,0,0,1,12.18,36.98" stroke-width="20" />
+                    <path id="seg3" fill="none" stroke="rgb(100, 134, 0)" d="M12.91,35.02 A40,40,0,0,1,20.27,23.23" stroke-width="20" />
+                    <path id="seg4" fill="none" stroke="rgb(150, 134, 0)" d="M21.72,21.72 A40,40,0,0,1,33.1,13.75" stroke-width="20" />
+                    <path id="seg5" fill="none" stroke="rgb(200, 134, 0)" d="M35.02,12.91 A40,40,0,0,1,48.6,10.02" stroke-width="20" />
+                    <path id="seg6" fill="none" stroke="rgb(255, 134, 0)" d="M50.7,10.01 A40,40,0,0,1,64.33,12.66" stroke-width="20" />
+                    <path id="seg7" fill="none" stroke="rgb(255, 100, 0)" d="M66.27,13.46 A40,40,0,0,1,77.79,21.23" stroke-width="20" />
+                    <path id="seg8" fill="none" stroke="rgb(255, 70, 0)" d="M79.25,22.72 A40,40,0,0,1,86.82,34.37" stroke-width="20" />
+                    <path id="seg9" fill="none" stroke="rgb(255, 35, 0)" d="M87.59,36.32 A40,40,0,0,1,90,50" stroke-width="20" />
+                    <path id="seg10" fill="none" stroke="rgb(255, 0, 0)" d="M89.95,52.09 A40,40,0,0,1,86.82,65.63" stroke-width="20" />
+                    <polyline id="avg" points="44,0 56,0 50,8 44,0" fill="rgb(20, 20, 230)" stroke-width="0" style="display: none" transform="rotate(-112, 50, 50)"><title id="avgtool">Average: 0</title></polyline>
+                    <path id="TBNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
+                    <text id="TBNumVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
+                </g>
+            </g>
+        </svg>
+        <svg id="needle" style="position: absolute; left: 0px; top: 0px; transform-Origin: 50% 62.5%; z-index:2">
+            <path id="svgNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
+        </svg>
+        <svg id="text" style="position: absolute; left: 0px; top: 0px; z-index: 3">
+            <text id="numVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
+        </svg>
+    </div>
+
+    <script src="../widgetFramework.js"></script>
+    <script>
+        var needleID = document.getElementById("needle");		    // id of the path to rotate
+        var svgNeedle = document.getElementById("svgNeedle");		// id of the path to rotate
+        var numID = document.getElementById("numVal");		        // id text field
+        var svgText = document.getElementById("text");		        // id of text SVG
+        var avgID = document.getElementById("avg");                 // id average marker
+        var oldVal = 0;
+
+        // Called from framework when widget starts
+        function widgetStart(param) {                               // widget specific startup
+            range = parseInt(_attribs[2].value);
+            if (_attribs[1].value !== "") avgID.style.setProperty("display", "inline");
+            // Hide the svg used to display the widget in the toolbox for proper drag/drop (can only drag id=widget SVG element) & put dial face in background
+            document.getElementById("TBNeedle").style.setProperty("display", "none");
+            document.getElementById("TBNumVal").style.setProperty("display", "none");
+            _widgetID.style.setProperty("z-index", "1");
+            return true;
+        }
+
+        function startDesign() {            // called when switching to design mode
+        }
+
+        function endDesign() {            // called when switching to design mode
+        }
+
+        function startEdit() {              // called when editing started
+        }
+
+        function endEdit(param0) {                                  // called when editing finishes
+            if (_attribs[1].value !== "") avgID.style.setProperty("display", "inline")
+            else avgID.style.setProperty("display", "none")                             // Only display average marker if channel is set
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+            numID.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
+            svgText.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
+            svgNeedle.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
+        }
+
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            var numeric = parseFloat(data);
+            if (isNaN(numeric)) return;
+            if (channel === _attribs[0].value.split("/")[2]) return rotateDial(numeric);
+            if (channel === _attribs[1].value.split("/")[2]) return setAvg(numeric);
+        }
+
+        // Called from framework for initial channel status
+        function ini(channel, scope, data) {
+            return feed(channel, scope, data);
+        }
+
+        // Set the average indicator
+        function setAvg(avgVal) {
+            document.getElementById("avgtool").textContent = "Average: " + avgVal;
+            if (avgVal > range * 1.05) avgVal = range * 1.05;                       // allow a little overrun
+            if (avgVal < range * -0.05) avgVal = range * -0.05;                     // allow a little underrun
+            var angle = parseInt(avgVal * 227 / range - 114);
+            avgID.setAttribute('transform', 'rotate(' + angle.toString() + ' 50 50)');
+        }
+
+        // Rotate dial between old and new
+        function rotateDial(newVal) {
+            var textVal = newVal;
+            var newVal = Math.abs(newVal);
+            if (newVal > range * 1.05) newVal = range * 1.05;                       // allow a little overrun
+            if (newVal < range * -0.05) newVal = range * -0.05;                     // allow a little underrun
+            if (range > 10) {                                                       // format displayed range
+                numID.textContent = Math.round(textVal);
+            } else {
+                numID.textContent = Math.round(textVal * 10) / 10;
+            }
+            numID.setAttribute("x", (document.getElementById("widget").clientWidth / 2 - numID.getBBox().width / 2));       // Adjust number to be center
+            needleID.style.setProperty('transition', 'transform ' + Math.abs(newVal - oldVal) * 2 / range + 's cubic-bezier(0.680, -0.550, 0.265, 1.550)');
+            needleID.style.setProperty('transform', 'rotate(' + newVal * 223 / range + 'deg)');
+            oldVal = newVal;
+        }
+    </script>
+</body>
+</html>

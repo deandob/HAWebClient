@@ -1,0 +1,556 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <!--<meta http-equiv="Content-Type" content="text/html; charset=utf-8; Cache-Control: max-age=31536000000; pragma: no-cache; max-age=0" />-->   
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Home Automation Client</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
+    <meta name="description" content="">
+    <meta id="version" content="0.91">
+    <meta name="viewport" content="width=device-width">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="navFrame" class="navframe" draggable="false" oncontextmenu="return false;">
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header" style="height: 50px">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navCollapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <img class="navbar-brand" src="images\houseicon.png" alt="">
+                <span class="navbar-brand" id="headerTitle"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </div>
+            <div class="collapse navbar-collapse" id="navCollapse">
+                <ul class="nav navbar-nav">
+                    <li class="divider-vertical"></li>
+                    <li id="dashButton" class="active" style="display: none"><a onclick="dashboardFrame()" class="tip" data-original-title="View and control home automation" data-placement="bottom"><i class="icon-home icon-large"></i> Dashboard</a></li>
+                    <li class="divider-vertical"></li>
+                    <li id="settingsButton" class="pointer" style="display: none"><a onclick="settingsFrame()" class="tip" data-original-title="Setup events, triggers and system settings" data-placement="bottom"><i class="icon-cog icon-large"></i> Settings</a></li>
+                    <li class="divider-vertical"></li>
+                    <li id="designButton" class="pointer" style="display:none"><a onclick="design()" class="tip" data-original-title="Manage home automation widgets" data-placement="bottom"><i class="icon-pencil icon-large"></i> Design</a></li>
+                    <li id="toolboxDropdown" class="dropdown pointer" style="display:none">
+                        <a class="dropdown-toggle tip" data-toggle="dropdown" data-original-title="Select toolbox from dropdown" data-placement="right"><i class="icon-edit icon-large"></i> Toolbox <b class="caret"></b></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a onclick="iFrame.contentWindow.toggleToolbox('widgetToolbox', 'open')"><i class="icon-cog-2 icon-large"></i> Widgets</a></li>
+                            <li><a onclick="iFrame.contentWindow.toggleToolbox('iconToolbox', 'open')"><i class="icon-library icon-large"></i> Icons</a></li>
+                            <li><a onclick="iFrame.contentWindow.toggleToolbox('channelToolbox', 'open')"><i class="icon-tv icon-large"></i> Channels</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                <div id="selDevice" class="input-group tip" style="display: none" data-original-title="select device type for screens" data-placement="bottom">
+                    <form class="navbar-form navbar-left" role="listbox">
+                        <div class="form-group">
+                            <div class="input-group-btn col-md-1">
+                                <input type="text" class="form-control" id="screenDevice" value="desktop" disabled>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                                <ul id="deviceList" class="dropdown-menu pull-left">
+                                    <li class="pointer"><a onclick="selectDevice('desktop')">desktop</a></li>
+                                    <li class="pointer"><a onclick="selectDevice('tablet')">tablet</a></li>
+                                    <li class="pointer"><a onclick="selectDevice('phone')">phone</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="divider-vertical"></li>
+                    <li><a id="logonButton" style="visibility: hidden" onclick="login()" class="tip icon pointer" data-original-title="Enter Username" data-placement="bottom"><i class="icon-user icon-large"></i> Login</a></li>
+                    <li id="helpButton" class="pointer"><a onclick="helpFrame()" class="tip" data-original-title="Press for more information" data-placement="bottom"><i class="icon-question-sign icon-large"></i> Help</a></li>
+                </ul>
+                <p id="displayUser" class="navbar-text pull-right"></p>
+            </div>
+        </div>
+    </div>
+
+    <iframe id="iFrame" style="border:none" width="100%" height="100%"></iframe>
+
+    <footer class="navbar navbar-fixed-bottom">
+        <div style="position: absolute; padding:8px 5px 15px 15px; height: 38px; border:1px solid #bce8f1; background-color:#d9edf7; color: #3a87ad; border-radius:4px; bottom: 10px; right: 10px; left: 10px">
+            <span id="serverStatus" class="pull-left">Starting Home Automation Client...</span>
+            <span id="connType" class="icon-cloud-download-2 icon-large pull-right"></span>
+            <span class="pull-right">&nbsp;&nbsp;</span>
+            <span id="versionTxt" class="pull-right"></span>
+        </div>
+    </footer>
+
+    <div id="myModal" class="modal fade" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 id="modalTitle" class="modal-title" style="text-align:center"></h4>
+                </div>
+                <div class="modal-body">
+                    <p id="modalText"></p><br />
+                    <form id="formInput" style="display: none">
+                        <input id="modalInput" type="email" class="form-control" placeholder="" />
+                    </form>
+                    <form id="formLogin" class="form-horizontal" role="form" style="display: none">
+                        <div class="form-group">
+                            <label class="col-lg-2 control-label">Username</label>
+                            <div class="col-lg-10">
+                                <input type="email" class="form-control" id="inpUsername" placeholder="Enter Username">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPassword1" class="col-lg-2 control-label">Password</label>
+                            <div class="col-lg-10">
+                                <input type="password" class="form-control" id="inpPassword" placeholder="Enter Password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-offset-2 col-lg-10">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox"> Remember me
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancelButton" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button id="modalButton" onclick="modalOK()" type="button" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+        "use strict";
+        var user = "";
+        var device = "desktop";                           // TODO: detect device used to load appropriate screens
+        var deviceWidth = screen.availWidth;
+        var debugURL = "";
+        var wsPort;
+        var serverName = document.domain;
+        var categories;
+        var tooltipDelay = 1500;                            // Delay before showing tooltip when hovering
+        var connection = "local";
+
+        switch (document.URL.toLowerCase().split("?")[1]) {         // command line options after URL '?'
+            case "remote":
+                serverName = "haproxy.azurewebsites.net";
+                wsPort = 80;
+                document.getElementById("connType").setAttribute("class", "tip icon-cloud-download-2 icon-large pull-right");
+                document.getElementById("connType").setAttribute("data-original-title", "remote access");
+                connection = "remote"
+                break;
+            case "debug":
+                debugURL = "?" + Math.random()          // pass any parameter in the URL line to turn on debugging (force cache reloading)
+            case "local":
+            default:
+                //serverName = "HOMESERVER"              /////////////////////////// TEMPORARY
+                serverName = "192.168.1.9"              /////////////////////////// FASTER - maybe bug in IE as name resolution takes 5+ seconds, instantaneous on chrome
+                wsPort = 1066;
+                document.getElementById("connType").setAttribute("class", "tip icon-home-4 icon-large pull-right")
+                document.getElementById("connType").setAttribute("data-original-title","local access") 
+        }
+
+        var netName = ""
+        var iFrame = document.getElementById("iFrame");
+        window.addEventListener("resize", function (event) {
+            iFrame.height = window.innerHeight
+            deviceWidth = screen.availWidth;
+        });
+
+        //TODO: Fix custom style sheet main
+        //TODO: User logon & server data
+        //TODO: Load custom bootstrap configuration with Open Sans fonts, 15pt etc.
+        //TODO: Timezone always reflects the server timezone not the client, as well as DST
+        //TODO: Add extra bootstrap column classes to stack differently on smaller devices
+        //TODO: Field for general settings web files location so that widgets can be retrieved
+        if (deviceWidth < 1200) device = "tablet";
+        if (deviceWidth < 1025) device = "phone";
+        iFrame.height = window.innerHeight - 114;               // compensate for bootstrap navbar
+
+        // Startup function after DOM is loaded and all content loaded
+        window.onload = function () {
+            document.getElementById("versionTxt").innerText = "Version: " + document.getElementById("version").content;
+            enableTooltip();
+        }
+
+        function settingsFrame() {
+            if (user != "") {
+                iFrame.removeEventListener("load", designOff);
+                iFrame.removeEventListener("load", designOn);
+                iFrame.setAttribute("src", "settings.html" + debugURL);
+                document.getElementById("dashButton").className = "pointer";
+                document.getElementById("settingsButton").className = "active";
+                document.getElementById("designButton").className = "pointer";
+                document.getElementById("toolboxDropdown").style.setProperty("display", "none")
+                document.getElementById("selDevice").style.setProperty("display", "none")
+                document.getElementById("helpButton").className = "pointer";
+                document.getElementById("displayUser").style.setProperty("display", "inline")
+                status("Settings Mode");
+            }
+        }
+
+        function dashboardFrame() {
+            if (user != "") {
+                iFrame.removeEventListener("load", designOff);
+                iFrame.removeEventListener("load", designOn);
+                if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
+                    iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
+                    iFrame.addEventListener("load", designOff);
+                } else {
+                    designOff()
+                }
+                document.getElementById("dashButton").className = "active";
+                document.getElementById("settingsButton").className = "pointer";
+                document.getElementById("designButton").className = "pointer";
+                document.getElementById("toolboxDropdown").style.setProperty("display", "none")
+                document.getElementById("selDevice").style.setProperty("display", "none")
+                document.getElementById("helpButton").className = "pointer";
+                document.getElementById("displayUser").style.setProperty("display", "inline")
+            }
+        }
+
+        function design() {
+            if (user != "") {
+                iFrame.removeEventListener("load", designOff);
+                iFrame.removeEventListener("load", designOn);
+                if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
+                    iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
+                    iFrame.addEventListener("load", designOn)
+                } else {
+                    designOn();
+                }
+                document.getElementById("designButton").className = "active";
+                document.getElementById("dashButton").className = "pointer";
+                document.getElementById("settingsButton").className = "pointer";
+                document.getElementById("toolboxDropdown").style.setProperty("display", "inline")
+                document.getElementById("selDevice").style.setProperty("display", "inline")
+                document.getElementById("helpButton").className = "pointer";
+                document.getElementById("displayUser").style.setProperty("display", "none")
+            }
+        }
+
+        function designOn() {
+            iFrame.contentWindow.toggleDesign("on");
+        }
+
+        function designOff() {
+            iFrame.contentWindow.toggleDesign("off");
+        }
+
+        function helpFrame() {
+            iFrame.removeEventListener("load", designOff);
+            iFrame.removeEventListener("load", designOn);
+            iFrame.setAttribute("src", "help.html" + debugURL)     // Force cache refresh
+            document.getElementById("dashButton").className = "pointer";
+            document.getElementById("settingsButton").className = "pointer";
+            document.getElementById("designButton").className = "pointer";
+            document.getElementById("toolboxDropdown").style.setProperty("display", "none")
+            document.getElementById("selDevice").style.setProperty("display", "none")
+            document.getElementById("helpButton").className = "active";
+            document.getElementById("displayUser").style.setProperty("display", "inline")
+            status("");
+        }
+
+        // Change screen device from device dropdown selected
+        function selectDevice(selectedDevice) {
+            document.getElementById("screenDevice").value = selectedDevice;
+            device = selectedDevice;
+            modalDialog("input", "Device Width", "Enter device width", "OK", "setDeviceWidth");
+        }
+
+        // Login
+        function login() {
+            if (netState != "starting") {
+                modalDialog("logon", "User Login", "Enter username and password to login", "Login")
+            } else {
+                alert("Unable to connect to server. Try later.");
+            }
+        }
+
+        //// Display help from the widget .hlp file
+        //function helpWidget() {
+        //    var helpType = widgets[editData.widgetNum].type
+        //    $.get("../widgets/" + helpType + ".hlp", function (data) {
+        //        modalDialog(helpType + " Widget Help", data)
+        //    })
+        //    .fail(function () { modalDialog(helpType + " Widget Help", "No help text available"); });
+        //}
+
+        // show modal dialog. Global modalFunction used to define callback routine
+        var modalFunction;
+        function modalDialog(type, title, text, button, callback, param) {
+            if (type === "logon") {
+                document.getElementById("formLogin").style.setProperty("display", "inline");
+                document.getElementById("formInput").style.setProperty("display", "none");
+            }
+            if (type === "input") {
+                document.getElementById("formInput").style.setProperty("display", "inline");
+                document.getElementById("formLogin").style.setProperty("display", "none");
+            }
+            modalFunction = { type: type, func: callback, param: param }
+            document.getElementById("modalTitle").innerHTML = title;
+            document.getElementById("modalText").innerHTML = text;
+            if (button != null) {           // only show cancel button if OK button text is specified
+                document.getElementById("cancelButton").style.setProperty("display", "inline");
+                document.getElementById("modalButton").innerHTML = button;
+            } else {
+                document.getElementById("modalButton").innerHTML = "OK";
+                document.getElementById("cancelButton").style.setProperty("display", "none");
+            }
+            $("#myModal").modal()
+        }
+
+        // callback from modal form OK button push.
+        function modalOK() {
+            $("#myModal").modal("hide");
+            var param = document.getElementById("modalInput").value;
+            if (param === "") param = modalFunction.param;
+            if (modalFunction.type == "logon") {
+                user = "local_machine"
+                var password = "xx"
+                //send("NETWORK", "LOGIN", password)        // Establish a user session
+                user = "";
+            } else {
+                if (window[modalFunction.func] === undefined) {
+                    iFrame.contentWindow.modalCallback(modalFunction.func, param);       // pass to iframe modal callback
+                } else {
+                    window[modalFunction.func](param);
+                }
+            }
+            document.getElementById("modalInput").value = "";
+        }
+
+        function setDeviceWidth(width) {
+            deviceWidth = +width;
+            iFrame.addEventListener("load", waitForWidgets);     // wait for widgets to load
+            iFrame.src = iFrame.src;            // reload
+        }
+
+        function waitForWidgets() {
+            if (!iFrame.contentWindow.allLoaded) {
+                setTimeout(waitForWidgets, 800);                // TODO: NOT ROBUST ENOUGH FOR LARGER SCREENS
+            } else {
+                designOn();
+            }
+        }
+
+        function status(message) {
+            document.getElementById("serverStatus").innerText = message
+        }
+
+        // enable bootstrap tooltips
+        function enableTooltip() {
+            $(".tip").tooltip({ delay: { show: tooltipDelay } });
+        }
+
+        /////////////////////////////////////// Network
+
+        var netState = "starting"
+        var msg;
+
+        var func = {
+            action: 0,                                          // Action or method call
+            response: 1,                                        // Data response to a method call
+            event: 2,                                           // Asynchronous event message
+            log: 3,                                             // Log Message
+            error: 4,                                           // Error Message
+            sql: 5                                              // Execute SQL message
+        }
+
+        var templMsg = {
+            client: user,               // NEED TO CONVERT TO .NET FORMAT
+            func: func.action,
+            level: 3,
+            network: 1,
+            category: "SYSTEM",
+            className: "NETWORK",
+            instance: null,
+            scope: "CONNECT",
+            data: ""
+        }
+
+        var ws;
+        (function startNet() {
+            try {
+                ws = new WebSocket("ws://" + serverName + ":" + wsPort + "/HAclient");
+            } catch (exception) {
+                alert("ERROR: Cannot start web services, either due to a network error or using an older HTML5 incompatible browser")
+            }
+            try {
+                ws.onopen = function () {
+                    netState = "connected"
+                    status("Connected to Server. Establishing session...")
+                    user = "local_machine"
+                    send("NETWORK", "CONNECT", "")          // Establish initial generic machine session
+                    setTimeout(checkSession, 12000);      // If HA Server isn't responding, restart 
+                }
+
+                ws.onmessage = function (evt) {
+                    try {
+                        var msg = JSON.parse(evt.data);
+                    } catch (e) {
+                        status("invalid message received");
+                        return;
+                    }
+                    //TODO: Check for relevant network number
+                    switch (msg.Func) {
+                        case func.response:
+                            switch (msg.Category.toUpperCase()) {
+                                case "SYSTEM":    // system
+                                    switch (msg.ClassName.toUpperCase()) {
+                                        case "MISC":
+                                            switch (msg.Scope.toUpperCase()) {
+                                                case "ALERT":                               // Server can create an alert window if needed (eg. server errors).
+                                                    alert(msg.Data)
+                                                    break;
+                                                default:
+                                            }
+                                            break;
+                                        case "HISTORY":
+                                            if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHost(msg);         // TODO: Redundant??
+                                            break;
+                                        case "SETTINGS":
+                                            switch (msg.Scope.toUpperCase()) {
+                                                case "GET:CATEGORIES()":
+                                                    categories = JSON.parse(msg.Data);
+                                                    break;
+                                                default:
+                                            }
+                                            break;
+                                        case "NETWORK":
+                                            switch (msg.Instance.toUpperCase()) {
+                                                case "SERVER":
+                                                    switch (msg.Scope.toUpperCase()) {
+                                                        case "CONNECT":             // user session connected
+                                                            var connData = JSON.parse(msg.Data)
+                                                            user = connData.ClientName
+                                                            netName = connData.ServerName;
+                                                            document.getElementById("headerTitle").innerHTML = "&nbsp;" + netName
+                                                            netState = "localsession"
+                                                            iFrame.setAttribute("src", "dashboard.html" + debugURL)
+                                                            document.getElementById("displayUser").innerHTML = "<strong>" + user + "</strong>";
+                                                            document.getElementById("dashButton").style.setProperty("display", "inline");
+                                                            document.getElementById("settingsButton").style.setProperty("display", "inline");
+                                                            document.getElementById("designButton").style.setProperty("display", "inline");
+                                                            document.getElementById("logonButton").style.setProperty("visibility", "visible");
+                                                            document.getElementById("designButton").style.setProperty("display", "inline");
+                                                            status("Ready.")
+                                                            send("SETTINGS", "GET:CATEGORIES()", "")
+                                                            break;
+                                                        case "AUTHENTICATED":             // user session connected
+                                                            user = msg.Data;
+                                                            netState = "usersession"
+                                                            iFrame.setAttribute("src", "dashboard.html" + debugURL)
+                                                            document.getElementById("displayUser").innerHTML = "Welcome <strong>" + user + "</strong>";
+                                                            document.getElementById("dashButton").style.setProperty("display", "inline");
+                                                            document.getElementById("settingsButton").style.setProperty("display", "inline");
+                                                            document.getElementById("designButton").style.setProperty("display", "inline");
+                                                            status("Ready. Logged in as " + user)
+                                                            break;
+                                                        case "DISCONNECT":
+                                                            netState = "disconnected";
+                                                            user = "";
+                                                            iFrame.setAttribute("src", "")
+                                                            document.getElementById("displayUser").innerHTML = "Please login first";
+                                                            document.getElementById("dashButton").style.setProperty("display", "none");
+                                                            document.getElementById("settingsButton").style.setProperty("display", "none");
+                                                            document.getElementById("settingsButton").style.setProperty("display", "none");
+                                                            break;
+                                                        default:
+                                                    }
+                                                    break;
+                                                default:
+                                            }
+                                            break;
+                                        default:
+                                            iFrame.contentWindow.recvHost(msg)
+                                    }
+                                    break;
+                                default:
+                            }
+                            break;
+                        case func.action:
+                            break;
+                        case func.event:
+                            if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHost(msg)                         // pass network events to widgets
+                            break;
+                        case func.error:
+                            alert("Error received from Server: " + msg.Data)
+                            break;
+                        default:
+                            alert("Do not understand Server message function: " + msg.Func)
+                            break;
+                    }
+                }
+
+                ws.onerror = function (evt) {
+                    status("Network Error was reported: " + evt.type);
+                }
+
+                ws.onclose = function (evt) {
+                    if (netState == "starting") {
+                        status("Cannot connect to the server. Please check server availability. Retrying...");
+                        startNet();     // Try again
+                    } else {
+                        status("Server connection closed");
+                        netState = "closed"
+                        startNet();
+                    }
+                }
+            } catch (exception) {
+                alert("General Network Error was reported: " + exception);
+            }
+        })();
+
+        function checkSession() {
+            if (netState === "connected") {                                 // No session established after 12 seconds
+                ws.close();                                                 // close to restart
+            }
+        }
+
+        function send(className, scope, data) {
+            try {
+                templMsg.category = "SYSTEM";                               // General system message
+                templMsg.func = func.action;                                // Raise user or system action
+                templMsg.className = className;
+                templMsg.instance = user;
+                templMsg.scope = scope;
+                templMsg.data = data;
+                ws.send(buildJSON(templMsg))
+            } catch (exception) {
+                alert("Network Send Error was reported : " + exception);
+            }
+        }
+
+        function channelSend(fullChName, scope, data) {
+            try {
+                var channelInfo = fullChName.split("/")
+                templMsg.category = channelInfo[0];                         // Channel category
+                templMsg.func = func.event;                                 // Raise plugin event
+                templMsg.className = channelInfo[1];
+                templMsg.instance = channelInfo[2];
+                templMsg.scope = scope;
+                templMsg.data = data;
+                ws.send(buildJSON(templMsg));                                // Send to Server
+            } catch (exception) { alert("Network Send Error was reported : " + exception); }
+        }
+
+        // Structure the message based on event format
+        function buildJSON(myMsg) {
+            var myJSONObject = {
+                "Client": user, "Func": myMsg.func, "Level": myMsg.level, "Network": myMsg.network, "Category": myMsg.category, "ClassName": myMsg.className, "Instance": myMsg.instance, "Scope": myMsg.scope, "Data": myMsg.data
+            };
+            return JSON.stringify(myJSONObject);
+        }
+
+    </script>
+</body>
+</html>

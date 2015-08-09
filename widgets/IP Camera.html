@@ -1,0 +1,589 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>IP Camera Widget</title>
+</head>
+<body id="body">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15px;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .axis path, .axis line { /* X and Y axis */
+            fill: none;
+            stroke: #D0D0D0;
+        }
+
+        .x.axis line, .y.axis line { /* grid lines */
+            stroke: #D0D0D0;
+            stroke-opacity: 0.4;
+        }
+
+        .x.axis text, .y.axis text {
+            stroke: #ffffff;
+            stroke-opacity: 1;
+            fill: #ffffff;
+            fill-opacity: 1;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+        }
+
+        .x.axis .minor, y.axis .minor {
+            stroke: #D0D0D0;
+            stroke-opacity: 0.3;
+        }
+
+    </style>
+
+    <span id="TBtooltip" data-default="View live and recorded camera video" />
+    <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <div id="allControls" style="position: absolute; left:0px; top:0px;">
+            <div style="position: absolute; left: 0px; bottom: 0px; height: 67px; width: 100%; background: black; opacity:0.2; z-index: 101;"></div>
+            <div onclick="dispType()" style="position: absolute; right:8px; bottom: 7px; height: 20px; width: 40px; border: 2px solid white; border-radius: 2px; z-index: 199; text-align: center">Pic</div>
+            <svg id="controls" style="position:absolute; top: 0px; z-index:102" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="skipPrev" transform="translate(110,11)" onclick="skipFile(-1)">
+                    <polygon points="18,4 18,20 6,12" style="fill:#FFFFFF;" />
+                    <rect x="5" y="5" width="3" height="14" style="fill:#ffffff" />
+                    <circle cx="12" cy="12" r="13" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="skipRew" transform="translate(148,11)" onclick="skipFast(-2)">
+                    <polygon points="11,4 11,20 1,12" style="fill:#FFFFFF;" />
+                    <polygon points="19,4 19,20 9,12" style="fill:#FFFFFF;" />
+                    <circle cx="12" cy="12" r="13" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="play" transform="translate(186,11)" onclick="playBut()">
+                    <polygon id="playIcon" points="8,4 8,20 20,12" style="fill:#FFFFFF;" opacity="0" />
+                    <rect id="pauseIcon1" x="6" y="5" width="4" height="14" style="fill:#ffffff" opacity="1" />
+                    <rect id="pauseIcon2" x="14" y="5" width="4" height="14" style="fill:#ffffff" opacity="1" />
+                    <circle cx="12" cy="12" r="13" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="skipFwd" transform="translate(224,11)" onclick="skipFast(2)">
+                    <polygon points="4,4 4,20 13,12" style="fill:#FFFFFF;" />
+                    <polygon points="12,4 12,20 22,12" style="fill:#FFFFFF;" />
+                    <circle cx="12" cy="12" r="13" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="skipNext" transform="translate(262,11)" onclick="skipFile(1)">
+                    <polygon points="4,4 4,20 16,12" style="fill:#FFFFFF;" />
+                    <rect x="16" y="5" width="3" height="14" style="fill:#ffffff" />
+                    <circle cx="12" cy="12" r="13" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="zoomin" transform="translate(75,8)" onclick="moveCamera(0.1, 0, 0)">
+                    <path d="M8,9 L8,19 M3,14 L13,14" style="stroke: #ffffff; stroke-width: 2; fill: #ffffff; " />
+                    <circle cx="8" cy="14" r="8" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="zoomout" transform="translate(75,32)" onclick="moveCamera(-0.1, 0, 0)">
+                    <path d="M3,14 L13,14" style="stroke: #ffffff; stroke-width: 2; fill: #ffffff; " />
+                    <circle cx="8" cy="14" r="8" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="zoomLeft" transform="translate(10,20)" onclick="moveCamera(0, 10, 0)">
+                    <path d="M10,9 L5,14 L10,19" style="stroke: #ffffff; stroke-width: 2; fill-opacity: 0" />
+                    <circle cx="8" cy="14" r="8" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="zoomDown" transform="translate(30,35)" onclick="moveCamera(0, 0, -10)">
+                    <path d="M3,12 L8,17 L13,12" style="stroke: #ffffff; stroke-width: 2; fill-opacity: 0" />
+                    <circle cx="8" cy="14" r="8" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="zoomUp" transform="translate(30,5)" onclick="moveCamera(0, 0, 10)">
+                    <path d="M3,16 L8,11 L13,16" style="stroke: #ffffff; stroke-width: 2; fill-opacity: 0" />
+                    <circle cx="8" cy="14" r="8" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+                <g id="zoomRight" transform="translate(50,20)" onclick="moveCamera(0, -10, 0)">
+                    <path d="M6,9 L11,14 L6,19" style="stroke: #ffffff; stroke-width: 2; fill-opacity: 0" />
+                    <circle cx="8" cy="14" r="8" style="stroke: #FFFFFF; stroke-width: 2; fill-opacity: 0" />
+                </g>
+            </svg>
+            <svg id="recordings" style="position:absolute; left:0px; z-index:102" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            </svg>
+            <div style="position: fixed; right: 8px; width: 70px; bottom: 40px; z-index: 103; color:lightgray">
+                <form>
+                    <input id="selCamera" list="cameraList" style="width: 70px; height:18px; padding: 0px; color: black; background-color: lightgray; border: 1px solid lightgray" onclick="newCamera(this.value)" />
+                    <datalist id="cameraList"></datalist>
+                </form>
+            </div>
+        </div>
+        <video id="widget" width="100" height="100" style="position: absolute; left: 0px; top: 0px" poster="..\images\videoSecurity.jpg">
+            <source id="vidSource" type="video/mp4">
+        </video>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script src="../js/d3.min.js" type="text/javascript"></script>
+    <script>
+
+        var maskID, camCanvas, maskIniX, maskIniY, imgWidth, imgHeight, cameras = [], activeCam = 0, recFiles = [], motion = [];
+        var maskMinSize = 50;
+        var masks = [];
+        var mask = function (x1, x2, y1, y2) {
+            this.x1 = x1;
+            this.x2 = x2;
+            this.y1 = y1;
+            this.y2 = y2;
+        };
+
+        function newCamera(camName) {
+            alert(camName)
+        }
+
+        function toolboxStart() {           // called when loaded in toolbox
+            document.getElementById("allControls").style.setProperty("display", "none")
+        }
+
+        function startEdit() {              // called when editing started
+        }
+
+        function endEdit(param0) {                // called when editing finishes
+        }
+
+        function startDesign() {            // called when switching to design mode
+            zoom.x()            // disable zoom
+            _widgetID.pause()
+            drawAllMasks()
+        }
+
+        function endDesign() {
+            var svgs = document.getElementsByClassName("masks")
+            for (var svg = svgs.length - 1; svg >= 0; svg--) svgs[svg].parentNode.removeChild(svgs[svg]);       // remove SVG masks from the bottom of the DOM
+            _widgetID.play()
+            zoom.x(x)           // enable zoom
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+            _widgetID.setAttribute("width", _iniWidth * scaleX);              // scale the video object
+            _widgetID.setAttribute("height", _iniHeight * scaleY);
+            imgWidth = _iniWidth * scaleX
+            imgHeight = _iniHeight * scaleY
+
+            if (_editing) drawAllMasks()
+
+            width = _iniWidth * scaleX - margin.left - margin.right;
+            recordings.width = width
+            recordings.style.setProperty("top", imgHeight - 42 + "px");       // internet explorer does not do svg style percentages!
+            controls.style.setProperty("top", imgHeight - 70 + "px");       // internet explorer does not do svg style percentages!
+
+            clipPath
+                .attr("width", width)
+
+            var DAY_HISTORY = 5             // how many days back to use
+            //alert(new Date(new Date().valueOf() - DAY_HISTORY * 24 * 3600 * 1000))
+
+            x
+                .domain([new Date(new Date().valueOf() - DAY_HISTORY * 24 * 3600 * 1000), new Date(new Date().valueOf() + 24 * 3600 * 1000)])       // accept new vals domain for the next 24 hours
+                .nice(d3.time.hour)
+                .range([0, width]);
+
+            xAxis
+                .scale(x)
+                .orient("bottom")
+                //.tickFormat(d3.time.format("%H:%M.%S"))  
+                //.ticks(d3.time.seconds, 10)              
+                .tickSize(-10);
+
+            bground
+               .attr("width", width)
+
+            if (_toolbox == false) {
+                chart.call(zoom.x((x)));      // enable x axis zoom
+                chart.call(drag);           // enable drag events
+            }
+
+            chart.selectAll("circle.currtime").attr("cx", function (d) { return x(d); })
+            chart.selectAll(".x.axis").attr("transform", "translate(" + margin.left + "," + (height - 18) + ")").call(xAxis)
+
+        }
+
+        function clicked(event) {           // click in dashboard mode
+        }
+
+        function endSession() {
+            vidSource.src = "http://dummy:1000/dummy"           // Break the session to kill the server session
+            _widgetID.load()
+        }
+
+        // Setup and manage masks. Click and drag to create a new mask, click inside an existing mask to delete it
+        function designClicked(event) {                // User rightclicks widget in design mode to set frame
+            if (editing) {
+                for (var msk in masks) {       // If clicked within an existing mask, delete that mask
+                    if (event.clientX > (masks[msk].x1 * imgWidth) && event.clientX < (masks[msk].x2 * imgWidth) && event.clientY > (masks[msk].y1 * imgHeight) && event.clientY < (masks[msk].y2 * imgHeight)) {
+                        document.getElementById("mask" + msk).parentNode.removeChild(document.getElementById("mask" + msk));      // Remove SVG & adjust SVG mask IDs and mask array
+                        masks.splice(msk, 1)       // remove from masks array
+                        for (var maskLeft = parseInt(msk) + 1; maskLeft <= masks.length; maskLeft++) document.getElementById("mask" + maskLeft).setAttribute("id", "mask" + (maskLeft - 1))
+                        channelSend(channelName, "mask", JSON.stringify(masks))
+                        return;
+                    }
+                }
+                drawMask(masks.length, event.clientX / imgWidth, (event.clientX + 2) / imgWidth, event.clientY / imgHeight, (event.clientY + 2) / imgHeight)
+                maskID = document.getElementById("mask" + masks.length)
+                maskIniX = event.clientX
+                maskIniY = event.clientY
+                camCanvas.setAttribute("style", "cursor: se-resize")
+                camCanvas.addEventListener("mouseup", maskUp, false);
+                camCanvas.addEventListener("mousemove", maskMove, false);
+            }
+        }
+
+        function maskUp() {
+            camCanvas.setAttribute("style", "cursor: normal")
+            camCanvas.removeEventListener("mouseup", maskUp, false);
+            camCanvas.removeEventListener("mousemove", maskMove, false);
+            if (maskID.getAttribute("width") > maskMinSize && maskID.getAttribute("height") > maskMinSize) {    // Add mask if it is big enough
+                var x = parseInt(maskID.getAttribute("x")) / imgWidth
+                var y = parseInt(maskID.getAttribute("y")) / imgHeight
+                masks.push(new mask(x, x + parseInt(maskID.getAttribute("width")) / imgWidth, y, y + parseInt(maskID.getAttribute("height")) / imgHeight))
+                channelSend(channelName, "mask", JSON.stringify(masks))
+            } else {
+                maskID.parentNode.removeChild(maskID);                       // Reject masks that are too small
+            }
+        }
+
+        function maskMove(event) {
+            maskID.setAttribute("width", event.clientX - maskIniX)
+            maskID.setAttribute("height", event.clientY - maskIniY)
+        }
+
+        function drawAllMasks() {                   // Remove all masks before redrawing
+            // TODO: The message cache on the VB server isn't getting updated when mask changes, so when reloading the client the old mask is sent.
+            var svgMasks = document.getElementsByClassName("mask")
+            for (var eachMask = 0; eachMask < svgMasks.length; eachMask++) svgMasks[eachMask].parentNode.removeChild(svgMasks[eachMask])
+            for (var eachMask in masks) drawMask(eachMask, masks[eachMask].x1, masks[eachMask].x2, masks[eachMask].y1, masks[eachMask].y2)
+        }
+
+        function drawMask(maskNum, x1, x2, y1, y2) {
+            var maskOutline = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            maskOutline.setAttribute("id", "mask" + maskNum);
+            maskOutline.setAttribute("class", "mask");
+            maskOutline.setAttribute("x", x1 * imgWidth);                           // x1, x2... are absolute values proportional to image size
+            maskOutline.setAttribute("width", x2 * imgWidth - x1 * imgWidth);
+            maskOutline.setAttribute("y", y1 * imgHeight);
+            maskOutline.setAttribute("height", y2 * imgHeight - y1 * imgHeight);
+            maskOutline.setAttribute("style", "fill:none; stroke: red; stroke-width:2");
+            var maskSVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            maskSVG.setAttribute("style", "position: absolute; left:0px; right:0px")       // ensure SVG elements stay on top
+            maskSVG.appendChild(maskOutline);
+            document.getElementById("group").appendChild(maskSVG)
+        }
+
+        var margin = { top: 0, bottom: 2, left: 110, right: 70}
+        var xAxis, yAxis, x, y, width, height, clipPath, bground, zoom, drag
+        var chart = d3.select("#recordings")
+        var currTime = [];
+
+        recordings = document.getElementById("recordings")
+        controls = document.getElementById("controls")
+
+        height = 45 - margin.top - margin.bottom;           // fixed height
+        chart.style("height", height);
+
+        bground = chart.append("rect")                  // used for grabbing & zooming
+            .attr("fill", "black")
+            .attr("opacity", 0)
+            .attr("x", margin.left)
+            .attr("height", height)
+
+        // ensure the chart that is outside the axis does not get drawn
+        clipPath = chart.append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("x", 0)
+            .attr("height", height)
+
+        // setup Axis
+        x = d3.time.scale()
+        xAxis = d3.svg.axis()
+        chart.append("g")
+            .attr("class", "x axis")
+
+        // Zoom and drag events
+        zoom = d3.behavior.zoom()
+            .on("zoom", zoomed)
+        drag = d3.behavior.drag()
+            .on("dragstart", start_drag)
+            .on("dragend", stop_drag)
+     
+        // track current time on timeline
+        currTime.push(new Date())                           
+        chart.selectAll("circle.currtime")
+            .data(currTime)
+            .enter()
+            .append("circle")
+            .attr("clip-path", "url(#clip)")
+            .attr("class", "currtime")
+            .attr("id", "currtime")
+            .attr("cx", function (d) { return x(d); })
+            .attr("cy", "19")
+            .attr("r", "5")
+            .attr("fill", "orange")
+            .attr("stroke-width", "1")
+            .attr("stroke-opacity", "0")
+            .attr("transform", "translate(" + margin.left + ",0)")
+            .on("mousedown", selLive);
+
+        // Move the current time marker along axis
+        setInterval(function () {
+            currTime[0] = new Date()
+            chart.selectAll("circle.currtime")
+                    .data(currTime)
+                    .attr("clip-path", "url(#clip)")
+                    .attr("cx", function (d) { return x(d) })
+            }, 1000)
+
+        //// Widget specific functions
+        var controls, recordings, camNum, camChannels, vidSource, channelName, cameraName, liveStreamPort, recStreamPort;
+        function widgetStart(mode) {            // widget specific startup
+            vidSource = document.getElementById("vidSource")
+            //TODO: Read stream server name from Server in case camera server is a separate server
+            serverName = fwFunc("serverName")
+            camCanvas = document.getElementById("group")
+            //TODO: Get these from the server instead
+            liveStreamPort = 8088
+            recStreamPort = 3000
+
+            _widgetID.autoplay = true;
+            _widgetID.oncanplay = function () {_widgetID.play() }
+            _widgetID.onended = function () {
+                if (selSegment !== null && selSegment !== undefined) {
+                    selSegment.setAttribute("fill", "red")
+                    selSegment.setAttribute("height", "8")
+                }
+            }
+
+            // BUG: Sometimes the wrong attribute will be loaded (eg. text widget attribs). Data-widgetname not getting set correctly. Maybe closure issue in fw when changing screens??
+            // - When the camera widget is on a different screen, then reload, it reloads the widgets from the second screen not from the default first. Somethign not right with ini code
+            channelName = _attribs[0].value
+            cameraName = channelName.split("/")[2]
+
+            camChannels = fwFunc("getChannels", "SECURITY", "IP Cameras")
+            var docFrag = document.createDocumentFragment();
+            if (camChannels === "") {
+                alert("ERROR - No camera channel")
+            } else {
+                for (myCam in camChannels) {                            // Add the available cameras to the camera selection list
+                    var optionItem = document.createElement("option")
+                    if (camChannels[myCam].Name === cameraName) camNum = myCam
+                    optionItem.value = camChannels[myCam].Name;
+                    docFrag.appendChild(optionItem)
+                }
+                document.getElementById("cameraList").appendChild(docFrag)
+
+                if (camNum !== undefined) {
+                    document.getElementById("selCamera").value = cameraName
+                    masks = JSON.parse(camChannels[camNum].Attribs[3].Value)
+                    selLive()
+                    channelSend("SECURITY/IP Cameras/" + cameraName, "recfiles", "");
+                } else {
+                    if (!_designing) alert("No default camera or camera server not running")
+                }
+            }
+            return true
+        }
+
+        // Toggle the play button between play icon and pause icon
+        var playState = "play"
+        function playBut() {
+            if (playState === "play") {
+                playState = "pause";
+                document.getElementById("pauseIcon1").style.setProperty("opacity", "0");
+                document.getElementById("pauseIcon2").style.setProperty("opacity", "0");
+                document.getElementById("playIcon").style.setProperty("opacity", "1");
+                _widgetID.pause()
+            } else {
+                playState = "play";
+                document.getElementById("pauseIcon1").style.setProperty("opacity", "1");
+                document.getElementById("pauseIcon2").style.setProperty("opacity", "1");
+                document.getElementById("playIcon").style.setProperty("opacity", "0");
+                _widgetID.play()
+            }
+        }
+
+        // skip fwd or rev a couple of seconds
+        function skipFast(direction) {
+            try {
+                _widgetID.currentTime = _widgetID.currentTime + direction
+            } catch (err) { }
+        }
+
+        // skip to the prev or next recorded file
+        function skipFile(direction) {
+            if (selFile.file !== undefined) {
+                if (selSegment !== null) {
+                    selSegment.setAttribute("fill", "red")
+                    selSegment.setAttribute("height", "8")
+                    if (direction === 1) selSegment = selSegment.nextSibling;
+                    if (direction === -1) selSegment = selSegment.previousSibling;
+                    if (selSegment !== null) {
+                        selSegment.setAttribute("fill", "orange")
+                        selSegment.setAttribute("height", "15")
+                        selFile = motion[selFile.index + direction]
+                        dispVid(recStreamPort, "/" + motion[selFile.index].file)
+                    }
+                }
+            }
+        }
+
+        //zoom and pan the picture
+        var vidScale = 1, translateX = 0, translateY = 0;
+        function moveCamera(scaleCam, amountX, amountY) {
+            vidScale = vidScale + scaleCam
+            if (vidScale < 1) vidScale = 1;
+            translateX = translateX + amountX
+            translateY = translateY + amountY
+            if (imgWidth * (vidScale - 1) / 2 <= Math.abs(translateX * imgWidth / 100)) translateX = translateX >= 0 ? 50 * (vidScale - 1) : -50 * (vidScale - 1)  // don't pan over the image borders and adjust for scaling
+            if (imgHeight * (vidScale - 1) / 2 <= Math.abs(translateY * imgHeight / 100)) translateY = translateY >= 0 ? 50 * (vidScale - 1) : -50 * (vidScale - 1)
+            //widgetID.style.setProperty("transform", "translate(" + translateX + "%," + translateY + "%) scale(" + vidScale + ")")
+            _widgetID.style.setProperty("transform", "translate(" + translateX + "%," + translateY + "%)")
+            _widgetID.height = imgHeight * vidScale
+            _widgetID.width = imgWidth * vidScale
+        }
+
+        // Zoom event
+        function zoomed() {
+            if (_designing == false) {
+                chart.select(".x.axis").call(xAxis);
+                chart.selectAll("rect.points")
+                    .attr("clip-path", "url(#clip)")
+                    .attr("x", function (d) { return x(d.date) })
+                chart.selectAll("circle.currtime")
+                    .attr("clip-path", "url(#clip)")
+                    .attr("cx", function (d) { return x(d) })
+            }
+        }
+
+        // Drag events
+        function start_drag() {
+            chart.style("cursor", "e-resize")
+        }
+        function stop_drag() {
+            chart.style("cursor", "default")
+        }
+
+        // Select MP4 or JPG to display
+        function dispType(type) {
+        }
+
+        // Stream the live video for selected camera
+        function selLive() {
+            if (selSegment !== null && selSegment !== undefined) {
+                selSegment.setAttribute("fill", "red")
+                selSegment.setAttribute("height", "8")
+                selSegment.setAttribute("y", "16")
+            }
+            document.getElementById("currtime").setAttribute("fill", "orange")
+            dispVid(liveStreamPort, "")
+        }
+
+        // Stream the selected recorded file
+        var selSegment, selFile
+        function selTime(selected) {
+            if (selSegment !== null && selSegment !== undefined) {
+                selSegment.setAttribute("fill", "red")
+                selSegment.setAttribute("height", "8")
+                selSegment.setAttribute("y", "16")
+            }
+            selSegment = d3.event.currentTarget
+            selSegment.setAttribute("fill", "orange")
+            selSegment.setAttribute("height", "15")
+            selSegment.setAttribute("y", "7")
+            document.getElementById("currtime").setAttribute("fill", "yellow")
+            selFile = selected
+            dispVid(recStreamPort, "/" + selected.file)
+        }
+
+            // Setup stream to play
+            function dispVid(port, selFile) {
+                _widgetID.pause();
+                vidSource.src = "http://" + serverName + ":" + port + "/" + cameraName + selFile;                            // stream URL
+                _widgetID.load();                // BUG HERE: Does not adjust the source.
+            }
+
+            ////TODO: When the camera selection changes, get the file list
+
+            // Called from framework for incoming channel events
+            function feed(channel, scope, data) {
+                switch (scope) {
+                    case "recfiles":
+                        recFiles = JSON.parse(data);
+                        for (var file in recFiles) {
+                            if (recFiles[file].substr(-3, 3) === "mp4") {
+                                var itemDate = {
+                                    date: new Date(recFiles[file].substr(0, 4), parseInt(recFiles[file].substr(4, 2)) - 1, recFiles[file].substr(6, 2), recFiles[file].substr(9, 2), recFiles[file].substr(11, 2), recFiles[file].substr(13, 2)),
+                                    file: recFiles[file],
+                                    type: "rec",
+                                    index: motion.length
+                                }
+                                motion.push(itemDate)                       // save the recorded motion files to array
+                            }
+                        }
+                        chart.selectAll("rect")
+                            .data(motion)
+                            .enter().append("rect")
+                            .attr("clip-path", "url(#clip)")
+                            .attr("class", "points")
+                            .attr("x", function (d) { return x(d.date); })
+                            .attr("y", "16")
+                            .attr("height", "8")
+                            .attr("width", "4")
+                            .attr("fill", "red")
+                            .attr("stroke-width", "1")
+                            .attr("stroke-opacity", "0")
+                            .attr("transform", "translate(" + margin.left + ",0)")
+                            .on("mousedown", selTime);
+                        break;
+                    default:
+                }
+            }
+
+            // Called from framework for initial channel status
+            function ini(channel, scope, data) {
+                switch (scope) {
+                    case "":
+                        break;
+                    default:
+                }
+            }
+            //function playbackFailed(e) {
+            //    // video playback failed - show a message saying why
+            //    //switch (e.target.error.code) {
+            //    if (widgetID.error !== null) {
+            //        switch (widgetID.error.code) {
+            //            case widgetID.error.MEDIA_ERR_ABORTED:
+            //                alert('You aborted the video playback.');
+            //                break;
+            //            case widgetID.error.MEDIA_ERR_NETWORK:
+            //                alert('A network error caused the video download to fail part-way.');
+            //                break;
+            //            case widgetID.error.MEDIA_ERR_DECODE:
+            //                alert('The video playback was aborted due to a corruption problem or because the video used features your browser did not support.');
+            //                break;
+            //            case widgetID.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            //                alert('The video could not be loaded, either because the server or network failed or because the format is not supported.');
+            //                break;
+            //            default:
+            //                alert('An unknown error occurred.');
+            //                break;
+            //        }
+            //    } else { alert('null'); }
+
+            //}
+    </script>
+</body>
+</html>

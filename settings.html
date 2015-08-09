@@ -1,0 +1,2534 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Home Automation Client</title>
+    <meta name="description" content="">
+    <meta id="version" content="0.75">
+    <meta name="viewport" content="width=device-width">
+    <meta name="author" content="">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="css/codemirror.css">
+    <link rel="stylesheet" href="css/icons.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body id="mainbody" draggable="false" style="overflow-x: hidden">
+    <div class="sidebar">
+        <div class="tabs-left">
+            <h4>&nbsp;&nbsp;&nbsp;Settings</h4>
+            <br />
+            <ul id="sidebarList" class="nav nav-tabs">
+                <li id="tabConsole" class="active"><a class="pointer" data-target="#console" data-toggle="tab" onclick="consoleScreen()"><i class="icon-table icon-large"></i> <span>Console</span></a></li>
+                <li id="tabGeneral"><a class="pointer" data-target="#general" data-toggle="tab" onclick="generalScreen()"><i class="icon-settings icon-large"></i> <span>General</span></a></li>
+                <li id="tabEvents"><a class="pointer" data-target="#events" data-toggle="tab" onclick="eventsScreen()"><i class="icon-diary icon-large"></i> <span>Events</span></a></li>
+                <li id="tabTriggers"><a class="pointer" data-target="#triggers" data-toggle="tab" onclick="triggersScreen()" id="tab-triggers"><i class="icon-lightning icon-large"></i> <span>Triggers</span></a></li>
+                <li id="tabActions"><a class="pointer" data-target="#actions" data-toggle="tab" onclick="actionsScreen()" id="tab-actions"><i class="icon-hammer icon-large"></i> <span>Actions</span></a></li>
+                <li id="tabTransforms"><a class="pointer" data-target="#transforms" data-toggle="tab" onclick="transformsScreen()" id="tab-transforms"><i class="icon-wand icon-large"></i> <span>Transforms</span></a></li>
+                <li id="tabStore"><a class="pointer" data-target="#store" data-toggle="tab" onclick="storeScreen()" id="tab-store"><i class="icon-cart icon-large"></i> <span>Store</span></a></li>
+                <li id="tabPlugins"><a class="pointer" data-target="#plugins" data-toggle="tab" onclick="pluginsScreen()" id="tab-plugins"><i class="icon-power-cord icon-large"></i> <span>Plugins</span></a></li>
+                <li id="tabPrograms"><a class="pointer" data-target="#programs" data-toggle="tab" onclick="programsScreen()" id="tab-programs"><i class="icon-file-css icon-large"></i> <span>Programs</span></a></li>
+                <li id="tabSecurity"><a class="pointer" data-target="#security" data-toggle="tab" onclick="securityScreen()" id="tab-security"><i class="icon-lock-fill icon-large"></i> <span>Security</span></a></li>
+            </ul>
+            <div id="editOptions" style="display: none; position: absolute; bottom: 2px; left: 15px;">
+                <p class="nav-header">Editing Options</p>
+                <a class="tip icon nounderline pointer" data-original-title="Add" data-placement="top" onclick="addRec()"><i class="icon-new-tab icon-large">&nbsp;</i></a>
+                <a class="tip icon nounderline pointer" data-original-title="Delete" data-placement="top" onclick="delRec()"><i class="icon-remove-2 icon-large">&nbsp;</i></a>
+                <a class="tip icon nounderline pointer" data-original-title="Save" data-placement="top" onclick="updRec()"><i class="icon-save icon-large">&nbsp;</i></a>
+                <a class="tip icon nounderline pointer" data-original-title="Clear" data-placement="top" onclick="clearRec()"><i class="icon-check-empty icon-large">&nbsp;</i></a>
+            </div>
+        </div>
+    </div>
+
+    <div id="selectToolbox" class="toolbox">
+        <h4 onclick="toggleTB('selectToolbox', 'close')">Select<button type="button" class="close">&times;&nbsp;&nbsp;</button></h4>
+        <form class="form-inline" role="form" onsubmit="filterChannels(); return false;">
+            <div class="form-group">
+                <div class="col-md-11 input-group toolboxControls">
+                    <input type="text" id="selectSearchTxt" class="form-control" placeholder="search">
+                    <button type="submit" class="input-group-addon pointer"><i class="icon-search"></i></button>
+                </div>
+            </div>
+        </form><br />
+        <div class="col-lg-9 input-group toolboxControls">
+            <button type="button" id="noSelect" onclick="selTBItem(event)" onfocus="blur()" class="btn btn-default btn-block">None</button>
+        </div>
+        <div id="selectToolboxScroll" class="toolboxScroll" onclick="selTBItem(event)" style="top: 150px"></div>
+    </div>
+
+    <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
+        <!-- Console --------------------------------------------------------------->
+        <div class="tab-pane fade in active" id="console">
+            <h4>Console Logs</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Monitor the system<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Log Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="scriptNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Log Description</p>
+                <input type="text" class="form-control" id="LogDesc" name="textInput" placeholder="" disabled>
+            </div>
+            <br /><br /><br /><br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Console</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="logs" rows="20" style="width: 100%"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- General --------------------------------------------------------------->
+        <div class="tab-pane fade" id="general">
+            <h4>General Settings</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Adjust general system settings<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="scriptNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                    </div>
+                </div>
+            </div>
+            <br /><br /><br /><br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">General</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p>Web Site Location</p>
+                                    <input id="webLocation" name="textInput" type="text" class="form-control" placeholder="xxxxx">
+                                </div>
+                                <div class="col-md-6">
+                                    <p>Title</p>
+                                    <input id="NavTitle" name="textInput" type="text" class="form-control" placeholder="My Home">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-5">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Widget Designer</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p>Grid Size</p>
+                                    <input id="genGridSize" name="textInput" type="text" class="form-control" value="5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events --------------------------------------------------------------->
+        <div class="tab-pane fade" id="events">
+            <h4>Manage Events</h4><br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Events connect triggers with actions that allows control based on stimulus<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="eventName" name="textInput" placeholder="New or Select Event">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="eventNameList" class="dropdown-menu pull-right">
+                            <li><a class="pointer"><i>No saved events</i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Description</p>
+                <input type="text" class="form-control" id="eventDesc" name="textInput" placeholder="Enter new Event description">
+            </div>
+            <div class="col-md-1">
+                <p>Times Run</p>
+                <input type="text" class="form-control" id="eventTimesRun" name="textInput" placeholder="0" disabled>
+            </div>
+            <div class="col-md-3">
+                <p>Last Fired</p>
+                <input type="text" class="form-control" id="eventLastFired" name="textInput" placeholder="Never" disabled>
+            </div>
+
+            <br /><br /><br /><br />
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Event Settings</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="checkbox">
+                                        <label><input id="eventChkEnabled" name="chkInputInv" type="checkbox" checked="checked"> Enabled</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input id="eventChkOneOff" type="checkbox"> One Off</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>Date/Time From</p>
+                                    <div class="input-group date" id="dtpEventFrom">
+                                        <input id="eventFromDate" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
+                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>Date/Time To</p>
+                                    <div class="input-group date" id="dtpEventTo">
+                                        <input id="eventToDate" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
+                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Event Triggers</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <select id="eventTrigSel" multiple size="8" class="form-control" name="multiSel"></select>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="col-md-6">
+                                <button id="eventTrigAdd" type="button" onclick="addEventItem('TRIGGERS')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button id="eventTrigDel" type="button" onclick="delEventItem('eventTrigSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Event Actions</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <select id="eventActionSel" multiple size="8" class="form-control" name="multiSel"></select>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="col-md-6">
+                                <button id="eventActionAdd" type="button" onclick="addEventItem('ACTIONS')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button id="eventActionDel" type="button" onclick="delEventItem('eventActionSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Triggers --------------------------------------------------------------->
+        <div class="tab-pane fade" id="triggers">
+            <h4>Manage Triggers</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Triggers monitor the system based on current state, change of state and time parameters<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="trigName" name="textInput" placeholder="New or Select Trigger">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="trigNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Description</p>
+                <input type="text" class="form-control" id="trigDesc" name="textInput" placeholder="Enter Trigger description">
+            </div>
+            <div class="col-md-3">
+                <p>Last Fired</p>
+                <input type="text" class="form-control" id="trigLastFired" name="textInput" placeholder="Never" disabled>
+            </div>
+            <br /><br /><br /><br />
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel-group">
+                        <div class="panel panel-info">
+                            <div class="panel-heading"><span class="panel-title">Trigger on Channel Change</span><a id="trigChgPanelIcon" onclick="togglePanel('trigChgColl1','trigChgColl2','trigChgPanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
+                            <div class="trigChgColl1 panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <a class="pointer" onclick="toggleTB('selectToolbox', 'open', 'trigChg');">Channel</a>:
+                                            <span id="trigChgVal">None</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="trigChgColl2 panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p>Type (Category)</p>
+                                            <div class="btn-group btn-group-justified">
+                                                <button id="trigChgCategory" name="allInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    All&nbsp;&nbsp;<span class="caret" />
+                                                </button>
+                                                <ul id="trigChgCategoryList" class="dropdown-menu" role="menu"></ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p>Name (Instance)</p>
+                                            <input type="text" class="form-control" id="trigChgInstance" name="textInput" placeholder="All">
+                                        </div>
+                                    </div><br />
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p>Plugin (Class)</p>
+                                            <input type="text" class="form-control" id="trigChgClass" name="textInput" placeholder="All">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p>Scope</p>
+                                            <input type="text" class="form-control" id="trigChgScope" name="textInput" placeholder="All">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <p>Value</p>
+                                        <div class="btn-group btn-group-justified">
+                                            <button type="button" id="trigChgCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                equals&nbsp;&nbsp;<span class="caret" />
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a class="pointer" onclick="pressBut('trigChgCond','equals')">equals</a></li>
+                                                <li><a class="pointer" onclick="pressBut('trigChgCond', 'greater')">greater</a></li>
+                                                <li><a class="pointer" onclick="pressBut('trigChgCond', 'less')">less</a></li>
+                                                <li><a class="pointer" onclick="pressBut('trigChgCond', 'not')">not</a></li>
+                                                <li><a class="pointer" onclick="pressBut('trigChgCond', 'contains')">contains</a></li>
+                                                <li><a class="pointer" onclick="pressBut('trigChgCond', 'change')">change</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <p>&nbsp;</p>
+                                        <input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="panel-group">
+                            <div class="panel panel-info">
+                                <div class="panel-heading"><span class="panel-title">Optionally if Channel State is</span><a id="trigStatePanelIcon" onclick="togglePanel('trigStateColl1', 'trigStateColl2', 'trigStatePanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
+                                <div class="trigStateColl1 panel-collapse collapse in">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <a class="pointer" onclick="toggleTB('selectToolbox', 'open', 'trigState');">Channel</a>:
+                                                <span id="trigStateVal">None</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="trigStateColl2 panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p>Type (Category)</p>
+                                                <div class="btn-group btn-group-justified">
+                                                    <button id="trigStateCategory" name="allInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                        All&nbsp;&nbsp;<span class="caret" />
+                                                    </button>
+                                                    <ul id="trigStateCategoryList" class="dropdown-menu" role="menu"></ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p>Name (Instance)</p>
+                                                <input type="text" class="form-control" id="trigStateInstance" name="textInput" placeholder="All">
+                                            </div>
+                                        </div><br />
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p>Plugin (Class)</p>
+                                                <input type="text" class="form-control" id="trigStateClass" name="textInput" placeholder="All">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p>Scope</p>
+                                                <input type="text" class="form-control" id="trigStateScope" name="textInput" placeholder="All">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-5">
+                                            <p>Value</p>
+                                            <div class="btn-group btn-group-justified">
+                                                <button type="button" id="trigStateCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    equals&nbsp;&nbsp;<span class="caret" />
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li><a class="pointer" onclick="pressBut('trigStateCond','equals')">equals</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('trigStateCond', 'greater')">greater</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('trigStateCond', 'less')">less</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('trigStateCond', 'not')">not</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('trigStateCond', 'contains')">contains</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('trigStateCond', 'change')">change</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-7">
+                                            <p>&nbsp;</p>
+                                            <input type="text" class="form-control" id="trigStateData" name="textInput" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="panel-group">
+                            <div class="panel panel-info">
+                                <div class="panel-heading"><span class="panel-title">Optional Script</span><a id="trigScriptPanelIcon" onclick="togglePanel('trigScriptColl1','trigScriptColl2','trigScriptPanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-10">
+                                            <p>Name</p>
+                                            <div class="btn-group btn-group-justified">
+                                                <button id="trigScriptName" name="noneInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    None&nbsp;&nbsp;<span class="caret" />
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu"></ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="trigScriptColl2 panel-collapse collapse">
+                                    <div class="panel-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p>Parameter</p>
+                                                <input type="text" class="form-control" id="trigScriptParam" name="textInput" placeholder="">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p>&nbsp;</p>
+                                                <div class="btn-group btn-group-justified">
+                                                    <button type="button" id="trigScriptCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                        equals&nbsp;&nbsp;<span class="caret" />
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'equals')">equals</a></li>
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'greater')">greater</a></li>
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'less')">less</a></li>
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'not')">not</a></li>
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'contains')">contains</a></li>
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'change')">change</a></li>
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'live')">live</a></li>
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'dead')">dead</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div><br />
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <p>Value</p>
+                                                <input type="text" class="form-control" id="trigScriptValue" name="textInput" placeholder="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Optionally Trigger When</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <p>Date From</p>
+                                    <div class="input-group date" id="dtpFromDate">
+                                        <input id="trigFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />  <!--Need date locale info for US-->
+                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <p>Time From</p>
+                                    <div class="input-group date" id="dtpFromTime">
+                                        <input id="trigFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <p>Time of Day</p>
+                                    <div class="input-group date" id="dtpTimeofDay">
+                                        <input id="trigTimeofDay" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                    </div>
+                                </div>
+                                <br />
+                                <div class="col-md-3">
+                                    <div class="col-md-6">
+                                        <div class="checkbox">
+                                            <label><input id="trigChkInactive" name="chkInput" type="checkbox" /> Inactive</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkActive" name="chkInput" type="checkbox" /> Active</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="checkbox">
+                                            <label><input id="trigChkSunrise" name="chkInput" type="checkbox" /> Sunrise</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkSunset" name="chkInput" type="checkbox" /> Sunset</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <p>Date To</p>
+                                    <div class="input-group date" id="dtpToDate">
+                                        <input id="trigToDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <p>Time To</p>
+                                    <div class="input-group date" id="dtpToTime">
+                                        <input id="trigToTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="col-md-3">
+                                        <div class="checkbox">
+                                            <label><input id="trigChkNight" name="chkInput" type="checkbox" /> Night</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkDay" name="chkInput" type="checkbox" /> Day</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkYear" name="chkInput" type="checkbox" onchange="radio('trigChkYear')" /> Yearly</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="checkbox">
+                                            <label><input id="trigChkFortnight" name="chkInput" type="checkbox" onchange="radio('trigChkFortnight')" /> Fortnightly</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkMonth" name="chkInput" type="checkbox" onchange="radio('trigChkMonth')" /> Monthly</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkSun" name="chkInput" type="checkbox" /> Sunday</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="checkbox">
+                                            <label><input id="trigChkMon" name="chkInput" type="checkbox" /> Monday</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkTue" name="chkInput" type="checkbox" /> Tuesday</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkWed" name="chkInput" type="checkbox" /> Wednesday</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="checkbox">
+                                            <label><input id="trigChkThu" name="chkInput" type="checkbox" /> Thursday</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkFri" name="chkInput" type="checkbox" /> Friday</label>
+                                        </div>
+                                        <div class="checkbox">
+                                            <label><input id="trigChkSat" name="chkInput" type="checkbox" /> Saturday</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions --------------------------------------------------------------->
+        <div class="tab-pane fade" id="actions">
+            <h4>Manage Actions</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Actions make changes to the system and triggered through events<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="actionName" name="textInput" placeholder="New or Select Action">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="actionNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Description</p>
+                <input type="text" class="form-control" id="actionDesc" name="textInput" placeholder="Enter Action description">
+            </div>
+            <br /><br /><br /><br />
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Action Settings</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="checkbox">
+                                        <label><input id="actionChkRnd" name="chkInput" type="checkbox" /> Random</label>
+                                    </div>
+                                    <p>Delay (seconds)</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <input id="actionDelay" name="numInput" type="text" class="form-control" value="0">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel-group">
+                        <div class="panel panel-info">
+                            <div class="panel-heading"><span class="panel-title">Activate Channel</span><a id="actionPanelIcon" onclick="togglePanel('actionColl1','actionColl2','actionPanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
+                            <div class="actionColl1 panel-collapse collapse in">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <a class="pointer" onclick="toggleTB('selectToolbox', 'open', 'action');">Channel</a>:
+                                            <span id="actionVal">None</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="actionColl2 panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p>Type (Category)</p>
+                                            <div class="btn-group btn-group-justified">
+                                                <button id="actionCategory" name="allInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    All&nbsp;&nbsp;<span class="caret" />
+                                                </button>
+                                                <ul id="actionCategoryList" class="dropdown-menu" role="menu"></ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p>Name (Instance)</p>
+                                            <input type="text" class="form-control" id="actionInstance" name="textInput" placeholder="All">
+                                        </div>
+                                    </div><br />
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p>Plugin (Class)</p>
+                                            <input type="text" class="form-control" id="actionClass" name="textInput" placeholder="All">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p>Scope</p>
+                                            <input type="text" class="form-control" id="actionScope" name="textInput" placeholder="All">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <p>Value</p>
+                                        <div class="btn-group btn-group-justified">
+                                            <button type="button" id="actionCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                equals&nbsp;&nbsp;<span class="caret" />
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a class="pointer" onclick="pressBut('actionCond', 'equals')">equals</a></li>
+                                                <li><a class="pointer" onclick="pressBut('actionCond', 'greater')">greater</a></li>
+                                                <li><a class="pointer" onclick="pressBut('actionCond', 'less')">less</a></li>
+                                                <li><a class="pointer" onclick="pressBut('actionCond', 'not')">not</a></li>
+                                                <li><a class="pointer" onclick="pressBut('actionCond', 'contains')">contains</a></li>
+                                                <li><a class="pointer" onclick="pressBut('actionCond', 'change')">change</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <p>&nbsp;</p>
+                                        <input type="text" class="form-control" id="actionData" name="textInput" placeholder="">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="panel-group">
+                        <div class="panel panel-info">
+                            <div class="panel-heading"><span class="panel-title">Optional Script</span><a id="actionScriptPanelIcon" onclick="togglePanel('actionScriptColl1','actionScriptColl2','actionScriptPanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
+                            <div class="panel-body">
+                                <div class="row">
+                                    <div class="col-md-10">
+                                        <p>Name</p>
+                                        <div class="btn-group btn-group-justified">
+                                            <button id="actionScriptName" name="noneInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                None&nbsp;&nbsp;<span class="caret" />
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu"></ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="actionScriptColl2 panel-collapse collapse">
+                                <div class="panel-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p>Parameter</p>
+                                            <input type="text" class="form-control" id="actionScriptParam" name="textInput" placeholder="">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p>&nbsp;</p>
+                                            <div class="btn-group btn-group-justified">
+                                                <button type="button" id="actionScriptCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    equals&nbsp;&nbsp;<span class="caret" />
+                                                </button>
+                                                <ul class="dropdown-menu" role="menu">
+                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'equals')">equals</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'greater')">greater</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'less')">less</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'not')">not</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'contains')">contains</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'change')">change</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'live')">live</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'dead')">dead</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div><br />
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <p>Value</p>
+                                            <input type="text" class="form-control" id="actionScriptValue" name="textInput" placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- Transforms --------------------------------------------------------------->
+        <div class="tab-pane fade" id="transforms">
+            <h4>Manage Transforms</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Create rich data sources by transforming existing channels with functions that operate on real-time and historical data<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="col-md-9">
+                        <p>Name</p>
+                        <div class="input-group">
+                            <input type="text" class="tip form-control" id="transformName" name="textInput" data-original-title="Transform Name" data-placement="top" placeholder="New or Select Transform">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                                <ul id="transformNameList" class="dropdown-menu pull-right">
+                                    <li><a class="pointer"><i>No saved transforms</i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <p>Description</p>
+                    <input type="text" class="form-control" id="transformDesc" name="textInput" placeholder="Enter new Transform description">
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Output Channel</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="checkbox">
+                                        <label><input id="transFuncOutChkEnabled" name="chkInputInv" type="checkbox" checked="checked"> Enabled</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <p>Rounding</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="btn-group btn-group-justified">
+                                        <button id="transFuncOutRounding" name="dropRound" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            2&nbsp;&nbsp;<span class="caret" />
+                                        </button>
+                                        <ul id="transFuncRoundingList" class="dropdown-menu" role="menu">
+                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '0')">0</a></li>
+                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '1')">1</a></li>
+                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '2')">2</a></li>
+                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '3')">3</a></li>
+                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '4')">4</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p>Category</p>
+                                    <div class="btn-group btn-group-justified">
+                                        <button id="transFuncOutCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            &nbsp;&nbsp;<span class="caret" />
+                                        </button>
+                                        <ul id="transFuncOutCategoryList" class="dropdown-menu" role="menu"></ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <p>Channel</p>
+                                    <input id="transFuncOutInstance" name="textInput" type="text" class="form-control" placeholder="">
+                                </div>
+                            </div><br />
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p>Class</p>
+                                    <input type="text" class="form-control" id="transFuncOutClass" name="textInput" placeholder="">
+                                </div>
+                                <div class="col-md-6">
+                                    <p>Scope (optional)</p>
+                                    <input type="text" class="form-control" id="transFuncOutScope" name="valueInput" value="value">
+                                </div>
+                            </div><br />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Transform Functions</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <select id="transFuncSel" multiple size="8" class="form-control" name="multiSel" onclick="popEditFunc(this.value)"></select>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="col-md-4">
+                                <button id="transFuncAdd" type="button" onclick="transFuncItems('add')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
+                            </div>
+                            <div class="col-md-4">
+                                <button id="transFuncDel" type="button" onclick="transFuncItems('del')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
+                            </div>
+                            <div class="col-md-2">
+                                <button id="transFuncUp" type="button" onclick="transFuncItems('up')" onfocus="blur()" class="btn btn-default btn-block">&#9650;</button>
+                            </div>
+                            <div class="col-md-2">
+                                <button id="transFuncDown" type="button" onclick="transFuncItems('down')" onfocus="blur()" class="btn btn-default btn-block">&#9660;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Edit Functions</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <p>Select Function</p>
+                                    <div class="col-md-9">
+                                        <div class="btn-group btn-group-justified">
+                                            <button type="button" id="transFuncFuncSel" name="startWith" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                Start&nbsp;&nbsp;&nbsp;<span class="caret" />
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Start')">Start</a></li>
+                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Add')">Add</a></li>
+                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Subtract')">Subtract</a></li>
+                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Multiply')">Multiply</a></li>
+                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Divide')">Divide</a></li>
+                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Min')">Min</a></li>
+                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Max')">Max</a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <br /><br /><br />
+                                    <p>Set Value or Channel</p>
+                                    <div class="radio-inline">
+                                        <label><input type="radio" name="transFuncRadio1" id="transFuncRadioValue" value="value" onclick="selTransformRadio(this.id)" checked>Value</label>
+                                    </div>
+                                    <fieldset id="valueFieldset" disabled>
+                                        <input id="transFuncValue" name="textInput" type="text" class="form-control" placeholder="">
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="radio-inline">
+                                        <label><input type="radio" name="transFuncRadio1" id="transFuncRadioChannel" value="channel" onclick="selTransformRadio(this.id)" checked>Channel</label>
+                                    </div>
+                                    <fieldset id="channelFieldset">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p>Category</p>
+                                                <div class="btn-group btn-group-justified">
+                                                    <button id="transFuncChCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                        &nbsp;&nbsp;<span class="caret" />
+                                                    </button>
+                                                    <ul id="transFuncChCategoryList" class="dropdown-menu" role="menu"></ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p>Channel</p>
+                                                <input type="text" class="form-control" id="transFuncChInstance" name="textInput" placeholder="">
+                                            </div>
+                                        </div>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p>Class</p>
+                                                <input type="text" class="form-control" id="transFuncChClass" name="textInput" placeholder="">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p>Scope (optional)</p>
+                                                <input type="text" class="form-control" id="transFuncChScope" name="valueInput" placeholder="" value="value">
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-4">
+                                    <fieldset id="transFuncFieldset">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="btn-group btn-group-justified">
+                                                    <button type="button" id="transFuncHistSel" name="history" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                        Current&nbsp;&nbsp;<span class="caret" />
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Current')">Current</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Average')">Average</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Count')">Count</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Sum')">Sum</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Max')">Max</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Min')">Min</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTime')">MaxTime</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTime')">MinTime</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <fieldset id="transFuncRadioFieldset" disabled>
+                                                <div class="radio-inline">
+                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioElapsed" onclick="selSetRadio(this.id)" value="elapsed" checked>Elapsed</label>
+                                                </div>
+                                                <div class="radio-inline">
+                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioSince" onclick="selSetRadio(this.id)" value="since">Since</label>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                        <div class="row">
+                                            <br />
+                                            <fieldset id="transFuncElapsedFieldset" disabled>
+                                                <div class="col-md-7">
+                                                    <div class="input-group">
+                                                        <input id="transFuncTimeValue" name="oneInput" type="text" class="form-control" value="1">
+                                                        <div class="input-group-btn">
+                                                            <button id="transFuncTimeDrop" name="transFuncTimeInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Minutes <span class="caret" /></button>
+                                                            <ul class="dropdown-menu pull-right">
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Minutes')">Minutes</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Hours')">Hours</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Days')">Days</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Weeks')">Weeks</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Months')">Months</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Years')">Years</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                        <br />
+                                        <fieldset id="transFuncSinceFieldset" disabled>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="input-group date" id="dtpToTime">
+                                                        <input id="transFuncFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="input-group date" id="dtpToDate">
+                                                        <input id="transFuncFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- Programs --------------------------------------------------------------->
+        <div class="tab-pane fade" id="programs">
+            <h4>Manage Programs</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Modify plugins, widgets and scripts<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="programName" name="textInput" placeholder="New or Select Program">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="programNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Description</p>
+                <input type="text" class="form-control" id="programDesc" name="textInput" placeholder="Enter Program description">
+            </div>
+            <div class="col-md-2">
+                <p>Type</p>
+                <div class="input-group tip" data-original-title="select program type" data-placement="below">
+                    <input type="text" id="programType" class="form-control" value="Widget" disabled>
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="scriptTypeList" class="dropdown-menu pull-right">
+                            <li><a onclick="selProgramType('Widget')">Widget</a></li>
+                            <li><a onclick="selProgramType('Script')">Script</a></li>
+                            <li><a onclick="selProgramType('Plugin')">Plugin</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <p>Language</p>
+                <div class="input-group tip" data-original-title="select Program language" data-placement="below">
+                    <div class="input-group">
+                        <input type="text" id="programLang" class="form-control" value="HTML" disabled>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                            <ul id="programLangList" class="dropdown-menu pull-right">
+                                <li><a onclick="selProgramLang('HTML')">HTML</a></li>
+                                <li><a onclick="selProgramLang('VB.NET')">VB.NET</a></li>
+                                <li><a onclick="selProgramLang('C#')">C#</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br /><br /><br /><br />
+
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Program Text</h4></div>
+                        <div class="panel-body">
+                            <div class="col-md-12">
+                                <textarea id="codeEditor" rows="20"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- Plugin Manager --------------------------------------------------------------->
+        <div class="tab-pane fade" id="plugins">
+            <h4>Manage Plugin Settings</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Settings for plugins<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="pluginName" name="textInput" placeholder="New or Select Plugin">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="pluginNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Description</p>
+                <input type="text" class="form-control" id="pluginDesc" name="textInput" placeholder="Enter Plugin description">
+            </div>
+            <div class="col-md-2">
+                <p>Language</p>
+                <div class="input-group tip" data-original-title="select Program language" data-placement="below">
+                    <div class="input-group">
+                        <input type="text" id="pluginLang" class="form-control" value="Node.JS" disabled>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                            <ul id="pluginLangList" class="dropdown-menu pull-right">
+                                <li><a onclick="selProgramLang('HTML')">HTML</a></li>
+                                <li><a onclick="selProgramLang('VB.NET')">VB.NET</a></li>
+                                <li><a onclick="selProgramLang('C#')">C#</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br /><br /><br /><br />
+
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Program Text</h4></div>
+                        <div class="panel-body">
+                            <div class="col-md-10">
+                                <textarea id="xxx" rows="20"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- Store --------------------------------------------------------------->
+        <div class="tab-pane fade" id="store">
+            <h4>Add Widgets and Plugins</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Add and Remove Widgets and Plugins<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="storeName" name="textInput" placeholder="New or Select Program">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="storeList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Description</p>
+                <input type="text" class="form-control" id="storeDesc" name="textInput" placeholder="Enter Program description">
+            </div>
+            <div class="col-md-2">
+                <p>Type</p>
+                <div class="input-group tip" data-original-title="select program type" data-placement="below">
+                    <input type="text" id="storeType" class="form-control" value="Widget" disabled>
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="storeTypeList" class="dropdown-menu pull-right">
+                            <li><a onclick="selProgramType('Widget')">Widget</a></li>
+                            <li><a onclick="selProgramType('Script')">Script</a></li>
+                            <li><a onclick="selProgramType('Plugin')">Plugin</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <p>Language</p>
+                <div class="input-group tip" data-original-title="select Program language" data-placement="below">
+                    <div class="input-group">
+                        <input type="text" id="xxxx" class="form-control" value="SVG" disabled>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                            <ul id="xxxx" class="dropdown-menu pull-right">
+                                <li><a onclick="selProgramLang('SVG')">SVG</a></li>
+                                <li><a onclick="selProgramLang('HTML')">HTML</a></li>
+                                <li><a onclick="selProgramLang('VB.NET')">VB.NET</a></li>
+                                <li><a onclick="selProgramLang('C#')">C#</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br /><br /><br /><br />
+        </div>
+
+        <!-- Security --------------------------------------------------------------->
+        <div class="tab-pane fade" id="security">
+            <h4>User Administration</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;manage user access to resources<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="storeName" name="textInput" placeholder="New or Select Program">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="storeList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Description</p>
+                <input type="text" class="form-control" id="storeDesc" name="textInput" placeholder="Enter Program description">
+            </div>
+            <div class="col-md-2">
+                <p>Type</p>
+                <div class="input-group tip" data-original-title="select program type" data-placement="below">
+                    <input type="text" id="storeType" class="form-control" value="Widget" disabled>
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="storeTypeList" class="dropdown-menu pull-right">
+                            <li><a onclick="selProgramType('Widget')">Widget</a></li>
+                            <li><a onclick="selProgramType('Script')">Script</a></li>
+                            <li><a onclick="selProgramType('Plugin')">Plugin</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <p>Language</p>
+                <div class="input-group tip" data-original-title="select Program language" data-placement="below">
+                    <div class="input-group">
+                        <input type="text" id="xxxx" class="form-control" value="SVG" disabled>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                            <ul id="xxxx" class="dropdown-menu pull-right">
+                                <li><a onclick="selProgramLang('SVG')">SVG</a></li>
+                                <li><a onclick="selProgramLang('HTML')">HTML</a></li>
+                                <li><a onclick="selProgramLang('VB.NET')">VB.NET</a></li>
+                                <li><a onclick="selProgramLang('C#')">C#</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br /><br /><br /><br />
+        </div>
+
+    </div>
+    <!--<script src="//maxcdn.bootstrapcdn.com/bootlint/0.2.0/bootlint.min.js"></script>-->
+
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/bootstrap-datetimepicker.min.js"></script>
+    <!--CodeMirror-->
+    <script src="js/codemirror.js"></script>
+    <script src="js/javascript.js"></script>
+    <script src="js/active-line.js"></script>
+
+    <script>
+        // datetime picker https://github.com/Eonasdan/bootstrap-datetimepicker
+        //One off time & date = EventFrom date + time + one off
+        //One off anything = event
+        //Active time daily, fortnightly = checkbox + time
+        //Active from range dates = EventFrom date + To date
+        //Active from certain date = from date filled + to date blank
+        //Active to a certain date = from date blank + to date filled
+        //Every Tuesday fortnight at 7pm. daily at 11am = checkbox + time
+        //Server local time but displayed with client locale
+        // move programs code from the automation class to a new programs class (in both client & console)
+
+        "use strict";
+
+        var unixEpoc = 621355968000000000;
+        var pcTicks = 10000;
+        var nullDate = 630822456000000000;
+        var condStr = ["equals", "greater", "less", "not", "contains", "change"];
+        var myCodeMirror;
+
+        // Startup function after DOM is loaded and all content loaded
+        window.onload = function () {
+            enableTooltip()
+            for (var category in parent.categories) {
+                addButtonEntry("trigStateCategoryList", parent.categories[category].Cat, "trigStateCategory")
+                addButtonEntry("trigChgCategoryList", parent.categories[category].Cat, "trigChgCategory")
+                addButtonEntry("actionCategoryList", parent.categories[category].Cat, "actionCategory")
+                addButtonEntry("transFuncChCategoryList", parent.categories[category].Cat, "transFuncChCategory")
+                addButtonEntry("transFuncOutCategoryList", parent.categories[category].Cat, "transFuncOutCategory")
+            }
+            //window.addEventListener('resize', function (event) {
+            //    window.location.reload()
+            //});
+        }
+
+////////////////// Tab settings startup functions
+        function consoleScreen() {
+            document.getElementById("editOptions").style.display = "none";
+        }
+
+        function generalScreen() {
+        }
+
+        function triggersScreen() {
+            loadNames("TRIGGERS")
+            parent.send("WIDGETS", "CHANNELS", "")
+            document.getElementById("editOptions").style.display = "inline";
+        }
+
+        function eventsScreen() {
+            loadNames("EVENTS")
+            document.getElementById("editOptions").style.display = "inline";
+        }
+
+        function actionsScreen() {
+            loadNames("ACTIONS")
+            document.getElementById("editOptions").style.display = "inline";
+        }
+
+        function transformsScreen() {
+            loadNames("TRANSFUNCS")
+            document.getElementById("editOptions").style.display = "inline";
+        }
+
+        function seriesScreen() {
+            loadNames("SERIES")
+            document.getElementById("editOptions").style.display = "inline";
+        }
+
+        function storeScreen() {
+        }
+
+        function pluginsScreen() {
+        }
+
+        function programsScreen() {
+            loadNames("WIDGETS")
+            myCodeMirror = CodeMirror.fromTextArea(codeEditor, {
+                mode: "javascript",
+                lineNumbers: true,
+                tabMode: true,
+                matchBrackets: true,
+                searchMode: 'inline',
+                styleActiveLine: true,
+                gutters: ["CodeMirror-lint-markers", "breakpoints"],
+                lint: true
+            });
+            myCodeMirror.on("gutterClick", function (cm, n) {
+                var info = cm.lineInfo(n);
+                cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
+            });
+            function makeMarker() {
+                var marker = document.createElement("div");
+                marker.style.color = "#822";
+                marker.innerHTML = "●";
+                return marker;
+            }
+
+            document.getElementById("editOptions").style.display = "inline";
+            myCodeMirror.getScrollerElement().style.height = window.innerHeight - 230 + "px"
+            myCodeMirror.getScrollerElement().style.width = window.innerWidth + "px"
+        }
+
+        function securityScreen() {
+        }
+
+        //////////////////////////////////////////////////// Transform Functions
+        // Start Value 22                                                       Starting value a numeric value for the operation (eg. 4.5)
+        // Add Current [SECURITY/CLASS] scope(instance)                         Add current channel value (No time sets)
+        // Subtract Count [SECURITY/CLASS] scope(instance) elapsed(2 minutes)   Subtract count of the channel last two minutes (starting at the start of the minute)
+        // Multipy Average [SECURITY/CLASS] scope(instance) since(time date)    Multipl Average of channel back to the exact time/date
+
+        // Enable or disable the function range entries depending if a range function is selected
+        function setValid(butID, butVal) {
+            pressBut(butID, butVal)
+            if (butVal !== "Current") {
+                $("#transFuncRadioFieldset").removeAttr("disabled")
+                if ($("#transFuncRadioElapsed").prop("checked") === true) selSetRadio("transFuncRadioElapsed")
+                if ($("#transFuncRadioSince").prop("checked") === true) selSetRadio("transFuncRadioSince")
+            } else {
+                $("#transFuncElapsedFieldset").attr("disabled", "true")
+                $("#transFuncSinceFieldset").attr("disabled", "true")
+                $("#transFuncRadioFieldset").attr("disabled", "true")
+            }
+        }
+
+        function selTransformRadio(me) {
+            if (me === "transFuncRadioValue") {
+                $("#valueFieldset").removeAttr("disabled")
+                $("#transFuncFieldset").attr("disabled", "true")
+                $("#channelFieldset").attr("disabled", "true")
+            }
+            if (me === "transFuncRadioChannel") {
+                $("#valueFieldset").attr("disabled", "true")
+                $("#transFuncFieldset").removeAttr("disabled")
+                $("#channelFieldset").removeAttr("disabled")
+            }
+        }
+
+        function selSetRadio(me) {
+            if (me === "transFuncRadioElapsed") {
+                $("#transFuncSinceFieldset").attr("disabled", "true")
+                $("#transFuncElapsedFieldset").removeAttr("disabled")
+            }
+            if (me === "transFuncRadioSince") {
+                $("#transFuncSinceFieldset").removeAttr("disabled")
+                $("#transFuncElapsedFieldset").attr("disabled", "true")
+            }
+        }
+
+        // Populate Edit function items based on item selected in function list
+        function popEditFunc(func) {
+            if (func !== "") {
+                var splitFunc = func.split(" ")
+                $("#transFuncFuncSel").html(splitFunc[0] + "&nbsp;&nbsp;<span class='caret'></span></button>")
+                if (splitFunc[1].trim().toLowerCase() === "value") {
+                    selTransformRadio("transFuncRadioValue")
+                    $("#transFuncRadioValue").prop("checked", true)
+                    $("#transFuncValue").val(splitFunc[2].trim())        // extract value
+                    $("#transFuncChCategory").html("&nbsp;&nbsp;<span class='caret'></span></button>")
+                    $("#transFuncChClass").val("")
+                    $("#transFuncChInstance").val("")
+                    $("#transFuncChScope").val("value")
+                } else {
+                    selTransformRadio("transFuncRadioChannel")
+                    $("#transFuncValue").val("")        // extract value
+                    $("#transFuncRadioChannel").prop("checked", true)
+                    $("#transFuncChCategory").html(func.split("[")[1].split("/")[0].trim() + "&nbsp;&nbsp;<span class='caret'></span></button>")
+                    $("#transFuncChClass").val(func.split("/")[1].split("]")[0].trim())
+                    $("#transFuncChInstance").val(func.split("]")[1].split("(")[0].trim())
+                    $("#transFuncChScope").val(func.split("(")[1].split(")")[0].trim())
+                    $("#transFuncHistSel").html(splitFunc[1].trim() + "&nbsp;&nbsp;<span class='caret'></span></button>")
+                    var splitTime = func.split(")")
+                    if (splitTime.length > 0) {
+                        if (splitTime[1].split("(")[0].toLowerCase().trim() === "elapsed") {
+                            $("#transFuncRadioElapsed").prop("checked", true)
+                            selSetRadio("transFuncRadioElapsed")
+                            $("#transFuncTimeDrop").html(splitFunc[5].split(")")[0].trim() + "&nbsp;&nbsp;<span class='caret'></span></button>")
+                            $("#transFuncTimeValue").val(splitFunc[4].split("(")[1].trim())
+                        }
+                        if (splitTime[1].split("(")[0].toLowerCase().trim() === "since") {
+                            $("#transFuncRadioSince").prop("checked", true)
+                            selSetRadio("transFuncRadioSince")
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add/Del/Up/Down items in the transform function list
+        // TODO: Change alerts to bootstrap dialog
+        function transFuncItems(func) {
+            switch (func) {
+                case "add":
+                    var cmdStr = $("#transFuncFuncSel").prop("textContent").trim()
+                    if (cmdStr !== "Start" && cmdStr !== "History" && $("#transFuncSel").children("option").length == 0) {
+                        alert("First function type added must always be either 'Start' or 'History'");
+                        return;
+                    }
+                    if (cmdStr === "Start" && $("#transFuncSel").children("option").length > 0) {
+                        alert("Only the first function type added can be 'Start'");
+                        return;
+                    }
+                    if ($("#transFuncRadioValue").prop('checked')) {
+                        var val = $("#transFuncValue").prop("value").trim()
+                        if (isNaN(val) || val === "") {
+                            alert("'" + val + "' is not a number. Re-enter a number before adding.");
+                            return;
+                        } else {
+                            cmdStr = cmdStr + " Value " + $("#transFuncValue").prop("value").trim()
+                        }
+                    } else {
+                        if ($("#transFuncChCategory").prop("textContent").trim() === "" || $("#transFuncChClass").prop("value").trim() === "") {
+                            alert("Fill out Category and Class fields before adding function.");
+                            return;
+                        }
+                        cmdStr = cmdStr + " " + $("#transFuncHistSel").prop("textContent").trim() + " [" + $("#transFuncChCategory").prop("textContent").trim() + "/" + $("#transFuncChClass").prop("value").trim() + "] " + $("#transFuncChInstance").prop("value").trim() + "(" + $("#transFuncChScope").prop("value").trim() + ")"
+                    }
+                    if (!$("#transFuncFieldset").attr("disabled") && $("#transFuncHistSel").prop("textContent").trim() !== "Current") {        // Add range if valid to
+                        var selRadio = $("input[name=transFuncRadio2]:checked")[0].id.replace("transFuncRadio", "").toLowerCase()      // get all input tags with name transFuncRadio2 that are checked and strip unique radio name
+                        if (selRadio === "since") {
+                            if (isNaN(new Date($("#transFuncFromDate").val().trim() + " " + $("#transFuncFromTime").val().trim())) === true) {
+                                alert("Date and/or Time isn't valid. Re-enter.")
+                                return
+                            }
+                            cmdStr = cmdStr + " " + selRadio + "(" + $("#transFuncFromDate").val().trim() + " " + $("#transFuncFromTime").val().trim() + ")"
+                        } else {
+                            cmdStr = cmdStr + " " + selRadio + "(" + $("#transFuncTimeValue").val().trim() + " " + $("#transFuncTimeDrop").text().trim() + ")"
+                        }
+                    }
+                    $("#transFuncSel").append("<option value='" + cmdStr + "'>" + cmdStr + "</option>");
+                    break;
+                case "del":
+                    if ($("#transFuncSel :selected").length === 0) {
+                        alert("No function selected. Please select a function to delete.")
+                        return;
+                    }
+                    if ($("#transFuncSel").children("option").length > 1 && $("#transFuncSel :selected").prop("value").trim().split(" ")[0] === "Start") {
+                        alert("Cannot delete starting value when additional functions exist in the function list. Edit start value instead, or delete another function")
+                        return;
+                    }
+                    $("#transFuncSel :selected").remove();
+                    break;
+                case "up":
+                    break;
+                case "down":
+                    break;
+                default:
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////////////
+        function togglePanel(toggle1, toggle2, icon) {
+            $("." + toggle1).collapse("toggle")
+            $("." + toggle2).collapse("toggle");
+            if (document.getElementById(icon).innerHTML === "▼") document.getElementById(icon).innerHTML = "&#9650;"
+            else document.getElementById(icon).innerHTML = "&#9660;"
+        }
+
+        function selScriptLang(lang) {
+            alert(myCodeMirror.getValue())
+        }
+
+        function toggleTB(toolboxName, openclose, panel) {
+            var myTB = document.getElementById(toolboxName);
+            myTB.setAttribute("data-panel", panel)
+            if (myTB.style.getPropertyValue("left") != "0px" && openclose == "open") myTB.style.setProperty("left", "0px");
+            if (myTB.style.getPropertyValue("left") == "0px" && openclose == "close") myTB.style.setProperty("left", "-200px");
+        }
+
+        // Radio behaviour for time intervals (fortnightly will imply monthly)
+        function radio(active) {
+            if ($("#" + active).prop('checked') == true) {
+                $("#trigChkYear").prop('checked', false)
+                $("#trigChkFortnight").prop('checked', false)
+                $("#trigChkMonth").prop('checked', false)
+                $("#" + active).prop('checked', true)
+            }
+        }
+
+        function loadNames(tableName) {
+            parent.send("AUTOMATION", "GET:NAMES(" + tableName + ")", tableName)
+        }
+
+        // Load the names of the triggers/actions into the toolbox for selecting
+        function addEventItem(item) {
+            loadNames(item + "DESC")
+        }
+
+        function selProgramType(type) {
+            loadNames(type.toUpperCase() + "S")
+            $("#programType").val(type)
+        }
+
+        // Delete the selected event item
+        function delEventItem(item) {
+            $("#" + item + " :selected").remove();
+        }
+
+        // Clear all fields
+        function clearRec() {
+            var elements = document.getElementsByName("textInput")
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].value = "";
+            }
+            var elements = document.getElementsByName("oneInput")
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].value = "1";
+            }
+            var elements = document.getElementsByName("valueInput")
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].value = "value";
+            }
+            var elements = document.getElementsByName("numInput")
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].value = "0";
+            }
+            var elements = document.getElementsByName("chkInput")
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].checked = false;
+            }
+            var elements = document.getElementsByName("chkInputInv")
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].checked = true;
+            }
+            var elements = document.getElementsByName("dropEmpty")
+            for (var i = 0; i < elements.length; i++) {
+                pressBut(elements[i].id, "");
+            }
+            var elements = document.getElementsByName("dropRound")
+            for (var i = 0; i < elements.length; i++) {
+                pressBut(elements[i].id, "2");
+            }
+            var elements = document.getElementsByName("allInput")
+            for (var i = 0; i < elements.length; i++) {
+                pressBut(elements[i].id, "All");
+            }
+            var elements = document.getElementsByName("startWith")
+            for (var i = 0; i < elements.length; i++) {
+                pressBut(elements[i].id, "Start");
+            }
+            var elements = document.getElementsByName("history")
+            for (var i = 0; i < elements.length; i++) {
+                pressBut(elements[i].id, "Current");
+            }
+            var elements = document.getElementsByName("equalsInput")
+            for (var i = 0; i < elements.length; i++) {
+                pressBut(elements[i].id, "equals");
+            }
+            var elements = document.getElementsByName("noneInput")
+            for (var i = 0; i < elements.length; i++) {
+                pressBut(elements[i].id, "none");
+            }
+            var elements = document.getElementsByName("multiSel")
+            for (var i = 0; i < elements.length; i++) {
+                elements[i].innerHTML = "";
+            }
+            if (getActiveTab() == "Programs") myCodeMirror.setValue("");
+        }
+
+        function delRec() {
+            parent.status("Processing delete...")
+            switch (getActiveTab().toUpperCase()) {
+                case "TRIGGERS":
+                    if ($("#trigName").val() == "") {
+                        parent.modalDialog("No record selected", "Please select a Trigger name to delete first.")
+                    } else {
+                        parent.modalDialog("Delete Record", "Confirm deletion of '" + $("#trigName").val() + "'.", "Delete")
+                    }
+                    break;
+                case "ACTIONS":
+                    if ($("#actionName").val() == "") {
+                        parent.modalDialog("No record selected", "Please select an Action name to delete first.")
+                    } else {
+                        parent.modalDialog("Delete Record", "Confirm deletion of '" + $("#actionName").val() + "'.", "Delete")
+                    }
+                    break;
+                case "EVENTS":
+                    if ($("#eventName").val() == "") {
+                        parent.modalDialog("No record selected", "Please select an Event name to delete first.")
+                    } else {
+                        parent.modalDialog("Delete Record", "Confirm deletion of '" + $("#eventName").val() + "'.", "Delete")
+                    }
+                    break;
+                case "TRANSFORMS":
+                    if ($("#TransformName").val() == "") {
+                        parent.modalDialog("No record selected", "Please select a Transform name to delete first.")
+                    } else {
+                        parent.modalDialog("Delete Record", "Confirm deletion of '" + $("#transformName").val() + "'.", "Delete")
+                    }
+                    break;
+                default:
+            }
+        }
+
+        function updRec() {
+            parent.status("Processing update...")
+            switch (getActiveTab().toUpperCase()) {
+                case "TRIGGERS":
+                    if ($("#trigName").val() == "") {
+                        parent.modalDialog("No record selected", "Please select a Trigger name to update first.")
+                    } else {
+                        sendServer("UPD", "TRIGGERS", $("#trigName").val(), JSON.stringify(objTrig()));
+                    }
+                    break;
+                case "ACTIONS":
+                    if ($("#actionName").val() == "") {
+                        parent.modalDialog("No record selected", "Please select an Action name to update first.")
+                    } else {
+                        sendServer("UPD", "ACTIONS", $("#actionName").val(), JSON.stringify(objAction()));
+                    }
+                    break;
+                case "EVENTS":
+                    if ($("#eventName").val() == "") {
+                        parent.modalDialog("No record selected", "Please select an Event name to update first.")
+                    } else {
+                        sendServer("UPD", "EVENTS", $("#eventName").val(), JSON.stringify(objEvent()));
+                    }
+                    break;
+                case "PROGRAMS":
+                    if ($("#programName").val() == "") {
+                        parent.modalDialog("No name entered", "Please select a name for your program before saving.")
+                    } else {
+                        sendServer("UPD", "PROGRAMS", $("#programName").val(), JSON.stringify(objProgram()));
+                    }
+                    break;
+                case "TRANSFORMS":
+                    if ($("#transformName").val() == "") {
+                        parent.modalDialog("No record selected", "Please select a Transform name to update first.")
+                    } else {
+                        sendServer("UPD", "TRANSFORMS", $("#transformName").val(), JSON.stringify(objTransform()));
+                    }
+                    break;
+                default:
+            }
+        }
+
+        // TODO: Consolidate add and update, and do better checking in update
+        function addRec() {
+            parent.status("Processing add...")
+            switch (getActiveTab().toUpperCase()) {
+                case "TRIGGERS":
+                    if ($("#trigName").val() === "") {
+                        parent.modalDialog("No record selected", "Please select or enter a Trigger name before adding.")
+                        break;
+                    }
+                    if ($("#trigDesc").val() === "") {
+                        parent.modalDialog("No description entered", "Please enter a Trigger description before adding.")
+                        break;
+                    }
+                    sendServer("ADD", "TRIGGERS", $("#trigName").val(), JSON.stringify(objTrig()));
+                    break;
+                case "ACTIONS":
+                    if ($("#actionName").val() === "") {
+                        parent.modalDialog("No record selected", "Please select or enter a Action name before adding.")
+                        break;
+                    }
+                    if ($("#actionDesc").val() === "") {
+                        parent.modalDialog("No description entered", "Please enter a Action description before adding.")
+                        break;
+                    }
+                    sendServer("ADD", "ACTIONS", $("#actionName").val(), JSON.stringify(objAction()));
+                    break;
+                case "EVENTS":
+                    if ($("#eventName").val() === "") {
+                        parent.modalDialog("No record selected", "Please select or enter a Event name before adding.")
+                        break;
+                    }
+                    if ($("#eventDesc").val() === "") {
+                        parent.modalDialog("No description entered", "Please enter a Event description before adding.")
+                        break;
+                    }
+                    if (($("#eventTrigSel").children("option").length == 0) || ($("#eventActionSel").children("option").length == 0)) {
+                        parent.modalDialog("No Trigger or Action selected", "Each Event must have at least one associated Trigger or Action.")
+                        break;
+                    }
+                    sendServer("ADD", "EVENTS", $("#eventName").val(), JSON.stringify(objEvent()));
+                    break;
+                case "TRANSFORMS":
+                    if ($("#transformName").val() === "") {
+                        parent.modalDialog("No record selected", "Please select or enter a Transform name before adding.")
+                        break;
+                    }
+                    if ($("#transformDesc").val() === "") {
+                        parent.modalDialog("No description entered", "Please enter a Transform description before adding.")
+                        break;
+                    }
+                    if ($("#transFuncSel").children("option").length === 0 || $("#transFuncOutCategory").prop("textContent").trim() === "" || $("#transFuncOutClass").prop("value").trim() === "" || $("#transFuncOutScope").prop("value").trim() === "" || $("#transFuncOutInstance").prop("value").trim() === "") {
+                        parent.modalDialog("Transform not added", "Each Transform created must have at least one function and the output channel defined.")
+                        break;
+                    }
+                    sendServer("ADD", "TRANSFORMS", $("#transformName").val(), JSON.stringify(objTransform()));
+                    break;
+                default:
+            }
+        }
+
+        // Find the selected index of a conditional dropdown
+        function condIndex(listID) {
+            var selVal = $('#' + listID).prop("textContent").trim().toLowerCase()
+            for (var i = 0; i < condStr.length; i++) {
+                if (selVal == condStr[i]) return i;
+            }
+            return 0;       // assume equals
+        }
+
+        // Populate the Event object from fields
+        function objEvent() {
+            var trigSels = new Array();
+            var eventTrig = document.getElementById("eventTrigSel").children
+            for (var elem = 0; elem < eventTrig.length; elem++) {
+                trigSels[elem] = eventTrig[elem].value.trim();
+            }
+            var actionSels = new Array();
+            var eventAction = document.getElementById("eventActionSel").children
+            for (var elem = 0; elem < eventAction.length; elem++) {
+                actionSels[elem] = eventAction[elem].value.trim();
+            }
+            return [{
+                "eventName": $('#eventName').val().trim(),
+                "eventDesc": $('#eventDesc').val().trim(),
+                "eventChkEnabled": $('#eventChkEnabled').prop('checked').toString(),
+                "eventChkOneOff": $('#eventChkOneOff').prop('checked').toString(),
+                "eventFromDateTime": getNetDateTime($('#eventFromDate').val(), "datetime"),
+                "eventToDateTime": getNetDateTime($('#eventToDate').val(), "datetime"),
+                "eventLastFired": getNetDateTime($('#eventLastFired').val(), "datetime"),
+                "eventNumRecur": $('#eventTimesRun').val(),
+                "eventTrigs": trigSels,
+                "eventActions": actionSels
+            }];
+        }
+
+        // Populate the Action object from fields
+        function objAction() {
+            var actionNetwork = 0;
+            return [{
+                "actionName": $('#actionName').val().trim(),
+                "actionDesc": $('#actionDesc').val().trim(),
+                "actionScriptName": $('#actionScriptName').val().trim(),
+                "actionScriptParam": $('#actionScriptParam').val().trim(),
+                "actionNetwork": actionNetwork,
+                "actionCategory": catIndex($('#actionCategory').prop("textContent")),
+                "actionClass": $('#actionClass').val().trim(),
+                "actionInstance": $('#actionInstance').val().trim(),
+                "actionScope": $('#actionScope').val().trim(),
+                "actionData": $('#actionData').val().trim(),
+                "actionChkRnd": $('#actionChkRnd').prop('checked').toString().trim(),
+                "actionDelay": $('#actionDelay').val().trim()
+            }];
+        }
+
+        // Populate the Trigger object from the fields
+        function objTrig() {
+            var trigChgNetwork = 0;
+            var trigStateNetwork = 0;
+            return [{
+                "trigName": $('#trigName').val().trim(),
+                "trigDesc": $('#trigDesc').val().trim(),
+                "trigScriptName": $('#trigScriptName').val().trim(),
+                "trigScriptParam": $('#trigScriptParam').val().trim(),
+                "trigScriptValue": $('#trigScriptValue').val().trim(),
+                "trigScriptCond": condIndex('trigScriptCond'),
+                "trigStateNetwork": trigStateNetwork,
+                "trigStateCategory": catIndex($('#trigStateCategory').prop("textContent")),
+                "trigStateClass": $('#trigStateClass').val().trim(),
+                "trigStateInstance": $('#trigStateInstance').val().trim(),
+                "trigStateScope": $('#trigStateScope').val().trim(),
+                "trigStateCond": condIndex('trigStateCond'),
+                "trigStateData": $('#trigStateData').val().trim(),
+                "trigChgNetwork": trigChgNetwork,
+                "trigChgCategory": catIndex($('#trigChgCategory').prop("textContent")),
+                "trigChgClass": $('#trigChgClass').val().trim(),
+                "trigChgInstance": $('#trigChgInstance').val().trim(),
+                "trigChgScope": $('#trigChgScope').val().trim(),
+                "trigChgCond": condIndex('trigChgCond'),
+                "trigChgData": $('#trigChgData').val().trim(),
+                "trigFromDate": getNetDateTime($('#trigFromDate').val().trim(), "date"),
+                "trigFromTime": getNetDateTime($('#trigFromTime').val().trim(), "time"),
+                "trigToDate": getNetDateTime($('#trigToDate').val().trim(), "date"),
+                "trigToTime": getNetDateTime($('#trigToTime').val().trim(), "time"),
+                "trigTimeofDay": getNetDateTime($('#trigTimeofDay').val().trim(), "time"),
+                "trigChkFortnight": $('#trigChkFortnight').prop('checked').toString().trim(),
+                "trigChkMonth": $('#trigChkMonth').prop('checked').toString().trim(),
+                "trigChkYear": $('#trigChkYear').prop('checked').toString().trim(),
+                "trigChkSunrise": $('#trigChkSunrise').prop('checked').toString().trim(),
+                "trigChkSunset": $('#trigChkSunset').prop('checked').toString().trim(),
+                "trigChkDay": $('#trigChkDay').prop('checked').toString().trim(),
+                "trigChkNight": $('#trigChkNight').prop('checked').toString().trim(),
+                "trigChkMon": $('#trigChkMon').prop('checked').toString().trim(),
+                "trigChkTue": $('#trigChkTue').prop('checked').toString().trim(),
+                "trigChkWed": $('#trigChkWed').prop('checked').toString().trim(),
+                "trigChkThu": $('#trigChkThu').prop('checked').toString().trim(),
+                "trigChkFri": $('#trigChkFri').prop('checked').toString().trim(),
+                "trigChkSat": $('#trigChkSat').prop('checked').toString().trim(),
+                "trigChkSun": $('#trigChkSun').prop('checked').toString().trim(),
+                "trigChkActive": $('#trigChkActive').prop('checked').toString().trim(),
+                "trigChkInactive": $('#trigChkInactive').prop('checked').toString().trim()
+            }];
+        }
+
+        // Populate the Transform object from fields
+        function objTransform() {
+            var transFuncOutNetwork = 0;
+            var transformSels = new Array();
+            var transFunc = document.getElementById("transFuncSel").children
+            for (var elem = 0; elem < transFunc.length; elem++) {
+                transformSels[elem] = transFunc[elem].value.trim();
+            }
+            return [{
+                "TransformName": $('#transformName').val().trim(),
+                "TransformDesc": $('#transformDesc').val().trim(),
+                "transFuncOutChk": $('#transFuncOutChkEnabled').prop('checked').toString().trim(),
+                "transFuncOutRounding": $('#transFuncOutRounding').text().trim(),
+                "transFuncOutNetwork": transFuncOutNetwork,
+                "transFuncOutCategory": catIndex($('#transFuncOutCategory').prop("textContent").trim()),
+                "transFuncOutClass": $('#transFuncOutClass').val().trim(),
+                "transFuncOutInstance": $('#transFuncOutInstance').val().trim(),
+                "transFuncOutScope": $('#transFuncOutScope').val().trim(),
+                "transFuncFunctions": transformSels
+            }];
+        }
+
+        // Populate the Program object from fields
+        function objProgram() {
+            return [{
+                "programName": $('#programName').val().trim(),
+                "programDesc": $('#programDesc').val().trim(),
+                "programType": $('#programType').val().trim(),
+                "programLang": $('#programLang').val().trim(),
+                "programCode": myCodeMirror.getValue()
+            }];
+        }
+
+        function catIndex(catName) {
+            var myCat = catName.toUpperCase().trim();
+            for (var cat in parent.categories) {
+                if (myCat == parent.categories[cat].Cat.toUpperCase().trim()) return cat;
+            }
+            return -1;
+        }
+
+        // Functions to call once the modal messagebox is closed
+        function modalCallback(modalFunction) {
+            switch (modalFunction) {
+                case "Delete Record":
+                    switch (getActiveTab().toUpperCase()) {
+                        case "TRIGGERS":
+                            sendServer("DEL", "TRIGGERS", $("#trigName").val(), $("#trigName").val())
+                            break;
+                        case "EVENTS":
+                            sendServer("DEL", "EVENTS", $("#eventName").val(), $("#eventName").val())
+                            break;
+                        case "ACTIONS":
+                            sendServer("DEL", "ACTIONS", $("#actionName").val(), $("#actionName").val())
+                            break;
+                        case "TRANSFORMS":
+                            sendServer("DEL", "TRANSFORMS", $("#transformName").val(), $("#transformName").val())
+                            break;
+                        default:
+                    }
+                    return true;
+                    break;
+                default:
+                    return false;
+            }
+        }
+
+        function sendServer(addDelUpd, func, name, data) {
+            parent.send("AUTOMATION", addDelUpd + ":" + func + "(" + name + ")", data)             //Build the command string to send to the server in format GET:<Function>(Pop<Function>CB) where Function is Actions, triggers etc., PopActionsCD is the callback routing
+        }
+
+        // Search sidebar and return the active selected tab
+        function getActiveTab() {
+            var elements = document.getElementById("sidebarList").childNodes;
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].className == "active") return (elements[i].innerText.trim());
+            }
+            return "";
+        }
+
+        // Add names to a combo list
+        function addListEntry(listName, listVal, dropPress) {
+            var list = document.getElementById(listName);
+            var iconElement = document.createElement("li");
+            iconElement.id = "li-" + list.childElementCount;
+            iconElement.innerHTML = "<a class='pointer' onclick='dropPressed(\"" + listVal + "\",\"" + dropPress + "\")'>" + listVal + "</a></li>"
+            list.appendChild(iconElement);
+        }
+
+        // Add names to a button list
+        function addButtonEntry(listName, listVal, butName) {
+            var list = document.getElementById(listName);
+            var iconElement = document.createElement("li");
+            iconElement.id = "li-" + list.childElementCount;
+            iconElement.innerHTML = "<a class='pointer' onclick='pressBut(\"" + butName + "\",\"" + listVal + "\")'>" + listVal + "</a></li>"
+            list.appendChild(iconElement);
+        }
+
+        function pressBut(button, value) {
+            document.getElementById(button).innerHTML = value + "&nbsp;&nbsp;<span class='caret'></span>";
+        }
+
+        // Action when item is selected in a drop down list
+        function dropPressed(selected, sendNet) {
+            switch (getActiveTab().toUpperCase()) {
+                case "PROGRAMS":
+                    document.getElementById("programName").value = selected
+                    if (sendNet == "true") {
+                        var progType = $("#programType").val().toUpperCase()
+                        parent.send("AUTOMATION", "GET:" + progType + "S(" + selected + ")", selected)
+                    }
+                    break;
+                case "TRIGGERS":
+                    document.getElementById("trigName").value = selected
+                    if (sendNet == "true") parent.send("AUTOMATION", "GET:TRIGGERS(" + selected + ")", selected)
+                    break;
+                case "EVENTS":
+                    document.getElementById("eventName").value = selected
+                    if (sendNet == "true") {
+                        parent.send("AUTOMATION", "GET:EVENTS(" + selected + ")", selected)
+                        parent.send("AUTOMATION", "GET:EVENTTRIGGERS(" + selected + ")", selected)
+                        parent.send("AUTOMATION", "GET:EVENTACTIONS(" + selected + ")", selected)
+                    }
+                    break;
+                case "ACTIONS":
+                    document.getElementById("actionName").value = selected
+                    if (sendNet == "true") parent.send("AUTOMATION", "GET:ACTIONS(" + selected + ")", selected)
+                    break;
+                case "TRANSFORMS":
+                    if (sendNet == "true") {
+                        clearRec()
+                        parent.send("AUTOMATION", "GET:TRANSFORMS(" + selected + ")", selected)
+                        parent.send("AUTOMATION", "GET:FUNCS(" + selected + ")", selected)
+                    }
+                    document.getElementById("transformName").value = selected
+                    break;
+                default:
+            }
+        }
+
+        function filterChannels() {
+            for (var trigPlug in trigPlugs) {
+                for (var trigCh in trigPlugs[trigPlug].Channels) {
+                    addToolboxEntry("selectToolbox", trigPlugs[trigPlug].Channels[trigCh].Name, trigPlugs[trigPlug].Channels[trigCh].Desc, "", trigPlugs[trigPlug].Category, trigPlugs[trigPlug].ClassName);
+                }
+            }
+
+
+            loadChannels(document.getElementById("selectSearchTxt").value.trim(), false)
+        }
+
+        // Add an entry to the toolbox
+        function addToolboxEntry(toolbox, name, desc, list, cat, plugin) {
+            //if (plugins[plugin].Channels[item].Name.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
+            //        plugins[plugin].ClassName.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
+            //        plugins[plugin].Category.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
+            //        filter === "") {                                                                                    // filter elements
+            //chElem.innerHTML = "<i class='icon-" + IOIcon + "' icon-large>&nbsp;</i><i class='icon-" + channelIcon + " icon-large' id='" + plugins[plugin].Category + "/" + plugins[plugin].ClassName + "/" + plugins[plugin].Channels[item].Name + "'></i><br/>" + plugins[plugin].ClassName + "<br/>" + plugins[plugin].Channels[item].Name + "<br/><br/>"
+
+            var chElem = document.createElement("li");
+            chElem.style.setProperty("cursor", "pointer");
+            chElem.className = "tip"
+            chElem.setAttribute("data-original-title", desc);
+            chElem.setAttribute("data-list", list);
+            //document.getElementById("noSelect").setAttribute("data-list", list);
+            chElem.id = cat + "/" + plugin + "/" + name         // store the category, class and channel names in the ID field for future use
+            var icon = "hammer"                                 // Actions selected
+            if (list.indexOf("Trig") != -1) icon = "lightning"  // Triggers
+            var className = ""
+            if (cat !== undefined) {                            // channels selected, add channel class (plugin) name
+                className = plugin.toUpperCase() + "<br/>"
+                icon = parent.categories[parent.categories.map(function (e) { return e.Cat; }).indexOf(cat)].Icon;
+            }
+            chElem.innerHTML = "<i id='" + cat + "/" + plugin + "/" + name + "' class='icon-" + icon + " icon-large'></i><br/>" + className + name + "<br/><br/>"
+            document.getElementById("selectToolboxScroll").appendChild(chElem)
+        }
+
+        // Called when am item is selected from the toolbox (dual function, adding trig/action to events, and select channel)
+        function selTBItem(event) {
+            if (event.target.id != "") {
+                var name = event.target.id.split("/")
+                var mySel = document.getElementById(event.target.id);
+                var list = mySel.getAttribute("data-list")      // name of the select list stored in data attribute
+                if (name[0] !== "undefined") {                    // Channel selected
+                    var myPanel = document.getElementById("selectToolbox").getAttribute("data-panel")               // Set the advanced field values (used when sending messages back to host)
+                    if (name[0] !== "noSelect") {               // None button selected
+                        document.getElementById(myPanel + "Val").innerText = name[2] + " (" + name[1].toUpperCase() + ")"
+                    } else {
+                        document.getElementById(myPanel + "Val").innerText = "None"
+                        name[0] = "ALL"
+                        name[1] = ""
+                        name[2] = ""
+                    }
+                    document.getElementById(myPanel + "Category").innerHTML = name[0].toUpperCase() + "&nbsp;&nbsp;<span class='caret'/>"
+                    document.getElementById(myPanel + "Class").innerText = name[1]
+                    document.getElementById(myPanel + "Instance").innerText = name[2]
+                    document.getElementById(myPanel + "Scope").innerText = ""
+                } else {                                        // Action or Trigger selected
+                    if ($("#" + list).find("option[value='" + name[2] + "']").length == 0) {    // Only add if the entry is not already in the listbox
+                        $("#" + list).append("<option value='" + name[2] + "'>" + name[2] + " - " + mySel.getAttribute("data-original-title") + "</option>");
+                    }
+                }
+                toggleTB("selectToolbox", "close");
+            }
+        }
+
+        // Find the selected index of a conditional dropdown
+        function getCat(catID) {
+            return parent.categories[catID].Cat;
+        }
+
+        // Populate pulldown from list
+        function popPulldown(id, JSONitems, field) {
+            $("#" + id).children('li').remove();
+            var items = JSON.parse(JSONitems)
+            if (items == null) {
+                addListEntry(id, "<i>no items found<i>", false);
+            } else {
+                for (var item in items) {
+                    addListEntry(id, items[item][field], true);
+                }
+            }
+        }
+
+        // Process messages received from the host
+        function recvHost(msg) {
+            switch (msg.ClassName) {
+                case "AUTOMATION":
+                    if (msg.Data != "") {
+                        switch (msg.Scope.substr(0, msg.Scope.indexOf("("))) {
+                            case "GET:NAMES":                                               // load names combobox
+                                var tabName = msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1)
+                                switch (tabName) {
+                                    case "WIDGETS":
+                                        popPulldown("programNameList", msg.Data, "Name")
+                                        break;
+                                    case "TRIGGERS":
+                                        popPulldown("trigNameList", msg.Data, "TrigName")
+                                        break;
+                                    case "ACTIONS":
+                                        popPulldown("actionNameList", msg.Data, "ActionName")
+                                        break;
+                                    case "EVENTS":
+                                        popPulldown("eventNameList", msg.Data, "EventName")
+                                        break;
+                                    case "TRIGGERSDESC":
+                                        $("#selectToolboxScroll").children('li').remove();
+                                        var trigs = JSON.parse(msg.Data)
+                                        if (trigs == null) {
+                                            addToolboxEntry("selectToolbox", "<i>no triggers<i>");
+                                        } else {
+                                            for (var trig in trigs) {
+                                                addToolboxEntry("selectToolbox", trigs[trig].TrigName, trigs[trig].TrigDescription, "eventTrigSel");
+                                            }
+                                        }
+                                        toggleTB("selectToolbox", "open")
+                                        enableTooltip()     // as the DOM has been updated
+                                        break;
+                                    case "ACTIONSDESC":
+                                        $("#selectToolboxScroll").children('li').remove();
+                                        var actions = JSON.parse(msg.Data)
+                                        if (actions == null) {
+                                            addToolboxEntry("selectToolbox", "<i>no actions<i>");
+                                        } else {
+                                            for (var action in actions) {
+                                                addToolboxEntry("selectToolbox", actions[action].ActionName, actions[action].ActionDescription, "eventActionSel");
+                                            }
+                                        }
+                                        toggleTB("selectToolbox", "open")
+                                        enableTooltip()     // as the DOM has been updated
+                                        break;
+                                    case "TRANSFUNCS":
+                                        popPulldown("transformNameList", msg.Data, "TFName")
+                                        break;
+                                    default:
+                                        return;
+                                }
+                                break;
+                            case "GET:EVENTS":
+                                var myEvent = JSON.parse(msg.Data);
+                                $('#eventDesc').val(myEvent[0].EventDescription);
+                                $('#eventChkEnabled').prop('checked', myEvent[0].EventActive);
+                                $('#eventChkOneOff').prop('checked', myEvent[0].EventOneOff);
+                                $('#eventFromDate').val(getJSDateTime(myEvent[0].EventStart, "datetime"));
+                                $('#eventToDate').val(getJSDateTime(myEvent[0].EventStop, "datetime"));
+                                //$('#eventLastFired').val(getJSDateTime(myEvent[0].EventLastFired, "datetime"));
+                                $('#eventTimesRun').val(myEvent[0].EventNumRecur);
+                                break;
+                            case "GET:EVENTTRIGGERS":
+                                $("#eventTrigSel").children('option').remove();
+                                var myEventTrigs = JSON.parse(msg.Data);
+                                for (var trig in myEventTrigs) {
+                                    $("#eventTrigSel").append("<option value='" + myEventTrigs[trig].TrigName + "'>" + myEventTrigs[trig].TrigName + " - " + myEventTrigs[trig].Desc + "</option>");
+                                }
+                                break;
+                            case "GET:EVENTACTIONS":
+                                $("#eventActionSel").children('option').remove();
+                                var myEventActions = JSON.parse(msg.Data);
+                                for (var action in myEventActions) {
+                                    $("#eventActionSel").append("<option value='" + myEventActions[action].ActionName + "'>" + myEventActions[action].ActionName + " - " + myEventActions[action].Desc + "</option>");
+                                }
+                                break;
+                            case "GET:ACTIONS":
+                                var myAction = JSON.parse(msg.Data);
+                                $('#actionDesc').val(myAction[0].ActionDescription);
+                                $('#actionScriptName').val(myAction[0].ActionScriptName);
+                                $('#actionScriptParam').val(myAction[0].ActionScriptParam);
+                                //$('#actionNetwork').val(myAction[0].ActionNetwork);
+                                pressBut("actionCategory", getCat(parseInt(myAction[0].ActionCategory)));
+                                document.getElementById("actionVal").innerText = myAction[0].ActionInstance + " (" + myAction[0].ActionClass + ")"
+                                //$("#actionVal").val(myTrig[0].ActionInstance + " (" + myTrig[0].ActionClass + ")")
+                                $('#actionClass').val(myAction[0].ActionClass);
+                                $('#actionInstance').val(myAction[0].ActionInstance);
+                                $('#actionScope').val(myAction[0].ActionScope);
+                                $('#actionData').val(myAction[0].ActionData);
+                                $('#actionChkRnd').prop('checked', myAction[0].ActionChkRnd);
+                                $('#actionDelay').val(myAction[0].ActionDelay);
+                                break;
+                            case "GET:TRIGGERS":
+                                var myTrig = JSON.parse(msg.Data);
+                                $('#trigDesc').val(myTrig[0].TrigDescription);
+                                $('#trigScriptName').val(myTrig[0].TrigScript);
+                                $('#trigScriptParam').val(myTrig[0].TrigScriptParam);
+                                $('#trigScriptValue').val(myTrig[0].TrigScriptData);
+                                pressBut("trigScriptCond", condStr[parseInt(myTrig[0].TrigScriptCond)]);
+                                pressBut("trigStateCategory", getCat(myTrig[0].TrigStateCategory));
+                                $('#trigStateClass').val(myTrig[0].TrigStateClass);
+                                $('#trigStateInstance').val(myTrig[0].TrigStateInstance);
+                                $('#trigStateScope').val(myTrig[0].TrigStateScope);
+                                document.getElementById("trigStateVal").innerText = myTrig[0].TrigStateInstance + " (" + myTrig[0].TrigStateClass + ")"
+                                //$("#trigStateVal").val(myTrig[0].TrigStateInstance + " (" + myTrig[0].TrigStateClass + ")")
+                                pressBut("trigStateCond", condStr[parseInt(myTrig[0].TrigStateCond)]);
+                                $('#trigStateData').val(myTrig[0].TrigStateData);
+                                pressBut("trigChgCategory", getCat(myTrig[0].TrigChgCategory));
+                                $('#trigChgClass').val(myTrig[0].TrigChgClass);
+                                $('#trigChgInstance').val(myTrig[0].TrigChgInstance);
+                                $('#trigChgScope').val(myTrig[0].TrigChgScope);
+                                document.getElementById("trigChgVal").innerText = myTrig[0].TrigChgInstance + " (" + myTrig[0].TrigChgClass + ")"
+                                //$("#trigChgVal").val(myTrig[0].TrigChgInstance + " (" + myTrig[0].TrigChgClass + ")")
+                                pressBut("trigChgCond", condStr[parseInt(myTrig[0].TrigChgCond)]);
+                                $('#trigChgData').val(myTrig[0].TrigChgData);
+                                $('#trigFromDate').val(getJSDateTime(myTrig[0].TrigDateFrom, "date"));
+                                $('#trigFromTime').val(getJSDateTime(myTrig[0].TrigTimeFrom, "time"));
+                                $('#trigToDate').val(getJSDateTime(myTrig[0].TrigDateTo, "date"));
+                                $('#trigToTime').val(getJSDateTime(myTrig[0].TrigTimeTo, "time"));
+                                $('#trigChkFortnight').prop('checked', myTrig[0].TrigFortnightly);
+                                $('#trigChkMonth').prop('checked', myTrig[0].TrigMonthly);
+                                $('#trigChkYear').prop('checked', myTrig[0].TrigYearly);
+                                $('#trigChkSunrise').prop('checked', myTrig[0].TrigSunrise);
+                                $('#trigChkSunset').prop('checked', myTrig[0].TrigSunset);
+                                $('#trigChkDay').prop('checked', myTrig[0].TrigDayTime);
+                                $('#trigChkNight').prop('checked', myTrig[0].TrigNightTime);
+                                $('#trigChkMon').prop('checked', myTrig[0].TrigMon);
+                                $('#trigChkTue').prop('checked', myTrig[0].TrigTue);
+                                $('#trigChkWed').prop('checked', myTrig[0].TrigWed);
+                                $('#trigChkThu').prop('checked', myTrig[0].TrigThu);
+                                $('#trigChkFri').prop('checked', myTrig[0].TrigFri);
+                                $('#trigChkSat').prop('checked', myTrig[0].TrigSat);
+                                $('#trigChkSun').prop('checked', myTrig[0].TrigSun);
+                                $('#trigChkActive').prop('checked', myTrig[0].TrigActive);
+                                $('#trigChkInactive').prop('checked', myTrig[0].TrigInactive);
+                                $('#trigTimeofDay').val(getJSDateTime(myTrig[0].TrigTimeofDay, "time"));
+                                //$('#trigLastFired').val(getJSDateTime(myTrig[0].TrigLastFired));
+                                break;
+                            case "GET:TRANSFORMS":
+                                var myTransform = JSON.parse(msg.Data);
+                                $('#transformDesc').val(myTransform[0].TFDescription);
+                                $('#transFuncOutChkEnabled').prop('checked', myTransform[0].Enabled);
+                                pressBut("transFuncOutRounding", myTransform[0].RoundDec);
+                                pressBut("transFuncOutCategory", getCat(myTransform[0].Category));
+                                $('#transFuncOutClass').val(myTransform[0].Class);
+                                $('#transFuncOutInstance').val(myTransform[0].Instance);
+                                $('#transFuncOutScope').val(myTransform[0].Scope);
+                                break;
+                            case "GET:FUNCS":
+                                var myFunctions = JSON.parse(msg.Data);
+                                for (var func in myFunctions) {
+                                    var funcStr = myFunctions[func].FuncType + " "                                        // Reconstitute function string for display
+                                    if (myFunctions[func].Val === null) {
+                                        funcStr = funcStr + myFunctions[func].History + " [" + getCat(myFunctions[func].Category) + "/" + myFunctions[func].Class + "] " + myFunctions[func].Instance + "(" + myFunctions[func].Scope + ")"
+                                        if (myFunctions[func].Type !== "") {
+                                            if (myFunctions[func].Type === "since") {
+                                                funcStr = funcStr + " " + myFunctions[func].Type + "(" + myFunctions[func].PrevFromTime + " " + myFunctions[func].PrevFromDate + ")"
+                                            } else {
+                                                funcStr = funcStr + " " + myFunctions[func].Type + "(" + myFunctions[func].Prev + " " + myFunctions[func].PrevUnit + ")"
+                                            }
+                                        }
+                                    } else {
+                                        funcStr = funcStr + "Value " + myFunctions[func].Val
+                                    }
+                                    $("#transFuncSel").append("<option value='" + funcStr + "'>" + funcStr + "</option>");
+                                }
+                                break;
+                            case "GET:WIDGETS":
+                                var serverCode = JSON.parse(msg.Data)[0]
+                                $("#programDesc").val(serverCode.Desc)
+                                $("#programLang").val(serverCode.Lang.toUpperCase())
+                                myCodeMirror.setValue(serverCode.Code)
+                                break;
+                            case "DEL:TRIGGERS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Trigger '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
+                                    clearRec()
+                                    loadNames("TRIGGERS")
+                                } else {
+                                    parent.status("WARNING - Error deleting trigger '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "DEL:ACTIONS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
+                                    clearRec()
+                                    loadNames("ACTIONS")
+                                } else {
+                                    parent.status("WARNING - Error deleting action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "DEL:EVENTS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
+                                    clearRec()
+                                    loadNames("EVENTS")
+                                } else {
+                                    parent.status("WARNING - Error deleting event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "DEL:TRANSFORMS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
+                                    clearRec()
+                                    loadNames("TRANSFUNCS")
+                                } else {
+                                    parent.status("WARNING - Error deleting transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "UPD:PROGRAMS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Program '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' updated.");
+                                } else {
+                                    parent.status("WARNING - Error updating program '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "UPD:TRIGGERS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Trigger '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' updated.");
+                                } else {
+                                    parent.status("WARNING - Error updating trigger '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "UPD:ACTIONS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' updated.");
+                                } else {
+                                    parent.status("WARNING - Error updating action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "UPD:EVENTS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' updated.");
+                                } else {
+                                    parent.status("WARNING - Error updating event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "UPD:TRANSFORMS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' updated.");
+                                } else {
+                                    parent.status("WARNING - Error updating transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "ADD:TRIGGERS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Trigger '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' added.");
+                                    loadNames("TRIGGERS")
+                                } else {
+                                    parent.status("WARNING - Error adding trigger '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "ADD:ACTIONS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' added.");
+                                    loadNames("ACTIONS")
+                                } else {
+                                    parent.status("WARNING - Error adding action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "ADD:EVENTS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' added.");
+                                    loadNames("EVENTS")
+                                } else {
+                                    parent.status("WARNING - Error adding event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "ADD:TRANSFORMS":
+                                if (msg.Data == "OK") {
+                                    parent.status("Transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' added.");
+                                    loadNames("TRANSFUNCS")
+                                } else {
+                                    parent.status("WARNING - Error adding transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            default:
+                        }
+                    }
+                    break;
+                case "WIDGETS":
+                    switch (msg.Scope) {
+                        case "CHANNELS":
+                            $("#selectToolboxScroll").children('li').remove();
+                            var trigPlugs = JSON.parse(msg.Data)
+                            if (trigPlugs == null) {
+                                addToolboxEntry("selectToolbox", "<i>no channels<i>");
+                            } else {
+                                for (var trigPlug in trigPlugs) {
+                                    for (var trigCh in trigPlugs[trigPlug].Channels) {
+                                        addToolboxEntry("selectToolbox", trigPlugs[trigPlug].Channels[trigCh].Name, trigPlugs[trigPlug].Channels[trigCh].Desc, "", trigPlugs[trigPlug].Category, trigPlugs[trigPlug].ClassName);
+                                    }
+                                }
+                            }
+                            enableTooltip()     // as the DOM has been updated
+                            break;
+                        default:
+                    }
+                    break;
+                case "SETTINGS":
+                    if (msg.Data != "") {
+                        switch (msg.Scope.substr(0, msg.Scope.indexOf("("))) {
+                            default:
+                        }
+                    }
+                    break;
+                default:
+                    //alert("Don't understand server message class: " + msg.ClassName + " scope: " + msg.Scope + " data: " + msg.Data)
+            }
+        }
+
+        //////////////////// Utilities
+
+        // Convert from JS date format to dotnet ticks
+        function getNetDateTime(JSDateTime, dateTime) {
+            if (JSDateTime == "" || JSDateTime == undefined) return nullDate;
+            var convStr = JSDateTime.replace(/\u200E/g, "");       // remove hidden unicode left-to-right mark
+            //var convStr = JSDateTime.toLocaleString().replace(/\u200E/g, "");       // remove hidden unicode left-to-right mark
+            switch (dateTime) {                 // convert date to UTC strings
+                case "date":
+                    var myDate = new Date(convStr);
+                    myDate.setHours(0)
+                    myDate.setMinutes(0)
+                    myDate.setSeconds(0)
+                    myDate.setMilliseconds(0)
+                    break;
+                case "time":
+                    var myDate = new Date();
+                    if (convStr.split(":").length !== 2) return NaN
+                    myDate.setHours(convStr.split(":")[0], convStr.split(":")[1].split(" ")[0]);
+                    break;
+                case "datetime":
+                    var myDate = new Date(convStr)
+                    break;
+                default:
+            }
+            var datetime = (myDate.valueOf() * pcTicks + unixEpoc).toString();
+            return datetime;
+        }
+
+        // Convert from PC date format ticks to Javascript date
+        function getJSDateTime(ticks, dateortime) {
+            var datetime = new Date((ticks - unixEpoc) / pcTicks)
+            if (datetime.valueOf() > 0) {
+                if (datetime.getFullYear() == "2000") return "";                      // null date
+                if (dateortime == "date") return datetime.toLocaleDateString();
+                if (dateortime == "time") return datetime.toLocaleTimeString();
+                return datetime.toLocaleString();
+            } else return "";
+        }
+
+        // enable bootstrap tooltips
+        function enableTooltip() {
+            $(".tip").tooltip({ delay: { show: parent.tooltipDelay } });
+        }
+
+        // setup datetime pickers
+        $(function () {
+            $('#dtpFromDate').datetimepicker({
+                language: 'en',
+                pickTime: false
+            });
+            $('#dtpFromTime').datetimepicker({
+                language: 'en',
+                pickDate: false,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpToDate').datetimepicker({
+                language: 'en',
+                pickTime: false
+            });
+            $('#dtpToTime').datetimepicker({
+                language: 'en',
+                pickDate: false,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpTimeofDay').datetimepicker({
+                language: 'en',
+                pickDate: false,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpEventFrom').datetimepicker({
+                language: 'en',
+                pickDate: true,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpEventTo').datetimepicker({
+                language: 'en',
+                pickDate: true,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+        });
+
+    </script>
+</body>
+</html>

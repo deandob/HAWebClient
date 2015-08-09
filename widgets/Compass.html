@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Compass Widget</title>
+</head>
+<body id="body">
+    <style > 
+        body {
+            overflow: hidden;
+        }
+    </style >
+
+    <span id="TBtooltip" data-default="Current and Average Wind Direction" />
+    <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
+    <span id="attrib1" data-type="channel" data-name="Average" data-default="" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <svg id="widget" width="100" height="100" style="position: absolute; left: 0px; top: 0px; z-index:4">
+            <style type="text/css">
+                text {
+                    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+                    font-weight: normal;
+                    font-style: normal;
+                    font-size: 20px;
+                    text-align: center;
+                    pointer-events: none;
+                }
+            </style>
+
+            <g id="svgGroup">
+                <g id="noScale">
+
+                </g>
+                <g id="scale">
+                    <circle r="45" cy="50" cx="50" stroke-width="5" stroke="#b2b2b2" fill-opacity="0" fill="#ff0000" />
+                    <text xml:space="preserve" y="26" x="50" text-anchor="middle" stroke-width="0" stroke="#000000" fill="#000000" font-weight="bold" font-size="18" font-family="Sans-serif" id="svg_17">N</text>
+                    <text xml:space="preserve" y="56" x="22" text-anchor="middle" stroke-width="0" stroke="#000000" fill="#000000" font-weight="bold" font-size="18" font-family="Sans-serif" id="svg_19">W</text>
+                    <text xml:space="preserve" y="56" x="80" text-anchor="middle" stroke-width="0" stroke="#000000" fill="#000000" font-weight="bold" font-size="18" font-family="Sans-serif" id="svg_20">E</text>
+                    <text xml:space="preserve" y="87" x="50" text-anchor="middle" stroke-width="0" stroke="#000000" fill="#000000" font-weight="bold" font-size="18" font-family="Sans-serif" id="svg_21">S</text>
+                    <path id="TBNeedle" d="m50,30 l-10,40 l10,-10 l10,10 l-10,-40z" stroke-width="0" stroke="#000000" fill="#ff0000" />
+                </g>
+            </g>
+        </svg>
+        <svg id="needle" style="position: absolute; left: 0px; top: 0px; z-index:3">
+            <path id="svgNeedle" d="m50,30 l-10,40 l10,-10 l10,10 l-10,-40z" stroke-width="0" stroke="#000000" fill="#ff0000"><title id="needleTool">Direction: N</title></path>
+        </svg>
+        <svg id="avg" style="position: absolute; left: 0px; top: 0px; z-index: 2">
+            <polyline id="svgAvg" points="44,4 56,4 50,12 44,4" fill="rgb(20, 20, 230)" stroke-width="0" style="display: none"><title id="avgTool">Average: 0</title></polyline>
+        </svg>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script>
+        var needleID = document.getElementById("needle");		    // id of the path to rotate
+        var numID = document.getElementById("numVal");		        // id text field
+        var avgID = document.getElementById("avg");                 // id average marker
+        var oldVal = 0;
+        var oldAvg = 0;
+        var direction = "N"
+
+        // Called from framework when widget starts
+        function widgetStart(param) {                               // widget specific startup
+            if (_attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline");
+            // Hide the svg used to display the widget in the toolbox for proper drag/drop (can only drag id=widget SVG element) & put dial face in background
+            document.getElementById("TBNeedle").style.setProperty("display", "none");
+            _widgetID.style.setProperty("z-index", "1");
+            return true;
+        }
+
+        function startEdit() {              // called when editing started
+        }
+
+        function scale(scaleX, scaleY) {
+            svgAvg.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
+            svgNeedle.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
+        }
+
+        function endEdit(param0) {                  // called when editing finishes
+        }
+
+        function startDesign() {                    // called when switching to design mode
+        }
+
+        function endDesign() {                      // called when switching to design mode
+        }
+
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            if (channel === _attribs[0].value.split("/")[2]) return rotateDial(data);
+            if (channel === _attribs[1].value.split("/")[2]) return setAvg(data);
+        }
+
+        function endEdit(param0) {                                  // called when editing finishes
+            if (_attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline")
+                else document.getElementById("svgAvg").style.setProperty("display", "none")                             // Only display average marker if channel is set
+        }
+
+        // Called from framework for initial channel status
+        function ini(channel, scope, data) {
+            return feed(channel, scope, data);
+        }
+
+        // Set the average indicator
+        function setAvg(ordinal) {
+            var avgVal = getAngle(ordinal);
+            document.getElementById("avgTool").textContent = "Average: " + ordinal
+            avgID.style.setProperty('transition', 'transform ' + Math.abs(avgVal - oldAvg) / 100 + 's cubic-bezier(0.680, -0.550, 0.265, 1.550)')
+            avgID.style.setProperty('transform', 'rotate(' + avgVal + 'deg)')
+        }
+
+        function getAngle(ordinal) {
+            switch (ordinal) {
+                case "N":
+                    return 0;
+                case "NNE":
+                    return 22.5;
+                case "NE":
+                    return 45;
+                case "ENE":
+                    return 67.5;
+                    break;
+                case "E":
+                    return 90;
+                case "ESE":
+                    return 112.5;
+                case "SE":
+                    return 135;
+                case "SSE":
+                    return 157.5;
+                case "S":
+                    return 180;
+                case "SSW":
+                    return 202.5;
+                case "SW":
+                    return 225;
+                case "WSW":
+                    return 247.5;
+                case "W":
+                    return 270;
+                case "WNW":
+                    return 292.5;
+                case "NW":
+                    return 315;
+                case "NNW":
+                    return 337.5;
+                default:
+                    return null;     // exit if incorrect direction specified
+                    break;
+            }
+        }
+
+        // Rotate dial between 0 and Range
+        function rotateDial(ordinal) {
+            direction = ordinal;
+            document.getElementById("needleTool").textContent = "Direction: " + ordinal
+            var newVal = getAngle(ordinal)
+            needleID.style.setProperty('transition', 'transform ' + Math.abs(newVal - oldVal) / 100 + 's cubic-bezier(0.680, -0.550, 0.265, 1.550)')
+            needleID.style.setProperty('transform', 'rotate(' + newVal + 'deg)')
+            oldVal = newVal;
+        }
+    </script>
+</body>
+</html>

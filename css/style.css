@@ -1,0 +1,175 @@
+﻿/* ==========================================================================
+   Custom styles for HAClient
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff'); 
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff'); 
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 14px;
+    color: #4C4C4C;
+}
+ 
+.navframe
+{
+    padding: 10px;
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+
+.CodeMirror {
+  font-family: 'Courier New';
+  height: 500px;
+}
+
+.dropdown-menu {
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden
+  }
+
+.pointer {
+    cursor: pointer;
+}
+
+.nofocus {
+    outline: none;
+}
+
+.icon-large {
+    padding-right: 5px; 
+    vertical-align:-10%;
+    font-size:1.2em
+}
+
+.icon-vlarge {
+    padding-right: 5px; 
+    vertical-align:-10%;
+    font-size:1.5em
+}
+
+a.nounderline
+{
+    text-decoration: none;
+}
+
+.widgetCanvas {
+    background-color: white;
+    position: absolute; 
+    left: 150px; 
+    top: 0px; 
+    bottom: 5px; 
+    right: 0px;
+    z-index: 0;
+}
+
+.widgetCanvasMobile {
+    background-color: white;
+    position: absolute; 
+    left: 0px; 
+    top: 50px; 
+    bottom: 5px; 
+    right: 0px;
+    z-index: 0;
+}
+
+.toolbox {
+    width:140px; 
+    top: 5px; 
+    bottom: 65px;
+    background-color: rgb(244,244,244); 
+    position: absolute;
+    left: -160px; 
+    text-align: center;
+    display:inline-flexbox; 
+    padding-left: 0px; 
+    transition: left 0.5s ease-out; 
+    z-index:100; 
+    border-width: 1px; 
+    border-style:solid; 
+    border-color:rgb(220, 220, 220); 
+    border-radius:2px; 
+    overflow-x:hidden;
+    box-shadow:3px 3px 7px 3px rgb(220, 220, 220);
+}
+.toolboxScroll {
+    top: 100px; 
+    bottom: 5px;
+    width: 130px;
+    position: absolute; 
+    left: 5px; 
+    transition: left 0.5s ease-out; 
+    overflow-y:scroll; 
+    overflow-x:hidden;
+}
+
+.toolboxControls {
+    margin-left: 6px; 
+}
+
+/* custom inclusion of left right tabs */
+
+.tabs-right > .nav-tabs,
+.tabs-left > .nav-tabs {
+  border-bottom: 0;
+}
+
+.tab-content > .tab-pane,
+.pill-content > .pill-pane {
+  display: none;
+}
+
+.tab-content > .active,
+.pill-content > .active {
+  display: block;
+}
+
+.tabs-left > .nav-tabs > li,
+.tabs-right > .nav-tabs > li {
+  float: none;
+}
+
+.tabs-left > .nav-tabs > li > a,
+.tabs-right > .nav-tabs > li > a {
+  min-width: 74px;
+  margin-right: 0;
+  margin-bottom: 3px;
+}
+
+.tabs-left > .nav-tabs {
+  float: left;
+  margin-right: 19px;
+  border-right: 1px solid #ddd;
+}
+
+/*Changed margin-right from -1px to -2px as IE has a bug that shows a line through the active tab if -1px*/
+.tabs-left > .nav-tabs > li > a {
+  margin-right: -2px;
+  -webkit-border-radius: 4px 0 0 4px;
+     -moz-border-radius: 4px 0 0 4px;
+          border-radius: 4px 0 0 4px;
+}
+
+.tabs-left > .nav-tabs > li > a:hover,
+.tabs-left > .nav-tabs > li > a:focus {
+  border-color: #eeeeee #dddddd #eeeeee #eeeeee;
+}
+
+.tabs-left > .nav-tabs .active > a,
+.tabs-left > .nav-tabs .active > a:hover,
+.tabs-left > .nav-tabs .active > a:focus {
+  border-color: #ddd transparent #ddd #ddd;
+  *border-right-color: #ffffff;
+}

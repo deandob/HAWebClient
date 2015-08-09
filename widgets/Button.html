@@ -1,0 +1,192 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Button Widget</title>
+</head>
+<body id="body">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .noSelect {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .btn {
+            text-align: center;
+            border-radius: 3px;
+        }
+
+        .yellow {
+            border: 2px solid #fbeed5;
+            background-color: #fcf8e3;
+            color: #c09853;
+        }
+            .yellow:hover {
+                border: 2px solid #f3e6cd;
+                background-color: #f4f0dd;
+                color: #a8904d;
+            }
+
+        .white {
+            border: 2px solid #e3e3e3;
+            background-color: #ffffff;
+            color: #999;
+        }
+            .white:hover {
+                border: 2px solid #dbdbdb;
+                background-color: #f5f5f5;
+                color: #878787;
+            }
+
+        .grey {
+            border: 2px solid #e3e3e3;
+            background-color: #f5f5f5;
+            color: #999;
+        }
+            .grey:hover {
+                border: 2px solid #d0d0d0;
+                background-color: #e5e5e5;
+                color: #888;
+            }
+
+        .blue {
+            border: 2px solid #bce8f1;
+            background-color: #d1e5ef;
+            color: #3a87ad;
+        }
+            .blue:hover {
+                border: 2px solid #b4e0ea;
+                background-color: #d9edf7;
+                color: #327fa5;
+            }
+
+        .red {
+            border: 2px solid #eed3d7;
+            background-color: #f2dede;
+            color: #b94a48;
+        }
+            .red:hover {
+                border: 2px solid #e6cdcf;
+                background-color: #eed6d6;
+                color: #b14240;
+            }
+
+        .green {
+            border: 2px solid #b6c9a6;
+            background-color: #dff0d8;
+            color: #468847;
+        }
+            .green:hover {
+                border: 2px solid #cee2be;
+                background-color: #cfe0c8;
+                color: #3e803f;
+            }
+
+        .btnShadow {
+            box-shadow: 4px 4px 6px #cccccc;
+        }
+            .btnShadow:active {
+                position: absolute;
+                margin-left: 1px;
+                margin-top: 1px;
+                box-shadow: 3px 3px 5px #bbbbbb;
+            }
+
+        .btnNoShadow {
+            box-shadow: none;
+        }
+            .btnNoShadow:active {
+                position: absolute;
+                margin-left: 1px;
+                margin-top: 1px;
+                box-shadow: none;
+            }
+    </style>
+
+    <span id="TBtooltip" data-default="Manual trigger channel" />
+    <span id="attrib0" data-type="channel" data-name="Channel" data-default="" />
+    <span id="attrib1" data-type="checkbox" data-name="3D Shadow" data-default="false" />
+    <span id="attrib2" data-type="dropdown" data-name="grey, green, red, yellow, blue, white" data-default="red" />
+    <span id="attrib3" data-type="input" data-name="Trigger Scope" data-default="value" />
+    <span id="attrib4" data-type="input" data-name="Trigger Value" data-default="1" />
+    <span id="attrib5" data-type="data" data-default="Press" />
+    <span id="attrib6" data-type="input" data-name="Tooltip" data-default="" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <div id="widget" class="noSelect red btn" style="width: 100px; height: 50px; position: absolute; left: 0px; top: 0px; z-index: 0; cursor: pointer">Press</div>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script>
+
+        function toolboxStart() {           // called when loaded in toolbox
+        }
+
+        function startEdit() {              // called when editing started
+            document.body.setAttribute("spellcheck", "true");
+        }
+
+        function endEdit(param0) {                // called when editing finishes
+            document.body.setAttribute("spellcheck", "false");
+            fwFunc("setAttrib", 5, _widgetID.textContent)               // Save any edited text
+            widgetStart()
+        }
+
+        function startDesign() {            // called when switching to design mode
+            _widgetID.contentEditable = "true"
+            _widgetID.className = _widgetID.className.replace(" noSelect", "")
+        }
+
+        function endDesign() {            // called when switching to design mode
+            _widgetID.contentEditable = "false"
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+            _widgetID.style.setProperty("width", (_iniWidth * scaleX - 10) + "px");             // Allow space for shadow
+            _widgetID.style.setProperty("height", (_iniHeight * scaleY - 10) + "px");
+            _widgetID.style.setProperty("line-height", _iniHeight * scaleY - 10 + "px");
+        }
+
+        function clicked(event) {                   // left Button pressed
+            if (event.which === 1) channelSend(_attribs[0].value, _attribs[3].value, _attribs[4].value);
+        }
+
+        //// Widget specific functions
+        function widgetStart(mode) {            // widget specific startup
+            if (_attribs[1].value === true) _widgetID.className = _attribs[2].value + " noSelect btn btnShadow"
+            else _widgetID.className = _attribs[2].value + " noSelect btn btnNoShadow"
+            _widgetID.innerHTML = _attribs[5].value;
+            if (_attribs[6].value !== "") fwFunc("setTooltip", _attribs[6].value);
+            return true;
+        }
+
+        function feed(channel, scope, data) {            // feed from the server
+        }
+
+    </script>
+</body>
+</html>

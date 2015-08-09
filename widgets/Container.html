@@ -1,0 +1,122 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Container Widget</title>
+</head>
+<body id="body">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style:normal;
+            font-weight:700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            font-weight: 700;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .yellow {
+            border: 2px solid #fbeed5;
+            background-color: #fcf8e3;
+            color: #c09853;
+        }
+
+        .white {
+            border: 2px solid #e3e3e3;
+            background-color: #ffffff;
+            color: #999;
+        }
+
+        .grey {
+            border: 2px solid #e3e3e3;
+            background-color: #f5f5f5;
+            color: #999;
+        }
+
+        .blue {
+            border: 2px solid #bce8f1;
+            background-color: #d9edf7;
+            color: #3a87ad;
+        }
+
+        .red {
+            border: 2px solid #eed3d7;
+            background-color: #f2dede;
+            color: #b94a48;
+        }
+
+        .green {
+            border: 2px solid #b6c9a6;
+            background-color: #dff0d8;
+            color: #468847;
+        }
+    </style>
+
+    <span id="TBtooltip" data-default="Simple container for organising on screen widgets" />
+    <span id="attrib0" data-type="checkbox" data-name="3D Shadow" data-default="false" />
+    <span id="attrib1" data-type="dropdown" data-name="grey, green, red, yellow, blue, white" data-default="green" />
+    <span id="attrib2" data-type="data" data-default="Title" />
+    <span id="ontop" data-default="false" />
+
+    <div id="group">
+        <div id="widget" class="green" style="position: absolute; left: 0px; top: 0px; width: 100px; height: 100px; text-align: center; border-radius: 3px;">
+            <div id="header" style="height: 20px; width: 100%; text-align: center; overflow: hidden; border: 0px;"><b>Title</b></div>
+        </div>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script>
+
+        var header = document.getElementById("header")
+
+        function toolboxStart() {           // called when loaded in toolbox
+            _widgetID.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
+            _widgetID.style.setProperty("height", parseInt(_widgetID.style.getPropertyValue("width")) + "px");
+        }
+
+        function startEdit() {              // called when editing started
+            document.body.setAttribute("spellcheck", "true");
+        }
+
+        function endEdit(param0) {                // called when editing finishes
+            document.body.setAttribute("spellcheck", "false");
+            fwFunc("setAttrib", 2, header.textContent)
+            widgetStart()
+        }
+
+        function startDesign() {            // called when switching to design mode
+            header.contentEditable = "true"
+        }
+
+        function endDesign() {            // called when switching to design mode
+            header.contentEditable = "false"
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+            _widgetID.style.setProperty("width", (_iniWidth * scaleX - 10) + "px");
+            _widgetID.style.setProperty("height", (_iniHeight * scaleY - 10) + "px");
+        }
+
+        //// Widget specific functions
+        function widgetStart(mode) {            // widget specific startup
+            if (_attribs[0].value === true) _widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
+            else _widgetID.style.setProperty("box-shadow", "none")
+            header.innerText = _attribs[2].value;
+            _widgetID.className = _attribs[1].value
+            header.className = _widgetID.className
+            return true;
+        }
+
+    </script>
+</body>
+</html>

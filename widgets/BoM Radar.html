@@ -1,0 +1,317 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>BoM Radar Widget</title>
+</head>
+<body id="body">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 18px;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .btn {
+            text-align: center;
+            border-radius: 3px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+            .btn:hover {
+                cursor: pointer;
+            }
+
+        .green {
+            border: 2px solid #b6c9a6;
+            background-color: #dff0d8;
+            color: #468847;
+        }
+            .green:hover {
+                border: 2px solid #cee2be;
+                background-color: #cfe0c8;
+                color: #3e803f;
+            }
+
+        .btnShadow {
+            box-shadow: 4px 4px 6px #cccccc;
+        }
+            .btnShadow:active {
+                position: absolute;
+                left: 1px;
+                top: 1px;
+                box-shadow: 3px 3px 5px #bbbbbb;
+            }
+    </style>
+
+    <span id="TBtooltip" data-default="Live BoM Radar Images" />
+    <span id="attrib0" data-type="input" data-name="Radar ID" data-default="664" />
+    <span id="attrib1" data-type="input" data-name="Radar Interval" data-default="400" />
+    <span id="attrib2" data-type="channel" data-name="" data-default="UTILITIES/FTP Helper/FTP File Listing" />
+    <span id="attrib3" data-type="data" data-name="64Km target" data-default="0,0" />
+    <span id="attrib4" data-type="data" data-name="128Km target" data-default="0,0" />
+    <span id="attrib5" data-type="data" data-name="256Km target" data-default="0,0" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <svg id="widget" width="514" height="602" style="position: absolute; left: 0px; top: 0px;">
+            <style type="text/css">
+                text {
+                    text-anchor: middle;
+                    font: 18px 'Open Sans';
+                    text-rendering: geometricPrecision;
+                    font-weight: normal;
+                    font-style: normal;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    -ms-user-select: none;
+                }
+
+                .green {
+                    stroke: #d6e9c6;
+                    fill: #dff0d8;
+                    cursor: pointer;
+                }
+
+                .textgreen {
+                    fill: #468847;
+                    cursor: pointer;
+                }
+
+                .greenpressed {
+                    stroke: #54a755;
+                    fill: #cfe0c8;
+                    cursor: pointer;
+                }
+
+                .textgreenpressed {
+                    fill: #3e803f;
+                    cursor: pointer;
+                }
+            </style>
+            <g id="svgGroup">
+                <g id="noScale">
+                </g>
+                <g id="scale">
+                    <text y="200" x="180" font-size="28" class="textgreen">Loading Radar Files...</text>
+                    <image id="imgBackground" x="1" y="1" width="512" height="512" xlink:href=""></image>
+                    <image id="imgLegend" x="1" y="1" width="512" height="557" xlink:href=""></image>
+                    <image id="imgWaterways" x="1" y="1" width="512" height="512" xlink:href=""></image>
+                    <image id="imgLocations" x="1" y="1" width="512" height="512" xlink:href=""></image>
+                    <image id="imgRange" x="1" y="1" width="512" height="512" xlink:href=""></image>
+                    <rect x="0" y="558" height="42" width="512" style="fill:white" />
+                    <rect x="0" y="0" rx="5" ry="5" width="514" height="600" style="fill-opacity: 0; stroke: rgb(100,100,100); stroke-width: 2px; stroke-opacity: 0.8" />
+                    <image id="imgRain0" x="1" y="1" width="512" height="512" xlink:href="" style="display:normal"></image>
+                    <image id="imgRain1" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
+                    <image id="imgRain2" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
+                    <image id="imgRain3" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
+                    <image id="imgRain4" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
+                    <image id="imgRain5" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
+                    <circle id="myLocSurr" r="0" fill-opacity="0.2" fill="rgb(255,0,0)" />
+                    <circle id="myLoc" r="0" fill="rgb(255,0,0)" />
+                    <rect id="butRect64" class="greenpressed" x="8" y="562" ry="4" rx="4" height="30" width="80" style="stroke-width:2px" />
+                    <text id="butText64" y="584" x="48" class="textgreenpressed">64 Km</text>
+                    <rect id="butRect128" class="green" x="100" y="562" ry="4" rx="4" height="30" width="80" style="stroke-width:2px" />
+                    <text id="butText128" y="584" x="138" class="textgreen">128 Km</text>
+                    <rect id="butRect256" class="green" x="192" y="562" ry="4" rx="4" height="30" width="80" style="stroke-width:2px" />
+                    <text id="butText256" y="584" x="230" class="textgreen">256 Km</text>
+                </g>
+            </g>
+        </svg>
+    </div>
+
+    <script src="../widgetFramework.js"></script>
+    <script>
+        ///////////////////// Widget specific functions
+        var radarID, radarInterval, background, waterways, legend, locations, range, rain;
+        var timer, radarFiles, latestDate, delta;
+
+        var loc = document.getElementById("myLoc");
+        var locSurr = document.getElementById("myLocSurr");
+        var radarOffset = 0;
+
+        function widgetStart(mode) {            // widget specific startup
+
+            radarID = parseInt(_attribs[0].value);
+            radarInterval = _attribs[1].value;
+
+            channelSend("UTILITIES/FTP Helper/FTP File Listing", "text", "anon/gen/radar/IDR" + (radarID + radarOffset).toString() + ".T.*");        // Get initial file listing for the saved Radar ID
+
+            setMyLocation();
+
+            background = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".background.png";
+            waterways = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".waterways.png";
+            legend = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR.legend.0.png";
+            locations = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".locations.png";
+            range = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".range.png";
+            rain = "ftp://ftp.bom.gov.au/anon/gen/radar/";
+
+            document.getElementById("imgBackground").setAttribute("xlink:href", background);
+            document.getElementById("imgLegend").setAttribute("xlink:href", legend);
+            document.getElementById("imgWaterways").setAttribute("xlink:href", waterways);
+            document.getElementById("imgLocations").setAttribute("xlink:href", locations);
+            document.getElementById("imgRange").setAttribute("xlink:href", range);
+            return true;
+        }
+
+        // draw circle on map to represent current location
+        function setMyLocation() {
+
+            var locn = _attribs[3 + (-1 * radarOffset)].value.split(",");     // use Radar offset (64Km, 128Km, 256Km files are all one number different) to locate target setting
+
+            if (locn[0] + locn[1] !== "00") {
+                locSurr.setAttribute("cx", locn[0]);
+                locSurr.setAttribute("cy", locn[1]);
+                locSurr.setAttribute("r", "10");
+                loc.setAttribute("cx", locn[0]);
+                loc.setAttribute("cy", locn[1]);
+                loc.setAttribute("r", "2");
+            } else {
+                document.getElementById("myLoc").setAttribute("r", "0");
+                document.getElementById("myLocSurr").setAttribute("r", "0");
+            }
+        }
+
+        var loopNum = 5, checkLatestLp = 0;
+        var tzOffset = new Date(Date.now()).getTimezoneOffset() * 60000         // find timezone offset in mSec as the radar times are UTC
+        function displayLoop() {
+
+            for (var lp = 0; lp < 6; lp++) {
+                if (loopNum == lp) {
+                    document.getElementById("imgRain" + lp).style.setProperty("display", "normal");
+                } else {
+                    document.getElementById("imgRain" + lp).style.setProperty("display", "none");
+                }
+            }
+
+            loopNum = loopNum - 1;
+            if (loopNum === -1) {                                        // loop through the 6 image files
+                timer = setTimeout(displayLoop, radarInterval * 3);         // small pause on the latest file
+                loopNum = 5;
+            } else timer = setTimeout(displayLoop, radarInterval);
+
+            if ((new Date() - new Date(latestDate.valueOf() - tzOffset)) > delta) {                    // each loop, check to see if later radarfiles exist if a new file is due
+                if (checkLatestLp > 20) {                               // check each radarInterval (msec) * 20 seconds
+                    channelSend("UTILITIES/FTP Helper/FTP File Listing", "text", "anon/gen/radar/IDR" + (radarID + radarOffset).toString() + ".T.*");
+                    checkLatestLp = 0;
+                } else checkLatestLp++;
+            }
+
+        }
+
+        function toolboxStart() {           // called when loaded in toolbox
+            _widgetID.height.baseVal.value = 100
+            _widgetID.width.baseVal.value = 100
+            document.getElementById("imgBackground").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.background.png");
+            document.getElementById("imgRange").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.range.png");
+            document.getElementById("imgLegend").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR.legend.0.png");
+            return true;
+        }
+
+        function menuUpdate() {
+            widgetStart("design");
+            return true;
+        }
+
+        function clicked(event) {                // User clicks widget
+            // if right click on the radar image, set the new target for each radar
+            if (event.which === 3 && (event.target.id.indexOf("imgRain") !== -1)) {
+                //if (event.which === 3 && (event.target.id.indexOf("imgRain") !== -1 || event.target.id.indexOf("myLoc") !== -1)) {
+                fwFunc("setAttrib", 3 + (-1 * radarOffset), event.clientX + "," + event.clientY)
+                //parent.widgetRequest(widgetName, "setAttrib", 3 + (-1 * radarOffset), event.clientX + "," + event.clientY);
+                fwFunc("save")
+                //parent.widgetRequest(widgetName, "save");
+            }
+            switch (event.target.id) {
+                case "butRect64":
+                case "butText64":
+                    document.getElementById("butRect64").setAttribute("class", "greenpressed");
+                    document.getElementById("butText64").setAttribute("class", "textgreenpressed");
+                    document.getElementById("butRect128").setAttribute("class", "green");
+                    document.getElementById("butText128").setAttribute("class", "textgreen");
+                    document.getElementById("butRect256").setAttribute("class", "green");
+                    document.getElementById("butText256").setAttribute("class", "textgreen");
+                    radarOffset = 0;
+                    break;
+                case "butRect128":
+                case "butText128":
+                    document.getElementById("butRect64").setAttribute("class", "green");
+                    document.getElementById("butText64").setAttribute("class", "textgreen");
+                    document.getElementById("butRect128").setAttribute("class", "greenpressed");
+                    document.getElementById("butText128").setAttribute("class", "textgreenpressed");
+                    document.getElementById("butRect256").setAttribute("class", "green");
+                    document.getElementById("butText256").setAttribute("class", "textgreen");
+                    radarOffset = -1;
+                    break;
+                case "butRect256":
+                case "butText256":
+                    document.getElementById("butRect64").setAttribute("class", "green");
+                    document.getElementById("butText64").setAttribute("class", "textgreen");
+                    document.getElementById("butRect128").setAttribute("class", "green");
+                    document.getElementById("butText128").setAttribute("class", "textgreen");
+                    document.getElementById("butRect256").setAttribute("class", "greenpressed");
+                    document.getElementById("butText256").setAttribute("class", "textgreenpressed");
+                    radarOffset = -2;
+                    break;
+                default:
+            }
+            widgetStart()
+        }
+
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            if (scope.toLowerCase() === "json directory listing") {
+                radarFiles = JSON.parse(data);                  // radar files returned in directory array with latest file at the bottom of the array
+
+                if (radarFiles.length !== 0) {
+                    for (var lp = radarFiles.length - 1; lp > (radarFiles.length - 7) ; lp--) {
+                        if (lp >= 0) document.getElementById("imgRain" + (radarFiles.length - 1 - lp)).setAttribute("xlink:href", rain + radarFiles[lp].name)  //load images
+                    }
+
+                    var latestTime = radarFiles[radarFiles.length - 1].name.substr(radarFiles[radarFiles.length - 1].name.length - 16, 12);
+                    latestDate = new Date(latestTime.substr(0, 4), parseInt(latestTime.substr(4, 2)) - 1, latestTime.substr(6, 2), latestTime.substr(8, 2), latestTime.substr(10, 2));
+                    var lastTime = radarFiles[radarFiles.length - 2].name.substr(radarFiles[radarFiles.length - 2].name.length - 16, 12);
+                    var lastDate = new Date(lastTime.substr(0, 4), parseInt(lastTime.substr(4, 2) - 1), lastTime.substr(6, 2), lastTime.substr(8, 2), lastTime.substr(10, 2));
+                    delta = latestDate - lastDate;          // find the minutes gap between files
+
+                    clearTimeout(timer);
+                    timer = setTimeout(displayLoop, 3000);      // give enough time for images to load
+                }
+            }
+            return true;
+        }
+
+        // Called from framework when shutting down widget
+        function endSession() {
+            clearTimeout(timer);
+        }
+
+        // Radar info here: http://www.bom.gov.au/inside/itb/dm/idcodes/tables/current/radar_products.shtml 
+
+    </script>
+</body>
+</html>
