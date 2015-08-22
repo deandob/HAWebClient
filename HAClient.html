@@ -141,7 +141,7 @@
 
         switch (document.URL.toLowerCase().split("?")[1]) {         // command line options after URL '?'
             case "remote":
-                serverName = "haproxy.azurewebsites.net";
+//                serverName = "haproxy.azurewebsites.net";
                 wsPort = 80;
                 document.getElementById("connType").setAttribute("class", "tip icon-cloud-download-2 icon-large pull-right");
                 document.getElementById("connType").setAttribute("data-original-title", "remote access");
@@ -149,15 +149,14 @@
                 break;
             case "debug":
                 debugURL = "?" + Math.random()          // pass any parameter in the URL line to turn on debugging (force cache reloading)
+                serverName = "HOMESERVER";
             case "local":
             default:
-                //serverName = "HOMESERVER"              /////////////////////////// TEMPORARY
-                serverName = "192.168.1.9"              /////////////////////////// FASTER - maybe bug in IE as name resolution takes 5+ seconds, instantaneous on chrome
                 wsPort = 1066;
                 document.getElementById("connType").setAttribute("class", "tip icon-home-4 icon-large pull-right")
                 document.getElementById("connType").setAttribute("data-original-title","local access") 
         }
-
+        
         var netName = ""
         var iFrame = document.getElementById("iFrame");
         window.addEventListener("resize", function (event) {

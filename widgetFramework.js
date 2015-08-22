@@ -31,10 +31,11 @@ function _nameLoaded() {
             if (_fw_loaded("dashboard")) {                                                           // canvas widget in dashboard mode
                 _fw_scale(parent.widgets[_widgetNum].scaleX, parent.widgets[_widgetNum].scaleY)      // if loaded & _started, scale widget as saved
                 _started = true;
-                parent.widgetRequest(_widgetName, "display", true);
                 for (var ini in _cacheIni) {
                     _fw_hostRequest(_cacheIni[ini].func, _cacheIni[ini].param0, _cacheIni[ini].param1, _cacheIni[ini].param2)        // process ini messages cached before widget finished loading
                 }
+                parent.widgetRequest(_widgetName, "adjustsize", "leftoffset", 5000 + parent.widgets[_widgetNum].locX + "px");
+                //parent.widgetRequest(_widgetName, "display", true);
             }
         }
     }

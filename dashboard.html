@@ -92,6 +92,7 @@
             </div>
             <div id="widgetContainer" style="z-index: 0; height: 100%; width: 100%" draggable="false" onclick="canvasClick()">
                 <!--<iframe id="welcome" style="border:none" width="100%" src=""></iframe>-->
+                <!-- <div id="loadScreen" style="position: static; z-index: 999; height: 100%; width: 100%; background-color: blue"></div>-->
                 <canvas id="cvsDesign" style="display: none; z-index: 1; height: inherit; width: inherit"></canvas>
             </div>
         </div>
@@ -588,6 +589,7 @@
                     }
                 }
             }
+
             if (widgetSubscribe !== "") {
                 parent.send("WIDGETS", "INISUB", widgetSubscribe.substring(0, widgetSubscribe.length - 1));          // remove trailing comma
             }
@@ -769,13 +771,12 @@
             var widgetName = "objWidget" + widgetNum;
             objWidget.id = widgetName;
             objWidget.addEventListener("load", widgetLoaded, false);
-            objWidget.setAttribute("top", "-500");
-            objWidget.height = 0;
+            //objWidget.height = 0;
             //objWidget.style["top"] = -500;
             //objWidget.style["width"] = 1;
             //objWidget.style["visibility"] = "hidden"
-            //objWidget.style["display"] = "none";                    // wait until fully loaded before displaying
-            //objWidget.style.setProperty("left", "-4000px");
+            //objWidget.style.setProperty("display", "none");                    // wait until fully loaded before displaying
+            objWidget.style.left = "-5000px"
             document.getElementById("widgetContainer").appendChild(objWidget);          // Add object to dashboard canvas
             return widgetName;
         }
@@ -784,7 +785,9 @@
         var allLoaded = false;
         function widgetLoaded(e) {
             var loadObj = e.currentTarget;
-            //loadObj.style["display"] = "none";                    // wait until fully loaded before displaying
+            //loadObj.style.setProperty("display", "none");
+            //loadObj.style.left = "-5000px"
+            //loadObj.style.setProperty("left", "-5000px");
             var loadName = loadObj.id;
             var loadNum = parseInt(loadName.replace("objWidget", ""));
             var loadDoc = loadObj.contentDocument
@@ -806,14 +809,14 @@
                 widgetID.setAttribute("data-type", widgets[loadNum].type);      // widget type = classname for messages
                 loadObj.style.setProperty("position", "absolute");
                 loadObj.style.setProperty("overflow", "hidden");        // ??
-                loadObj.style.setProperty("left", widgets[loadNum].locX + "px");
+                //loadObj.style.setProperty("left", widgets[loadNum].locX + "px");
                 loadObj.style.setProperty("top", widgets[loadNum].locY + "px");
 
                 loadObj.style.setProperty("z-index", widgets[loadNum].zOrder);
                 loadObj.width = widgets[loadNum].scaleX * parseInt(widgets[loadNum].iniWidth);
                 loadObj.height = widgets[loadNum].scaleY * parseInt(widgets[loadNum].iniHeight);
                 loadDoc.defaultView.addEventListener("contextmenu", function (event) { event.preventDefault(); return false; });    // stop generic right click menu
-                //loadObj.style.setProperty("display", "inline");
+                //widgetID.style.setProperty("display", "none");
 
                 // When moving anywhere on the page, drag the window until the mouse button comes up
                 loadDoc.defaultView.addEventListener('dragstart', function (event) { event.preventDefault(); }, false);               // stop HTML5 drag drop action
