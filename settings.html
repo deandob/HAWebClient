@@ -456,7 +456,7 @@
                                                 <button id="trigScriptName" name="noneInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                     None&nbsp;&nbsp;<span class="caret" />
                                                 </button>
-                                                <ul class="dropdown-menu" role="menu"></ul>
+                                                <ul id="trigScriptNameList" class="dropdown-menu" role="menu"></ul>
                                             </div>
                                         </div>
                                     </div>
@@ -2032,7 +2032,8 @@
                     break;
                 case "TRIGGERS":
 //                    document.getElementById("trigName").value = selected
-                    document.getElementById(dropdown).value = selected
+                    if (dropdown === "trigName") document.getElementById("trigName").value = selected
+                    if (dropdown === "trigScriptName") document.getElementById("trigScriptName").innerHTML = selected + "&nbsp;&nbsp;<span class='caret'></span>"
                     if (sendNet == "true") parent.send("AUTOMATION", "GET:TRIGGERS(" + selected + ")", selected)
                     break;
                 case "EVENTS":
@@ -2160,6 +2161,7 @@
                                         break;
                                     case "TRIGGERS":
                                         popPulldown("trigNameList", msg.Data, "TrigName", true)
+                                        loadNames("SCRIPTS");
                                         break;
                                     case "ACTIONS":
                                         popPulldown("actionNameList", msg.Data, "ActionName", true);
@@ -2167,6 +2169,7 @@
                                         break;
                                     case "SCRIPTS":
                                         popPulldown("actionScriptNameList", msg.Data, "Name", false)
+                                        popPulldown("trigScriptNameList", msg.Data, "Name", false)
                                         break;
                                     case "EVENTS":
                                         popPulldown("eventNameList", msg.Data, "EventName", false)
