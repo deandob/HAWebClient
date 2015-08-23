@@ -76,7 +76,7 @@
                     <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log">
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="scriptNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                        <ul id="logNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
                     </div>
                 </div>
             </div>
@@ -117,7 +117,7 @@
                     <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log">
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="scriptNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                        <ul id="generalNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
                     </div>
                 </div>
             </div>
@@ -742,7 +742,7 @@
                                             <button id="actionScriptName" name="noneInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                 None&nbsp;&nbsp;<span class="caret" />
                                             </button>
-                                            <ul class="dropdown-menu" role="menu"></ul>
+                                            <ul id="actionScriptNameList" class="dropdown-menu" role="menu"></ul>
                                         </div>
                                     </div>
                                 </div>
@@ -1342,45 +1342,55 @@
 
 ////////////////// Tab settings startup functions
         function consoleScreen() {
+            clearRec();
             document.getElementById("editOptions").style.display = "none";
         }
 
         function generalScreen() {
+            clearRec();
         }
 
         function triggersScreen() {
+            clearRec();
             loadNames("TRIGGERS")
             parent.send("WIDGETS", "CHANNELS", "")
             document.getElementById("editOptions").style.display = "inline";
         }
 
         function eventsScreen() {
+            clearRec();
             loadNames("EVENTS")
             document.getElementById("editOptions").style.display = "inline";
         }
 
         function actionsScreen() {
+            clearRec();
             loadNames("ACTIONS")
             document.getElementById("editOptions").style.display = "inline";
         }
 
         function transformsScreen() {
+            clearRec();
             loadNames("TRANSFUNCS")
             document.getElementById("editOptions").style.display = "inline";
         }
 
         function seriesScreen() {
+            clearRec();
             loadNames("SERIES")
             document.getElementById("editOptions").style.display = "inline";
         }
 
         function storeScreen() {
+            clearRec();
         }
 
         function pluginsScreen() {
+            clearRec();
         }
 
         function programsScreen() {
+            clearRec();
             loadNames("WIDGETS")
             myCodeMirror = CodeMirror.fromTextArea(codeEditor, {
                 mode: "javascript",
@@ -1409,6 +1419,7 @@
         }
 
         function securityScreen() {
+            clearRec();
         }
 
         //////////////////////////////////////////////////// Transform Functions
@@ -1987,10 +1998,11 @@
 
         // Add names to a combo list
         function addListEntry(listName, listVal, dropPress) {
+            var listParent = listName.replace("List");              // Must use consistent naming
             var list = document.getElementById(listName);
             var iconElement = document.createElement("li");
             iconElement.id = "li-" + list.childElementCount;
-            iconElement.innerHTML = "<a class='pointer' onclick='dropPressed(\"" + listVal + "\",\"" + dropPress + "\")'>" + listVal + "</a></li>"
+            iconElement.innerHTML = "<a class='pointer' onclick='dropPressed(\"" + listVal + "\",\"" + listName.replace("List", "") + "\",\"" + dropPress + "\")'>" + listVal + "</a></li>"
             list.appendChild(iconElement);
         }
 
@@ -2008,21 +2020,24 @@
         }
 
         // Action when item is selected in a drop down list
-        function dropPressed(selected, sendNet) {
+        function dropPressed(selected, dropdown, sendNet) {
             switch (getActiveTab().toUpperCase()) {
                 case "PROGRAMS":
-                    document.getElementById("programName").value = selected
+                    //document.getElementById("programName").value = selected
+                    document.getElementById(dropdown).value = selected
                     if (sendNet == "true") {
                         var progType = $("#programType").val().toUpperCase()
                         parent.send("AUTOMATION", "GET:" + progType + "S(" + selected + ")", selected)
                     }
                     break;
                 case "TRIGGERS":
-                    document.getElementById("trigName").value = selected
+//                    document.getElementById("trigName").value = selected
+                    document.getElementById(dropdown).value = selected
                     if (sendNet == "true") parent.send("AUTOMATION", "GET:TRIGGERS(" + selected + ")", selected)
                     break;
                 case "EVENTS":
-                    document.getElementById("eventName").value = selected
+//                    document.getElementById("eventName").value = selected
+                    document.getElementById(dropdown).value = selected
                     if (sendNet == "true") {
                         parent.send("AUTOMATION", "GET:EVENTS(" + selected + ")", selected)
                         parent.send("AUTOMATION", "GET:EVENTTRIGGERS(" + selected + ")", selected)
@@ -2030,7 +2045,8 @@
                     }
                     break;
                 case "ACTIONS":
-                    document.getElementById("actionName").value = selected
+                    if (dropdown === "actionName") document.getElementById("actionName").value = selected
+                    if (dropdown === "actionScriptName") document.getElementById(dropdown).innerHTML = selected + "&nbsp;&nbsp;<span class='caret'></span>"
                     if (sendNet == "true") parent.send("AUTOMATION", "GET:ACTIONS(" + selected + ")", selected)
                     break;
                 case "TRANSFORMS":
@@ -2039,7 +2055,8 @@
                         parent.send("AUTOMATION", "GET:TRANSFORMS(" + selected + ")", selected)
                         parent.send("AUTOMATION", "GET:FUNCS(" + selected + ")", selected)
                     }
-                    document.getElementById("transformName").value = selected
+//                    document.getElementById("transformName").value = selected
+                    document.getElementById(dropdown).value = selected;
                     break;
                 default:
             }
@@ -2117,14 +2134,14 @@
         }
 
         // Populate pulldown from list
-        function popPulldown(id, JSONitems, field) {
+        function popPulldown(id, JSONitems, field, sendNet) {
             $("#" + id).children('li').remove();
             var items = JSON.parse(JSONitems)
             if (items == null) {
                 addListEntry(id, "<i>no items found<i>", false);
             } else {
                 for (var item in items) {
-                    addListEntry(id, items[item][field], true);
+                    addListEntry(id, items[item][field], sendNet);
                 }
             }
         }
@@ -2139,16 +2156,20 @@
                                 var tabName = msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1)
                                 switch (tabName) {
                                     case "WIDGETS":
-                                        popPulldown("programNameList", msg.Data, "Name")
+                                        popPulldown("programNameList", msg.Data, "Name", true)
                                         break;
                                     case "TRIGGERS":
-                                        popPulldown("trigNameList", msg.Data, "TrigName")
+                                        popPulldown("trigNameList", msg.Data, "TrigName", true)
                                         break;
                                     case "ACTIONS":
-                                        popPulldown("actionNameList", msg.Data, "ActionName")
+                                        popPulldown("actionNameList", msg.Data, "ActionName", true);
+                                        loadNames("SCRIPTS");
+                                        break;
+                                    case "SCRIPTS":
+                                        popPulldown("actionScriptNameList", msg.Data, "Name", false)
                                         break;
                                     case "EVENTS":
-                                        popPulldown("eventNameList", msg.Data, "EventName")
+                                        popPulldown("eventNameList", msg.Data, "EventName", false)
                                         break;
                                     case "TRIGGERSDESC":
                                         $("#selectToolboxScroll").children('li').remove();
@@ -2177,7 +2198,7 @@
                                         enableTooltip()     // as the DOM has been updated
                                         break;
                                     case "TRANSFUNCS":
-                                        popPulldown("transformNameList", msg.Data, "TFName")
+                                        popPulldown("transformNameList", msg.Data, "TFName", true)
                                         break;
                                     default:
                                         return;
