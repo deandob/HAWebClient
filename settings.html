@@ -1353,7 +1353,7 @@
         function triggersScreen() {
             clearRec();
             loadNames("TRIGGERS")
-            parent.send("WIDGETS", "CHANNELS", "")
+            //parent.send("WIDGETS", "CHANNELS", "")
             document.getElementById("editOptions").style.display = "inline";
         }
 
@@ -2063,13 +2063,13 @@
             }
         }
 
+        /////////// NOT FINISHED
         function filterChannels() {
             for (var trigPlug in trigPlugs) {
                 for (var trigCh in trigPlugs[trigPlug].Channels) {
                     addToolboxEntry("selectToolbox", trigPlugs[trigPlug].Channels[trigCh].Name, trigPlugs[trigPlug].Channels[trigCh].Desc, "", trigPlugs[trigPlug].Category, trigPlugs[trigPlug].ClassName);
                 }
             }
-
 
             loadChannels(document.getElementById("selectSearchTxt").value.trim(), false)
         }
