@@ -1319,9 +1319,11 @@
 
         "use strict";
 
-        var unixEpoc = 621355968000000000;
         var pcTicks = 10000;
-        var nullDate = 630822456000000000;
+        var unixEpoc = 621355968000000000; // epoch start in .NET time
+        //var nullDate = new Date(2000, 1, 1, 0, 0, 0, 0).valueOf() * pcTicks;
+        //var nullDate = 630822456000000000;      // 1-1-2000
+        var nullDate = 0;      // 1-1-2000
         var condStr = ["equals", "greater", "less", "not", "contains", "change"];
         var myCodeMirror;
 
@@ -1998,7 +2000,7 @@
 
         // Add names to a combo list
         function addListEntry(listName, listVal, dropPress) {
-            var listParent = listName.replace("List");              // Must use consistent naming
+            //var listParent = listName.replace("List");              // Must use consistent naming
             var list = document.getElementById(listName);
             var iconElement = document.createElement("li");
             iconElement.id = "li-" + list.childElementCount;
@@ -2485,13 +2487,19 @@
                     var myDate = new Date();
                     if (convStr.split(":").length !== 2) return NaN
                     myDate.setHours(convStr.split(":")[0], convStr.split(":")[1].split(" ")[0]);
+                    if (convStr.split(":")[1].split(" ")[1] === "PM") 
+                        myDate.setHours(+convStr.split(":")[0] + 12, convStr.split(":")[1].split(" ")[0]);
+                    else myDate.setHours(convStr.split(":")[0], convStr.split(":")[1].split(" ")[0]);
+                    myDate = new Date(myDate.getTime() + myDate.getTimezoneOffset() * 60000);
                     break;
                 case "datetime":
                     var myDate = new Date(convStr)
                     break;
                 default:
             }
+            alert(new Date(myDate.valueOf()))
             var datetime = (myDate.valueOf() * pcTicks + unixEpoc).toString();
+            //var datetime = myDate.valueOf().toString();
             return datetime;
         }
 
@@ -2499,8 +2507,8 @@
         function getJSDateTime(ticks, dateortime) {
             var datetime = new Date((ticks - unixEpoc) / pcTicks)
             if (datetime.valueOf() > 0) {
-                if (datetime.getFullYear() == "2000") return "";                      // null date
-                if (dateortime == "date") return datetime.toLocaleDateString();
+                //if (datetime.getFullYear() == "2000") return "";                      // null date
+                if (dateortime == "date") return datetime.toDateString();
                 if (dateortime == "time") return datetime.toLocaleTimeString();
                 return datetime.toLocaleString();
             } else return "";
