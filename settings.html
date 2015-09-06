@@ -1679,7 +1679,7 @@
                     }
                     break;
                 case "TRANSFORMS":
-                    if ($("#TransformName").val() == "") {
+                    if ($("#transformName").val() == "") {
                         parent.modalDialog("delete", "No record selected", "Please select a Transform name to delete first.")
                     } else {
                         parent.modalDialog("delete", "Deleting Transform", "Confirm deletion of '" + $("#transformName").val() + "'.", "Delete Record", $("#transformName").val())
@@ -2469,11 +2469,11 @@
                     break;
                 case "time":
                     var myDate = new Date();
-                    if (convStr.split(":").length !== 2) return nullDate;
-                    myDate.setHours(convStr.split(":")[0], convStr.split(":")[1].split(" ")[0]);
-                    if (convStr.split(":")[1].split(" ")[1] === "PM") 
-                        myDate.setHours(+convStr.split(":")[0] + 12, convStr.split(":")[1].split(" ")[0]);
-                    else myDate.setHours(convStr.split(":")[0], convStr.split(":")[1].split(" ")[0]);
+                    var splitDate = convStr.split(":");
+                    if (splitDate.length < 2) return nullDate;
+                    if (convStr.trim().split(" ")[1] === "PM") 
+                        myDate.setHours(+splitDate[0] + 12, +splitDate[1].split(" ")[0]);
+                    else myDate.setHours(+splitDate[0], +splitDate[1].split(" ")[0]);
                     break;
                 case "datetime":
                     var myDate = new Date(convStr)
