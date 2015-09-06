@@ -754,30 +754,6 @@
                                             <p>Parameter</p>
                                             <input type="text" class="form-control" id="actionScriptParam" name="textInput" placeholder="">
                                         </div>
-                                        <div class="col-md-6">
-                                            <p>&nbsp;</p>
-                                            <div class="btn-group btn-group-justified">
-                                                <button type="button" id="actionScriptCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                    equals&nbsp;&nbsp;<span class="caret" />
-                                                </button>
-                                                <ul class="dropdown-menu" role="menu">
-                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'equals')">equals</a></li>
-                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'greater')">greater</a></li>
-                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'less')">less</a></li>
-                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'not')">not</a></li>
-                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'contains')">contains</a></li>
-                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'change')">change</a></li>
-                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'live')">live</a></li>
-                                                    <li><a class="pointer" onclick="pressBut('actionScriptCond', 'dead')">dead</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div><br />
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <p>Value</p>
-                                            <input type="text" class="form-control" id="actionScriptValue" name="textInput" placeholder="">
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1321,9 +1297,7 @@
 
         var pcTicks = 10000;
         var unixEpoc = 621355968000000000; // epoch start in .NET time
-        //var nullDate = new Date(2000, 1, 1, 0, 0, 0, 0).valueOf() * pcTicks;
-        //var nullDate = 630822456000000000;      // 1-1-2000
-        var nullDate = 0;      // 1-1-2000
+        var nullDate = 0;      // 1-1-0001 in .NET
         var condStr = ["equals", "greater", "less", "not", "contains", "change"];
         var myCodeMirror;
 
@@ -1853,10 +1827,11 @@
         // Populate the Action object from fields
         function objAction() {
             var actionNetwork = 0;
+            alert($('#actionScriptName').text().trim())
             return [{
                 "actionName": $('#actionName').val().trim(),
                 "actionDesc": $('#actionDesc').val().trim(),
-                "actionScriptName": $('#actionScriptName').val().trim(),
+                "actionScriptName": $('#actionScriptName').text().trim(),
                 "actionScriptParam": $('#actionScriptParam').val().trim(),
                 "actionNetwork": actionNetwork,
                 "actionCategory": catIndex($('#actionCategory').prop("textContent")),
@@ -2484,7 +2459,7 @@
                     break;
                 case "time":
                     var myDate = new Date();
-                    if (convStr.split(":").length !== 2) return NaN
+                    if (convStr.split(":").length !== 2) return nullDate;
                     myDate.setHours(convStr.split(":")[0], convStr.split(":")[1].split(" ")[0]);
                     if (convStr.split(":")[1].split(" ")[1] === "PM") 
                         myDate.setHours(+convStr.split(":")[0] + 12, convStr.split(":")[1].split(" ")[0]);
