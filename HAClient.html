@@ -118,7 +118,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button id="cancelButton" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <button id="cancelButton" onclick="modalCancel()" type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                     <button id="modalButton" onclick="modalOK()" type="button" class="btn btn-primary">OK</button>
                 </div>
             </div>
@@ -305,6 +305,11 @@
                 document.getElementById("cancelButton").style.setProperty("display", "none");
             }
             $("#myModal").modal()
+        }
+
+        // callback from modal form CANCEL button, clear status.
+        function modalCancel() {
+            status("Cancelled");
         }
 
         // callback from modal form OK button push.

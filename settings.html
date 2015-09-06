@@ -1659,30 +1659,30 @@
             switch (getActiveTab().toUpperCase()) {
                 case "TRIGGERS":
                     if ($("#trigName").val() == "") {
-                        parent.modalDialog("No record selected", "Please select a Trigger name to delete first.")
+                        parent.modalDialog("delete", "No record selected", "Please select a Trigger name to delete first.")
                     } else {
-                        parent.modalDialog("Delete Record", "Confirm deletion of '" + $("#trigName").val() + "'.", "Delete")
+                        parent.modalDialog("delete", "Deleting Trigger", "Confirm deletion of '" + $("#trigName").val() + "'.", "Delete", "Delete Record", $("#trigName").val())
                     }
                     break;
                 case "ACTIONS":
                     if ($("#actionName").val() == "") {
-                        parent.modalDialog("No record selected", "Please select an Action name to delete first.")
+                        parent.modalDialog("delete", "No record selected", "Please select an Action name to delete first.")
                     } else {
-                        parent.modalDialog("Delete Record", "Confirm deletion of '" + $("#actionName").val() + "'.", "Delete")
+                        parent.modalDialog("delete", "Deleting Action", "Confirm deletion of '" + $("#actionName").val() + "'.", "Delete", "Delete Record", $("#actionName").val())
                     }
                     break;
                 case "EVENTS":
                     if ($("#eventName").val() == "") {
-                        parent.modalDialog("No record selected", "Please select an Event name to delete first.")
+                        parent.modalDialog("delete", "No record selected", "Please select an Event name to delete first.")
                     } else {
-                        parent.modalDialog("Delete Record", "Confirm deletion of '" + $("#eventName").val() + "'.", "Delete")
+                        parent.modalDialog("delete", "Deleting Event", "Confirm deletion of '" + $("#eventName").val() + "'.", "Delete", "Delete Record", $("#eventName").val())
                     }
                     break;
                 case "TRANSFORMS":
                     if ($("#TransformName").val() == "") {
-                        parent.modalDialog("No record selected", "Please select a Transform name to delete first.")
+                        parent.modalDialog("delete", "No record selected", "Please select a Transform name to delete first.")
                     } else {
-                        parent.modalDialog("Delete Record", "Confirm deletion of '" + $("#transformName").val() + "'.", "Delete")
+                        parent.modalDialog("delete", "Deleting Transform", "Confirm deletion of '" + $("#transformName").val() + "'.", "Delete Record", $("#transformName").val())
                     }
                     break;
                 default:
@@ -1936,27 +1936,28 @@
         }
 
         // Functions to call once the modal messagebox is closed
-        function modalCallback(modalFunction) {
+        function modalCallback(modalFunction, param) {
             switch (modalFunction) {
                 case "Delete Record":
                     switch (getActiveTab().toUpperCase()) {
                         case "TRIGGERS":
-                            sendServer("DEL", "TRIGGERS", $("#trigName").val(), $("#trigName").val())
+                            sendServer("DEL", "TRIGGERS", param, param)
                             break;
                         case "EVENTS":
-                            sendServer("DEL", "EVENTS", $("#eventName").val(), $("#eventName").val())
+                            sendServer("DEL", "EVENTS", param, param)
                             break;
                         case "ACTIONS":
-                            sendServer("DEL", "ACTIONS", $("#actionName").val(), $("#actionName").val())
+                            sendServer("DEL", "ACTIONS", param, param)
                             break;
                         case "TRANSFORMS":
-                            sendServer("DEL", "TRANSFORMS", $("#transformName").val(), $("#transformName").val())
+                            sendServer("DEL", "TRANSFORMS", param, param)
                             break;
                         default:
                     }
                     return true;
                     break;
                 default:
+                    parent.status("");
                     return false;
             }
         }
