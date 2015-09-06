@@ -242,7 +242,7 @@
                             </div>
                             <br />
                             <div class="col-md-6">
-                                <button id="eventTrigAdd" type="button" onclick="addEventItem('TRIGGERS')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
+                                <button id="eventTrigAdd" type="button" onclick="popToolbox('TRIGGERS', 'eventTrigSel', 'eventLB')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
                             </div>
                             <div class="col-md-6">
                                 <button id="eventTrigDel" type="button" onclick="delEventItem('eventTrigSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
@@ -261,7 +261,7 @@
                             </div>
                             <br />
                             <div class="col-md-6">
-                                <button id="eventActionAdd" type="button" onclick="addEventItem('ACTIONS')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
+                                <button id="eventActionAdd" type="button" onclick="popToolbox('ACTIONS', 'eventActionSel', 'eventLB')" onfocus="    blur()" class="btn btn-default btn-block">Add</button>
                             </div>
                             <div class="col-md-6">
                                 <button id="eventActionDel" type="button" onclick="delEventItem('eventActionSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
@@ -311,7 +311,7 @@
                                 <div class="panel-body">
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <a class="pointer" onclick="toggleTB('selectToolbox', 'open', 'trigChg');">Channel</a>:
+                                            <a class="pointer" onclick="popToolbox('TRIGGERS', 'trigChg', 'channel');">Channel</a>:
                                             <span id="trigChgVal">None</span>
                                         </div>
                                     </div>
@@ -382,7 +382,7 @@
                                     <div class="panel-body">
                                         <div class="row">
                                             <div class="col-md-12">
-                                                <a class="pointer" onclick="toggleTB('selectToolbox', 'open', 'trigState');">Channel</a>:
+                                                <a class="pointer" onclick="popToolbox('TRIGGERS', 'trigState', 'channel');">Channel</a>:
                                                 <span id="trigStateVal">None</span>
                                             </div>
                                         </div>
@@ -668,7 +668,7 @@
                                 <div class="panel-body">
                                     <div class="row">
                                         <div class="col-md-12">
-                                            <a class="pointer" onclick="toggleTB('selectToolbox', 'open', 'action');">Channel</a>:
+                                            <a class="pointer" onclick="popToolbox('ACTIONS', 'action', 'channel');">Channel</a>:
                                             <span id="actionVal">None</span>
                                         </div>
                                     </div>
@@ -1300,6 +1300,7 @@
         var nullDate = 0;      // 1-1-0001 in .NET
         var condStr = ["equals", "greater", "less", "not", "contains", "change"];
         var myCodeMirror;
+        var toolboxCB;          // global for callback routine from toolbox load calls
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {
@@ -1319,7 +1320,7 @@
 ////////////////// Tab settings startup functions
         function consoleScreen() {
             clearRec();
-            document.getElementById("editOptions").style.display = "none";
+            document.getElementById("editOptions").style.display = "None";
         }
 
         function generalScreen() {
@@ -1329,7 +1330,6 @@
         function triggersScreen() {
             clearRec();
             loadNames("TRIGGERS")
-            //parent.send("WIDGETS", "CHANNELS", "")
             document.getElementById("editOptions").style.display = "inline";
         }
 
@@ -1557,7 +1557,7 @@
 
         function toggleTB(toolboxName, openclose, panel) {
             var myTB = document.getElementById(toolboxName);
-            myTB.setAttribute("data-panel", panel)
+            //myTB.setAttribute("data-panel", panel)
             if (myTB.style.getPropertyValue("left") != "0px" && openclose == "open") myTB.style.setProperty("left", "0px");
             if (myTB.style.getPropertyValue("left") == "0px" && openclose == "close") myTB.style.setProperty("left", "-200px");
         }
@@ -1577,8 +1577,10 @@
         }
 
         // Load the names of the triggers/actions into the toolbox for selecting
-        function addEventItem(item) {
-            loadNames(item + "DESC")
+        function popToolbox(item, CB, call) {
+            toolboxCB = CB                  // callback once loaded
+            if (call === "channel") parent.send("WIDGETS", "CHANNELS", "")          // load toolbox with channels
+            if (call === "eventLB") loadNames(item + "DESC")
         }
 
         function selProgramType(type) {
@@ -1643,7 +1645,7 @@
             }
             var elements = document.getElementsByName("noneInput")
             for (var i = 0; i < elements.length; i++) {
-                pressBut(elements[i].id, "none");
+                pressBut(elements[i].id, "None");
             }
             var elements = document.getElementsByName("multiSel")
             for (var i = 0; i < elements.length; i++) {
@@ -1827,11 +1829,10 @@
         // Populate the Action object from fields
         function objAction() {
             var actionNetwork = 0;
-            alert($('#actionScriptName').text().trim())
             return [{
                 "actionName": $('#actionName').val().trim(),
                 "actionDesc": $('#actionDesc').val().trim(),
-                "actionScriptName": $('#actionScriptName').text().trim(),
+                "actionScriptName": ($('#actionScriptName').text().trim() === "None" ? "" : $('#actionScriptName').text().trim()),
                 "actionScriptParam": $('#actionScriptParam').val().trim(),
                 "actionNetwork": actionNetwork,
                 "actionCategory": catIndex($('#actionCategory').prop("textContent")),
@@ -1851,8 +1852,8 @@
             return [{
                 "trigName": $('#trigName').val().trim(),
                 "trigDesc": $('#trigDesc').val().trim(),
-                "trigScriptName": $('#trigScriptName').val().trim(),
-                "trigScriptParam": $('#trigScriptParam').val().trim(),
+                "trigScriptName": ( $('#trigScriptName').text().trim() === "None" ? "" : $('#trigScriptName').text().trim()),
+                "trigScriptParam": $('#trigScriptParam').text().trim(),
                 "trigScriptValue": $('#trigScriptValue').val().trim(),
                 "trigScriptCond": condIndex('trigScriptCond'),
                 "trigStateNetwork": trigStateNetwork,
@@ -2084,19 +2085,20 @@
                 var mySel = document.getElementById(event.target.id);
                 var list = mySel.getAttribute("data-list")      // name of the select list stored in data attribute
                 if (name[0] !== "undefined") {                    // Channel selected
-                    var myPanel = document.getElementById("selectToolbox").getAttribute("data-panel")               // Set the advanced field values (used when sending messages back to host)
+                    //var myPanel = document.getElementById("selectToolbox").getAttribute("data-panel")               // Set the advanced field values (used when sending messages back to host)
                     if (name[0] !== "noSelect") {               // None button selected
-                        document.getElementById(myPanel + "Val").innerText = name[2] + " (" + name[1].toUpperCase() + ")"
+                        document.getElementById(toolboxCB + "Val").innerText = name[2] + " (" + name[1].toUpperCase() + ")"
                     } else {
-                        document.getElementById(myPanel + "Val").innerText = "None"
+                        document.getElementById(toolboxCB + "Val").innerText = "None"
                         name[0] = "ALL"
                         name[1] = ""
                         name[2] = ""
                     }
-                    document.getElementById(myPanel + "Category").innerHTML = name[0].toUpperCase() + "&nbsp;&nbsp;<span class='caret'/>"
-                    document.getElementById(myPanel + "Class").innerText = name[1]
-                    document.getElementById(myPanel + "Instance").innerText = name[2]
-                    document.getElementById(myPanel + "Scope").innerText = ""
+                    pressBut(toolboxCB + "Category", name[0].toUpperCase());
+                    //document.getElementById(toolboxCB + "Category").innerHTML = name[0].toUpperCase() + "&nbsp;&nbsp;<span class='caret'/>"
+                    $('#' + toolboxCB + 'Class').val(name[1]);
+                    $('#' + toolboxCB + 'Instance').val(name[2]);
+                    $('#' + toolboxCB + 'Scope').val("");
                 } else {                                        // Action or Trigger selected
                     if ($("#" + list).find("option[value='" + name[2] + "']").length == 0) {    // Only add if the entry is not already in the listbox
                         $("#" + list).append("<option value='" + name[2] + "'>" + name[2] + " - " + mySel.getAttribute("data-original-title") + "</option>");
@@ -2145,11 +2147,13 @@
                                         loadNames("SCRIPTS");
                                         break;
                                     case "SCRIPTS":
-                                        popPulldown("actionScriptNameList", msg.Data, "Name", false)
-                                        popPulldown("trigScriptNameList", msg.Data, "Name", false)
+                                        var myArr = JSON.parse(msg.Data)
+                                        myArr.unshift({"Name" : "None", "Desc" : ""})
+                                        popPulldown("actionScriptNameList", JSON.stringify(myArr), "Name", false)
+                                        popPulldown("trigScriptNameList", JSON.stringify(myArr), "Name", false)
                                         break;
                                     case "EVENTS":
-                                        popPulldown("eventNameList", msg.Data, "EventName", false)
+                                        popPulldown("eventNameList", msg.Data, "EventName", true)
                                         break;
                                     case "TRIGGERSDESC":
                                         $("#selectToolboxScroll").children('li').remove();
@@ -2158,7 +2162,7 @@
                                             addToolboxEntry("selectToolbox", "<i>no triggers<i>");
                                         } else {
                                             for (var trig in trigs) {
-                                                addToolboxEntry("selectToolbox", trigs[trig].TrigName, trigs[trig].TrigDescription, "eventTrigSel");
+                                                addToolboxEntry("selectToolbox", trigs[trig].TrigName, trigs[trig].TrigDescription, toolboxCB);
                                             }
                                         }
                                         toggleTB("selectToolbox", "open")
@@ -2171,7 +2175,7 @@
                                             addToolboxEntry("selectToolbox", "<i>no actions<i>");
                                         } else {
                                             for (var action in actions) {
-                                                addToolboxEntry("selectToolbox", actions[action].ActionName, actions[action].ActionDescription, "eventActionSel");
+                                                addToolboxEntry("selectToolbox", actions[action].ActionName, actions[action].ActionDescription, toolboxCB);
                                             }
                                         }
                                         toggleTB("selectToolbox", "open")
@@ -2191,7 +2195,7 @@
                                 $('#eventChkOneOff').prop('checked', myEvent[0].EventOneOff);
                                 $('#eventFromDate').val(getJSDateTime(myEvent[0].EventStart, "datetime"));
                                 $('#eventToDate').val(getJSDateTime(myEvent[0].EventStop, "datetime"));
-                                //$('#eventLastFired').val(getJSDateTime(myEvent[0].EventLastFired, "datetime"));
+                                $('#eventLastFired').val(getJSDateTime(myEvent[0].EventLastFired, "datetime"));
                                 $('#eventTimesRun').val(myEvent[0].EventNumRecur);
                                 break;
                             case "GET:EVENTTRIGGERS":
@@ -2211,11 +2215,14 @@
                             case "GET:ACTIONS":
                                 var myAction = JSON.parse(msg.Data);
                                 $('#actionDesc').val(myAction[0].ActionDescription);
-                                $('#actionScriptName').val(myAction[0].ActionScriptName);
+                                if (myAction[0].ActionScript === "") pressBut("actionScriptName", "None")
+                                    else pressBut("actionScriptName", myAction[0].ActionScript);
                                 $('#actionScriptParam').val(myAction[0].ActionScriptParam);
                                 //$('#actionNetwork').val(myAction[0].ActionNetwork);
                                 pressBut("actionCategory", getCat(parseInt(myAction[0].ActionCategory)));
-                                document.getElementById("actionVal").innerText = myAction[0].ActionInstance + " (" + myAction[0].ActionClass + ")"
+                                if (myAction[0].ActionInstance === "" && myAction[0].ActionClass === "") $('#actionVal').text("None")
+                                else $('#actionVal').text(myAction[0].ActionInstance + " (" + myAction[0].ActionClass + ")")
+                                //document.getElementById("actionVal").innerText = myAction[0].ActionInstance + " (" + myAction[0].ActionClass + ")"
                                 //$("#actionVal").val(myTrig[0].ActionInstance + " (" + myTrig[0].ActionClass + ")")
                                 $('#actionClass').val(myAction[0].ActionClass);
                                 $('#actionInstance').val(myAction[0].ActionInstance);
@@ -2227,7 +2234,8 @@
                             case "GET:TRIGGERS":
                                 var myTrig = JSON.parse(msg.Data);
                                 $('#trigDesc').val(myTrig[0].TrigDescription);
-                                $('#trigScriptName').val(myTrig[0].TrigScript);
+                                if (myTrig[0].TrigScript === "") pressBut("trigScriptName", "None")
+                                    else pressBut("trigScriptName", myAction[0].TrigScript);
                                 $('#trigScriptParam').val(myTrig[0].TrigScriptParam);
                                 $('#trigScriptValue').val(myTrig[0].TrigScriptData);
                                 pressBut("trigScriptCond", condStr[parseInt(myTrig[0].TrigScriptCond)]);
@@ -2268,7 +2276,7 @@
                                 $('#trigChkActive').prop('checked', myTrig[0].TrigActive);
                                 $('#trigChkInactive').prop('checked', myTrig[0].TrigInactive);
                                 $('#trigTimeofDay').val(getJSDateTime(myTrig[0].TrigTimeofDay, "time"));
-                                //$('#trigLastFired').val(getJSDateTime(myTrig[0].TrigLastFired));
+                                $('#trigLastFired').val(getJSDateTime(myTrig[0].TrigLastFired, "datetime"));
                                 break;
                             case "GET:TRANSFORMS":
                                 var myTransform = JSON.parse(msg.Data);
@@ -2422,10 +2430,11 @@
                             } else {
                                 for (var trigPlug in trigPlugs) {
                                     for (var trigCh in trigPlugs[trigPlug].Channels) {
-                                        addToolboxEntry("selectToolbox", trigPlugs[trigPlug].Channels[trigCh].Name, trigPlugs[trigPlug].Channels[trigCh].Desc, "", trigPlugs[trigPlug].Category, trigPlugs[trigPlug].ClassName);
+                                        addToolboxEntry("selectToolbox", trigPlugs[trigPlug].Channels[trigCh].Name, trigPlugs[trigPlug].Channels[trigCh].Desc, toolboxCB, trigPlugs[trigPlug].Category, trigPlugs[trigPlug].ClassName);
                                     }
                                 }
                             }
+                            toggleTB("selectToolbox", "open")
                             enableTooltip()     // as the DOM has been updated
                             break;
                         default:
@@ -2477,7 +2486,7 @@
         function getJSDateTime(ticks, dateortime) {
             var datetime = new Date((ticks - unixEpoc) / pcTicks)
             if (datetime.valueOf() > 0) {
-                if (dateortime == "date") return datetime.toDateString();
+                if (dateortime == "date") return datetime.toLocaleDateString();
                 if (dateortime == "time") return datetime.toLocaleTimeString();
                 return datetime.toLocaleString();
             } else return "";
