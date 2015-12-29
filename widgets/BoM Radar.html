@@ -25,7 +25,6 @@
             overflow: hidden;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
-            -khtml-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
@@ -36,7 +35,6 @@
             border-radius: 3px;
             -webkit-touch-callout: none;
             -webkit-user-select: none;
-            -khtml-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
@@ -169,7 +167,7 @@
             locations = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".locations.png";
             range = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".range.png";
             rain = "ftp://ftp.bom.gov.au/anon/gen/radar/";
-
+            rain1 = "http://wac.72dd.edgecastcdn.net/8072DD/radimg/radar/"
             document.getElementById("imgBackground").setAttribute("xlink:href", background);
             document.getElementById("imgLegend").setAttribute("xlink:href", legend);
             document.getElementById("imgWaterways").setAttribute("xlink:href", waterways);
@@ -289,7 +287,7 @@
 
                 if (radarFiles.length !== 0) {
                     for (var lp = radarFiles.length - 1; lp > (radarFiles.length - 7) ; lp--) {
-                        if (lp >= 0) document.getElementById("imgRain" + (radarFiles.length - 1 - lp)).setAttribute("xlink:href", rain + radarFiles[lp].name)  //load images
+                        if (lp >= 0) document.getElementById("imgRain" + (radarFiles.length - 1 - lp)).setAttribute("xlink:href", rain1 + radarFiles[lp].name)  //load images
                     }
 
                     var latestTime = radarFiles[radarFiles.length - 1].name.substr(radarFiles[radarFiles.length - 1].name.length - 16, 12);

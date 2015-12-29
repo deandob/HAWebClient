@@ -925,6 +925,7 @@
                     })(msg);
                     break;
                 case "WIDGETS":
+                    //TODO: Can speed up the widget loading by sending only the widget fields that are not default, that way a much smaller network packet gets sent & faster load.
                     switch (msg.Scope.toUpperCase()) {
                         case "LOAD":
                             if (msg.Data != "") {

@@ -2483,7 +2483,7 @@
             return (myDate.valueOf() * pcTicks + unixEpoc).toString();                  // send back date as UTC
         }
 
-        // Convert from PC date format ticks to Javascript date
+        // Convert from PC date format ticks to Javascript date from UTC to local time
         function getJSDateTime(ticks, dateortime) {
             var datetime = new Date((ticks - unixEpoc) / pcTicks)
             if (datetime.valueOf() > 0) {
