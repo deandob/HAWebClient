@@ -115,6 +115,10 @@ a.nounderline
     overflow-x:hidden;
 }
 
+.checkbox {
+    margin-left: 20px;
+}
+
 .toolboxControls {
     margin-left: 6px; 
 }

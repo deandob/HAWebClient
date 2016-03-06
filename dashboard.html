@@ -226,7 +226,7 @@
 
         //////////////////////////////////////////// Widget design menu
 
-        function helpWidget() {
+        function helpWidget() {     //TODO:
             var widgetHlp = document.getElementById("objWidget" + editData.widgetNum).contentDocument.defaultView._fw_help();     //get widget specific help
             parent.modalDialog("text", widgetHlp.title, "<b>" + widgetHlp.desc + "</b><br/><br/>" + widgetHlp.text);
         }
@@ -264,10 +264,12 @@
                     case "checkbox":
                         var checked = "";
                         if (widgets[widgetNum].attribs[i].value == true) checked = "checked";
-                        innerHTML = "<a tabindex='-1' href='#' draggable='false'><label class='checkbox'><input type='checkbox' " + checked + " data-type='checkbox'/>" + widgetProp + "</label></a>";
+                        innerHTML = "<a tabindex='-1' href='#' draggable='false'><label class='checkbox'><input type='checkbox' " + checked + " data-type='checkbox' />" + widgetProp + "</label></a>";
                         break;
                     case "channel":         // if the channel name is blank, don't display it (hidden channel)
-                        if (widgetProp !== "") innerHTML = "<a tabindex='-1' id='channelItem" + channelNum + "' href='#' draggable='false' data-selected='" + widgets[widgetNum].attribs[i].value + "' data-type='channel' onclick='toggleToolbox(\"channelToolbox\", \"open\", " + channelNum + ")'>" + widgetProp + ": " + widgets[widgetNum].attribs[i].value + "</a>"
+                        var chName = widgets[widgetNum].attribs[i].value;
+                        if (chName === "") chName = "none" 
+                        if (widgetProp !== "") innerHTML = "<a tabindex='-1' id='channelItem" + channelNum + "' href='#' draggable='false' data-selected='" + widgets[widgetNum].attribs[i].value + "' data-type='channel' onclick='toggleToolbox(\"channelToolbox\", \"open\", " + channelNum + ")'>" + widgetProp + ": " + chName + "</a>"
                         channelNum = channelNum + 1
                         break;
                     case "file":
@@ -843,6 +845,7 @@
             if (design) {                                               // canvas in design
                 if (event.which === 3) {                                // right click
                     showWidgetMenu(event.currentTarget._widgetName);      // in design mode, show the widget menu
+                    event.currentTarget._fw_designClicked(event)        // run the click event in the widget
                 } else {
                     dragData.widgetName = event.currentTarget._widgetName
                     dragData.widgetObj = document.getElementById(event.currentTarget._widgetName)
@@ -864,6 +867,7 @@
                     dragData.widgetObj.style.setProperty("top", Math.round((dragData.startY + event.screenY) / designGrid) * designGrid + "px")
                 }
             }
+            event.currentTarget._fw_mouseMove(event)
         };
 
         // Finish dragging, save the current location

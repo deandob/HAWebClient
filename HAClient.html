@@ -129,6 +129,7 @@
     <script src="js/bootstrap.min.js"></script>
     <script>
         "use strict";
+
         var user = "";
         var device = "desktop";                           // TODO: detect device used to load appropriate screens
         var deviceWidth = screen.availWidth;
@@ -170,6 +171,8 @@
         //TODO: Timezone always reflects the server timezone not the client, as well as DST
         //TODO: Add extra bootstrap column classes to stack differently on smaller devices
         //TODO: Field for general settings web files location so that widgets can be retrieved
+
+        //TODO: Popup toaster app for smartphones for alerts - no whatsapp
 
         //if (deviceWidth < 1200) device = "tablet";
         if (deviceWidth < 1025) device = "phone";

@@ -122,6 +122,12 @@ function _fw_clicked(event) {
     return false;
 }
 
+// User moves mouse, don't use addeventlistener in widget js, use this function instead
+function _fw_mouseMove(event) {
+    if (typeof mouseMove === "function") return mouseMove(event);
+    return false;
+}
+
 // Right click widget in design mode
 function _fw_designClicked(event) {
     if (typeof designClicked === "function") return designClicked(event);

@@ -150,9 +150,11 @@
         }
 
         function startEdit() {              // called when editing started
+            camCanvas.addEventListener("keypress", keyPress, false);
         }
 
         function endEdit(param0) {                // called when editing finishes
+            camCanvas.removeEventListener("keypress", keyPress, false);
         }
 
         function startDesign() {            // called when switching to design mode
@@ -221,8 +223,7 @@
         }
 
         // Setup and manage masks. Click and drag to create a new mask, click inside an existing mask to delete it
-        function designClicked(event) {                // User rightclicks widget in design mode to set frame
-            if (editing) {
+        function designClicked(event) {                // User clicks widget in design mode to set frame
                 for (var msk in masks) {       // If clicked within an existing mask, delete that mask
                     if (event.clientX > (masks[msk].x1 * imgWidth) && event.clientX < (masks[msk].x2 * imgWidth) && event.clientY > (masks[msk].y1 * imgHeight) && event.clientY < (masks[msk].y2 * imgHeight)) {
                         document.getElementById("mask" + msk).parentNode.removeChild(document.getElementById("mask" + msk));      // Remove SVG & adjust SVG mask IDs and mask array
@@ -232,33 +233,40 @@
                         return;
                     }
                 }
-                drawMask(masks.length, event.clientX / imgWidth, (event.clientX + 2) / imgWidth, event.clientY / imgHeight, (event.clientY + 2) / imgHeight)
-                maskID = document.getElementById("mask" + masks.length)
-                maskIniX = event.clientX
-                maskIniY = event.clientY
-                camCanvas.setAttribute("style", "cursor: se-resize")
-                camCanvas.addEventListener("mouseup", maskUp, false);
-                camCanvas.addEventListener("mousemove", maskMove, false);
+            }
+
+        var createMask = false;
+        var maskIniX, maskIniY, mouseCurrX, mouseCurrY;
+        function mouseMove(event) {
+            mouseCurrX = event.clientX;
+            mouseCurrY = event.clientY;
+            if (createMask === true) {
+                maskID.setAttribute("width", event.clientX - maskIniX);
+                maskID.setAttribute("height", event.clientY - maskIniY);
             }
         }
 
-        function maskUp() {
-            camCanvas.setAttribute("style", "cursor: normal")
-            camCanvas.removeEventListener("mouseup", maskUp, false);
-            camCanvas.removeEventListener("mousemove", maskMove, false);
-            if (maskID.getAttribute("width") > maskMinSize && maskID.getAttribute("height") > maskMinSize) {    // Add mask if it is big enough
-                var x = parseInt(maskID.getAttribute("x")) / imgWidth
-                var y = parseInt(maskID.getAttribute("y")) / imgHeight
-                masks.push(new mask(x, x + parseInt(maskID.getAttribute("width")) / imgWidth, y, y + parseInt(maskID.getAttribute("height")) / imgHeight))
-                channelSend(channelName, "mask", JSON.stringify(masks))
+        function keyPress(event) {
+            if (createMask === true) {          // finish drawing mask
+                createMask = false;
+                camCanvas.setAttribute("style", "cursor: normal")
+                if (maskID.getAttribute("width") > maskMinSize && maskID.getAttribute("height") > maskMinSize) {    // Add mask if it is big enough
+                    var x = parseInt(maskID.getAttribute("x")) / imgWidth
+                    var y = parseInt(maskID.getAttribute("y")) / imgHeight
+                    masks.push(new mask(x, x + parseInt(maskID.getAttribute("width")) / imgWidth, y, y + parseInt(maskID.getAttribute("height")) / imgHeight))
+                    channelSend(channelName, "mask", JSON.stringify(masks))
+                } else {
+                    maskID.parentNode.removeChild(maskID);                       // Reject masks that are too small
+                }
+
             } else {
-                maskID.parentNode.removeChild(maskID);                       // Reject masks that are too small
+                createMask = true;
+                maskIniX = mouseCurrX;
+                maskIniY = mouseCurrY;
+                drawMask(masks.length, maskIniX / imgWidth, (maskIniX + 2) / imgWidth, maskIniY / imgHeight, (maskIniY + 2) / imgHeight)
+                maskID = document.getElementById("mask" + masks.length)
+                camCanvas.setAttribute("style", "cursor: se-resize")
             }
-        }
-
-        function maskMove(event) {
-            maskID.setAttribute("width", event.clientX - maskIniX)
-            maskID.setAttribute("height", event.clientY - maskIniY)
         }
 
         function drawAllMasks() {                   // Remove all masks before redrawing
@@ -352,8 +360,9 @@
         function widgetStart(mode) {            // widget specific startup
             vidSource = document.getElementById("vidSource")
             //TODO: Read stream server name from Server in case camera server is a separate server
-            serverName = fwFunc("serverName")
-            camCanvas = document.getElementById("group")
+            serverName = fwFunc("serverName");
+            camCanvas = document.getElementById("group");
+
             //TODO: Get these from the server instead
             liveStreamPort = 8088
             recStreamPort = 3000

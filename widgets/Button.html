@@ -128,12 +128,14 @@
 
     <span id="TBtooltip" data-default="Manual trigger channel" />
     <span id="attrib0" data-type="channel" data-name="Channel" data-default="" />
-    <span id="attrib1" data-type="checkbox" data-name="3D Shadow" data-default="false" />
-    <span id="attrib2" data-type="dropdown" data-name="grey, green, red, yellow, blue, white" data-default="red" />
-    <span id="attrib3" data-type="input" data-name="Trigger Scope" data-default="value" />
-    <span id="attrib4" data-type="input" data-name="Trigger Value" data-default="1" />
+    <span id="attrib1" data-type="dropdown" data-name="static, momentary, toggle" data-default="static" />
+    <span id="attrib2" data-type="input" data-name="Scope" data-default="value" />
+    <span id="attrib3" data-type="input" data-name="Value On" data-default="1" />
+    <span id="attrib4" data-type="input" data-name="Value Off" data-default="0" />
     <span id="attrib5" data-type="data" data-default="Press" />
-    <span id="attrib6" data-type="input" data-name="Tooltip" data-default="" />
+    <span id="attrib6" data-type="checkbox" data-name="3D Shadow" data-default="false" />
+    <span id="attrib7" data-type="dropdown" data-name="grey, green, red, yellow, blue, white" data-default="red" />
+    <span id="attrib8" data-type="input" data-name="Tooltip" data-default="" />
     <span id="ontop" data-default="true" />
 
     <div id="group">
@@ -172,15 +174,27 @@
         }
 
         function clicked(event) {                   // left Button pressed
-            if (event.which === 1) channelSend(_attribs[0].value, _attribs[3].value, _attribs[4].value);
+            if (event.which === 1) {
+                switch (_attribs[1].value) {        // button type
+                    case "momentary":
+                        channelSend(_attribs[0].value, _attribs[2].value, _attribs[3].value);
+                        setTimeout(function () { channelSend(_attribs[0].value, _attribs[2].value, _attribs[4].value); }, 300);
+                        break;
+                    case "toggle":
+                        break;
+                    case "static":
+                        channelSend(_attribs[0].value, _attribs[2].value, _attribs[3].value);
+                        break;
+                }
+            }
         }
 
         //// Widget specific functions
         function widgetStart(mode) {            // widget specific startup
-            if (_attribs[1].value === true) _widgetID.className = _attribs[2].value + " noSelect btn btnShadow"
-            else _widgetID.className = _attribs[2].value + " noSelect btn btnNoShadow"
+            if (_attribs[6].value === true) _widgetID.className = _attribs[7].value + " noSelect btn btnShadow"
+            else _widgetID.className = _attribs[7].value + " noSelect btn btnNoShadow"
             _widgetID.innerHTML = _attribs[5].value;
-            if (_attribs[6].value !== "") fwFunc("setTooltip", _attribs[6].value);
+            if (_attribs[8].value !== "") fwFunc("setTooltip", _attribs[8].value);
             return true;
         }
 
