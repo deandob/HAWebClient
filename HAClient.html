@@ -135,7 +135,8 @@
         var deviceWidth = screen.availWidth;
         var debugURL = "";
         var wsPort;
-        var serverName = document.domain;
+        //var serverName = document.domain;
+        var serverName = "192.168.0.2";
         var categories;
         var tooltipDelay = 1500;                            // Delay before showing tooltip when hovering
         var connection = "local";
@@ -398,7 +399,7 @@
                     status("Connected to Server. Establishing session...")
                     user = "local_machine"
                     send("NETWORK", "CONNECT", "")          // Establish initial generic machine session
-                    setTimeout(checkSession, 12000);      // If HA Server isn't responding, restart 
+                    setTimeout(checkSession, 5000);      // If HA Server isn't responding, restart 
                 }
 
                 ws.onmessage = function (evt) {
@@ -510,7 +511,7 @@
                     } else {
                         status("Server connection closed");
                         netState = "closed"
-                        startNet();
+                        setTimeout(startNet, 50);
                     }
                 }
             } catch (exception) {
@@ -519,7 +520,7 @@
         })();
 
         function checkSession() {
-            if (netState === "connected") {                                 // No session established after 12 seconds
+            if (netState === "connected") {                                 // No session established after 3 seconds
                 ws.close();                                                 // close to restart
             }
         }

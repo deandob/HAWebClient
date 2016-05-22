@@ -5,6 +5,10 @@
 </head>
 <body id="body" spellcheck="false">
     <style>
+        body {
+            overflow: hidden;
+        }
+
         @font-face {
             font-family: 'Open Sans';
             font-style: normal;
@@ -64,9 +68,45 @@
     </style>
 
     <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
+    <span id="TBtooltip" data-default="<TOOLTIP TEXT GOES HERE>" />
 
     <div id="group" style="height: 40px; width: 210px; overflow: hidden;">
-        <div id="widget" contenteditable="false" draggable="false"><i><b>Lorem Ipsum</b></i></div>
+<!--        <div id="widget" contenteditable="false" draggable="false"><i><b>Lorem Ipsum</b></i></div> -->
+        <svg id="widget" width="100" height="80" style="position: absolute; left: 0px; top: 0px; z-index:4">
+            <style type="text/css">
+                text {
+                    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+                    font-weight: normal;
+                    font-style: normal;
+                    font-size: 20px;
+                    text-align: center;
+                    pointer-events: none;
+                }
+            </style>
+
+            <g id="svgGroup" style="position: absolute; left: 0px; top: 0px;">
+                <g id="noScale">
+                </g>
+                <g id="scale">
+                    <path id="seg1" fill="none" stroke="rgb(0, 134, 0)" d="M13.46,66.27 A40,40,0,0,1,10.1,52.79" stroke-width="20" />
+                    <path id="seg2" fill="none" stroke="rgb(50, 134, 0)" d="M10.01,50.7 A40,40,0,0,1,12.18,36.98" stroke-width="20" />
+                    <path id="seg3" fill="none" stroke="rgb(100, 134, 0)" d="M12.91,35.02 A40,40,0,0,1,20.27,23.23" stroke-width="20" />
+                    <path id="seg4" fill="none" stroke="rgb(150, 134, 0)" d="M21.72,21.72 A40,40,0,0,1,33.1,13.75" stroke-width="20" />
+                    <path id="seg5" fill="none" stroke="rgb(200, 134, 0)" d="M35.02,12.91 A40,40,0,0,1,48.6,10.02" stroke-width="20" />
+                    <path id="seg6" fill="none" stroke="rgb(255, 134, 0)" d="M50.7,10.01 A40,40,0,0,1,64.33,12.66" stroke-width="20" />
+                    <path id="seg7" fill="none" stroke="rgb(255, 100, 0)" d="M66.27,13.46 A40,40,0,0,1,77.79,21.23" stroke-width="20" />
+                    <path id="seg8" fill="none" stroke="rgb(255, 70, 0)" d="M79.25,22.72 A40,40,0,0,1,86.82,34.37" stroke-width="20" />
+                    <path id="seg9" fill="none" stroke="rgb(255, 35, 0)" d="M87.59,36.32 A40,40,0,0,1,90,50" stroke-width="20" />
+                    <path id="seg10" fill="none" stroke="rgb(255, 0, 0)" d="M89.95,52.09 A40,40,0,0,1,86.82,65.63" stroke-width="20" />
+                    <polyline id="avg" points="44,0 56,0 50,8 44,0" fill="rgb(20, 20, 230)" stroke-width="0" style="display: none" transform="rotate(-112, 50, 50)"><title id="avgtool">Average: 0</title></polyline>
+                    <path id="TBNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
+                    <text id="TBNumVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
+                </g>
+            </g>
+        </svg>
+        <svg id="text" style="position: absolute; left: 0px; top: 0px; z-index: 3">
+            <text id="numVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
+        </svg>
     </div>
 
     <script src="../widgetFramework.js" type="text/javascript"></script>
@@ -77,6 +117,9 @@
 
         function widgetStart(mode) {                            // widget specific startup. Return true if successful, or return false to abort loading
             return true;
+        }
+
+        function toolboxStart() {                               // called when loaded in toolbox
         }
 
         function startDesign() {                                // called when switching to design mode

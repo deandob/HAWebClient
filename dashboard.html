@@ -795,8 +795,8 @@
             //loadObj.style.setProperty("left", "-5000px");
             var loadName = loadObj.id;
             var loadNum = parseInt(loadName.replace("objWidget", ""));
-            var loadDoc = loadObj.contentDocument
-            var widgetID = loadDoc.getElementById("widget")
+            var loadDoc = loadObj.contentDocument;
+            var widgetID = loadDoc.getElementById("widget");
             try {
                 if (widgets[loadNum].iniHeight === null) {        // setup initial settings when the widget is first created
                     widgets[loadNum].iniHeight = parseInt(widgetID.getAttribute("height") || widgetID.style.getAttribute("height"))
@@ -1121,7 +1121,12 @@
         function drag_start(event) {
             if (design) {
                 var objID = event.target.getAttribute("data-widgetName") || event.target.parentNode.getAttribute("data-widgetName");
+                
                 //if (objID === null) objID = event.target.parentNode.getAttribute("data-widgetName");       // parent must be widget
+                if (objID === null) {
+                    alert("ERROR - Widget HTML incorrectly setup, can't drag widget");       // parent must be widget
+                    return;
+                }
                 // As objects swallow mouse events, we can only track absolute screen pixel position, so find widget (0,0) relative to iFrame (0,0) and use as offset when calculating drop point
                 var docOffsetX = event.screenX - document.getElementById(objID).offsetLeft - document.getElementById(objID).parentElement.offsetLeft
                 var docOffsetY = event.screenY - document.getElementById(objID).offsetTop - document.getElementById(objID).parentElement.offsetTop + document.getElementById(objID).parentElement.scrollTop
