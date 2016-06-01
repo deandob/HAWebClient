@@ -124,6 +124,7 @@
         var oldVal = 0;
 
         function widgetStart(mode) {                            // widget specific startup. Return true if successful, or return false to abort loading
+            fwFunc("setTooltip", "Water Tank Level");
             return true;
         }
 
@@ -140,7 +141,7 @@
         }
 
         function clicked() {
-            adjustLevel(80);
+            //adjustLevel(80);
         }
 
         function toolboxStart() {           // called when loaded in toolbox
@@ -162,7 +163,7 @@
             if (isNaN(numeric)) return;
             switch (scope.toLowerCase()) {
                 case "level":
-                    if (channel === _attribs[0].value.split("/")[2]) return adjustLevel(numeric);
+                    if (channel.toLowerCase() === _attribs[0].value.split("/")[2].toLowerCase()) return adjustLevel(numeric);
                     break;
             }
             return true;
@@ -171,7 +172,7 @@
         function ini(channel, scope, data) {                    // Called to set initial channel status
             switch (scope.toLowerCase()) {
                 case "level":
-                    feed(channel, scope, data);
+                    setTimeout(feed, 500, channel, scope, data);           // delay so automation can be seen during loading
                     break;
             }
         }

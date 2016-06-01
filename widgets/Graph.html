@@ -326,7 +326,7 @@
                 series[i].FQN = _attribs[i * 3].value        // extract name from svg _attribs
                 if (series[i].FQN != "") {         // only load up series if it has a name
                     numSeries = i;
-                    fwFunc("history", series[i].FQN, Date.now() - 1000 * 3600 * historyHrs, Date.now())
+                    fwFunc("history", series[i].FQN, Date.now() - 1000 * 3600 * historyHrs, Date.now())         // request data from server
                     series[i].name = series[i].FQN.split("/")[2]
                     series[i].color = _attribs[i * 3 + 2].value
                     //series[i].d3Line = d3.svg.line().interpolate("monotone")              // smooth curves
@@ -337,7 +337,7 @@
                         .attr("class", "seriesline " + series[i].color)
                         .data([series[i].data])
                     if (_attribs[i * 3 + 1].value == true) {  // if area fill
-                        series[i].d3Area = d3.svg.area().interpolate("monotone")
+                        //series[i].d3Area = d3.svg.area().interpolate("monotone")
                         series[i].d3Area = d3.svg.area()
                         series[i].areaElement = chart.append("path")
                             .attr("clip-path", "url(#clip)")
@@ -385,7 +385,7 @@
             }
 
             clearTimeout(ttTimeout);
-            ttTimeout = setTimeout(fadeTT, 3000);
+            ttTimeout = setTimeout(fadeTT, 2000);
         }
 
         function fadeTT() {
@@ -496,28 +496,6 @@
             }
         }
 
-        // Draw the chart lines, circles and areas
-        function render() {
-            for (var i = 0; i < 5; i++) {
-                if (series[i].name != "") {
-                    if (series[i].d3Area != null) {             // only render the area svg if fill is specified
-                        series[i].d3Area
-                            .x(function (d) { return x(d.x); })
-                            .y0(height)
-                            .y1(function (d) { return y(d.y); });
-                        series[i].areaElement
-                            .attr("d", series[i].d3Area)
-                    }
-                    series[i].d3Line
-                        .x(function (d) { return x(d.x); })
-                        .y(function (d) { return y(d.y); });
-                    series[i].lineElement
-                        .attr("d", series[i].d3Line)
-                        .on("mouseover", lineMouseover)
-                    }
-            }
-            adjustLegend();
-        }
 
         // feed from the server
         function processFeed(instance, feedVal) {
@@ -542,7 +520,7 @@
                     if (series[i].data.length >= MAXPOINTS) series[i].data.shift();       //remove the old value if array is too large
 
                     if (_designing == false) {
-                        render();
+                        render(0);
                         adjustZoom(series[i].data[series[i].data.length - 1].x);                 // slide graph to the show the new value
                     }
 
@@ -552,6 +530,7 @@
 
         // load JSON dataset from the server
         function load(instance, loadVal) {
+            //var minTime, maxTime;
             tooltip.style.setProperty("left", "50%");                                // show loading tooltip
             tooltip.style.setProperty("top", "50%");                                
             loaded = true;
@@ -563,14 +542,15 @@
                             var rec = loadArr[lp].split(",")
                             var JSTime = new Date((rec[0] - 621355968000000000) / 10000)         // Convert from .NET Date to JS Date by subtracting UnixEpoc and dividing by PC ticks
                             series[i].data.push({ "x": JSTime, "y": +rec[1] })
+//                            empty.push({ "x": JSTime, "y": 0 })
                             if (series[i].data.length >= MAXPOINTS) series[i].data.shift();       //remove the old value if array is too large
                         }
                         if (d3.max(series[i].data, function (d) { return d.y }) > maxVal) maxVal = d3.max(series[i].data, function (d) { return d.y })
                         if (d3.min(series[i].data, function (d) { return d.y }) < minVal) minVal = d3.min(series[i].data, function (d) { return d.y })
                         y.domain([minVal, maxVal])      // Adjust scales
                         yAxis.scale(y)
-                        zoomed()
-                        render()
+                        //zoomed()
+                        render(800)
                     }
                 }
             }
@@ -607,13 +587,52 @@
                 for (var i = 0; i < 5; i++) {
                     if (series[i].name != "") {
                         if (series[i].d3Area != null) chart.select("#seriesArea" + i).attr("d", series[i].d3Area(series[i].data));
-                        chart.select("#seriesLine" + i).attr("d", series[i].d3Line(series[i].data));
+                        chart.select("#seriesLine" + i).attr("d", series[i].d3Line(series[i].data))
                     }
                 }
                 oldDomain = x.domain();
             }
         }
 
+        // Draw the chart lines, circles and areas
+        function render(duration) {
+            for (var i = 0; i < 5; i++) {
+                if (series[i].name != "") {
+                    if (series[i].d3Area != null) {             // only render the area svg if fill is specified
+                        series[i].d3Area
+                            .x(function (d) { return x(d.x); })
+                            .y0(height)
+                            .y1(height);
+                        series[i].areaElement
+                            .attr("d", series[i].d3Area)
+                        series[i].d3Area
+                            .y1(function (d) { return y(d.y); });
+                        series[i].areaElement
+                            .transition()
+                            .duration(duration)
+                            .attr("d", series[i].d3Area)
+
+                    }
+                    series[i].d3Line
+                        .x(function (d) { return x(d.x); })
+                        .y(function (d) { return height; })
+
+                    series[i].lineElement
+                        .on("mouseover", lineMouseover)
+                        .attr("d", series[i].d3Line)
+  
+                    series[i].d3Line
+                        .y(function (d) { return y(d.y); })
+
+                    series[i].lineElement
+                      .transition()
+                      .duration(duration)
+                      .attr("d", series[i].d3Line)
+                }
+            }
+            adjustLegend();
+
+        }
         // Drag events
         function start_drag() {
             chart.style("cursor", "e-resize")

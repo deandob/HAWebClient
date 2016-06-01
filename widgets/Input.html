@@ -95,6 +95,7 @@
     <span id="attrib0" data-type="channel" data-name="Channel" data-default="" />
     <span id="attrib1" data-type="dropdown" data-name="grey, green, red, yellow, blue, white" data-default="red" />
     <span id="attrib2" data-type="input" data-name="Tooltip" data-default="" />
+    <span id="attrib3" data-type="input" data-name="Scope" data-default="value" />
     <span id="ontop" data-default="true" />
 
     <div id="group">
@@ -111,7 +112,7 @@
         var textInput = document.getElementById("textInput");
 
         function submitInp() {
-            channelSend(_attribs[0].value, "value", textInput.value);
+            channelSend(_attribs[0].value, _attribs[3].value, textInput.value);
         }
 
         function toolboxStart() {           // called when loaded in toolbox

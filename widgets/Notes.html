@@ -114,12 +114,13 @@
     <span id="TBtooltip" data-default="Freeform text editor for sticky notes" />
     <span id="attrib0" data-type="checkbox" data-name="3D Shadow" data-default="false" />
     <span id="attrib1" data-type="dropdown" data-name="grey, green, red, yellow, blue, white" data-default="blue" />
-    <span id="attrib2" data-type="data" data-default="Notepad" />
+    <span id="attrib2" data-type="data" data-default="[My Notes]" />
+    <span id="attrib3" data-type="data" data-default="Notes..." />
     <span id="ontop" data-default="false" />
 
     <div id="group">
         <div id="widget" class="blue" style="position: absolute; left: 0px; top: 0px; width: 100px; height: 100px; border-radius: 3px;">
-            <div id="header" style="height: 20px; width: 100%; text-align: center; overflow: hidden; border: 0px;"><b>Notepad</b></div>
+            <div id="header" style="height: 20px; width: 100%; text-align: center; overflow: hidden; border: 0px;"><b>[My Notes]</b></div>
             <div id="buttons" style="display:none; position: absolute; right: 2px; top: 0px; width: 140px; height: 20px; text-align: right">
                 <a href="#" id="bold" class="buttonStyle"><b>B</b></a>
                 <a href="#" id="italic" class="buttonStyle"><b><i>I</i></b></a>
@@ -128,7 +129,7 @@
                 <a href="#" id="decFont" class="buttonStyle"><b>-</b></a>
                 <a href="#" id="remFormat" class="buttonStyle"><b>X</b></a>
             </div>
-            <div id="textArea" style="display: inline-block; padding: 20px 30px 30px 20px; text-align: left"></div>
+            <div id="textArea" contentEditable = "true" style="display: inline-block; padding: 20px 30px 30px 20px; text-align: left"></div>
         </div>
     </div>
 
@@ -139,28 +140,12 @@
         var header = document.getElementById("header")
         var buttons = document.getElementById("buttons")
         var textArea = document.getElementById("textArea")
+        var oldheader;
+        var oldtext;
 
         function toolboxStart() {           // called when loaded in toolbox
             _widgetID.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
             _widgetID.style.setProperty("height", parseInt(_widgetID.style.getPropertyValue("width")) + "px");
-        }
-
-        function startEdit() {              // called when editing started
-            document.body.setAttribute("spellcheck", "true");
-        }
-
-        function endEdit(param0) {                // called when editing finishes
-            document.body.setAttribute("spellcheck", "false");
-            fwFunc("setAttrib", 2, header.textContent)
-            widgetStart()
-        }
-
-        function startDesign() {            // called when switching to design mode
-            header.contentEditable = "true"
-        }
-
-        function endDesign() {            // called when switching to design mode
-            header.contentEditable = "false"
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
@@ -174,26 +159,40 @@
         function widgetStart(mode) {            // widget specific startup
             buttons.style.setProperty("display", "inline")
             if (_attribs[0].value === true) _widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
-            else _widgetID.style.setProperty("box-shadow", "none")
+                else _widgetID.style.setProperty("box-shadow", "none")
             header.innerHTML = "<b>" + _attribs[2].value + "</b>";
             _widgetID.className = _attribs[1].value
             header.className = _widgetID.className
 
-            for (var i in notes) {
+/*            for (var i in notes) {
                 var docFrag = document.createDocumentFragment();
                 var itemDate = document.createElement("div")
                 var itemText = document.createElement("div")
                 var currDate = Date().substr(0, Date().indexOf(" GMT") - 3);
                 itemDate.innerHTML = "<b>" + currDate + "</b>&nbsp;&nbsp;&nbsp;"
                 itemDate.className = "noSelect"
-                itemText.innerHTML = "This is a test" + "<br/><br/>"
+                itemText.innerHTML = "<br/><br/>"
                 itemDate.className = "select"
                 docFrag.appendChild(itemDate)
                 docFrag.appendChild(itemText)
                 textArea.appendChild(docFrag)
-            }
+            } */
+
+            oldheader = header.innerHTML;
+            oldtext = textArea.innerHTML;
+
+            //setTimeout(saveChanges, 3000);
 
             return true;
+        }
+
+        function saveChanges() {
+            if (oldheader !== header.innerHTML) {
+                fwFunc("setAttrib", 2, header.innerHTML);
+            }
+            if (oldtext !== textArea.innerHTML) {
+                fwFunc("setAttrib", 2, textArea.innerHTML)
+            }
         }
 
     </script>
