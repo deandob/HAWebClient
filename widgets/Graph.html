@@ -65,8 +65,8 @@
     <span id="attrib18" data-type="input" data-name="Initial History (hrs)" data-default="24" />
     <span id="ontop" data-default="true" />
 
-    <div id="callout" class="triangle" style="position: absolute; z-index: 101; opacity: 0; transition: opacity 0.2s ease-in-out 0.3s"></div>
-    <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 1; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.2s ease-in-out 0.3s">Loading...</div>
+    <div id="callout" class="triangle" style="position: absolute; left: -200px; top:0px; z-index: 101; opacity: 1; transition: opacity 0.15s ease-in-out 0.15s"></div>
+    <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 1; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.15s ease-in-out 0.15s">Loading...</div>
     
     <div id="group">
         <svg id="widget" width="500" height="500" style="position: absolute; left: 0px; top: 0px;">
@@ -96,6 +96,7 @@
 
                 .x.axis .label, .y.axis .label {
                     opacity: 1;
+                    stroke: #D0D0D0;
                     font-style: italic;
                 }
 
@@ -113,7 +114,7 @@
                 .title {
                     font-weight: normal;
                     font-size: 16px;
-                    opacity: 1;
+                    opacity: 0.5;
                 }
 
                 .max, .min {
@@ -133,7 +134,7 @@
 
                 .legendtext {
                     text-anchor: end;
-                    stroke: none !important;
+                    stroke: #D0D0D0;
                 }
 
                 .blue {
@@ -234,6 +235,7 @@
 
         //// Widget specific functions
         var oldDomain, historyHrs, xAxis, yAxis, x, y, width, height, clipPath, title, yLabel, xLabel, bground, zoom, drag, tooltip, callout, ttTimeout, loaded = false;
+        var dsToLoad = 0;
         var maxVal = 1;
         var minVal = 0;
         var POINTS_GAP = 5;          // default spacing between points
@@ -294,11 +296,7 @@
             .attr("class", "label")
             .attr("text-anchor", "middle")
 
-        var legend = chart.append("g")
-            .attr("class", "legend")
-            .attr("y", 25)
-            .attr("height", 100)
-            .attr("width", 100);
+        var legend; 
 
         // Setup data array
         var series = [];
@@ -325,11 +323,10 @@
             for (var i = 0; i < 5; i++) {
                 series[i].FQN = _attribs[i * 3].value        // extract name from svg _attribs
                 if (series[i].FQN != "") {         // only load up series if it has a name
-                    numSeries = i;
+                    dsToLoad = dsToLoad + 1;
                     fwFunc("history", series[i].FQN, Date.now() - 1000 * 3600 * historyHrs, Date.now())         // request data from server
                     series[i].name = series[i].FQN.split("/")[2]
                     series[i].color = _attribs[i * 3 + 2].value
-                    //series[i].d3Line = d3.svg.line().interpolate("monotone")              // smooth curves
                     series[i].d3Line = d3.svg.line()
                     series[i].lineElement = chart.append("path")
                         .attr("clip-path", "url(#clip)")
@@ -337,14 +334,12 @@
                         .attr("class", "seriesline " + series[i].color)
                         .data([series[i].data])
                     if (_attribs[i * 3 + 1].value == true) {  // if area fill
-                        //series[i].d3Area = d3.svg.area().interpolate("monotone")
                         series[i].d3Area = d3.svg.area()
                         series[i].areaElement = chart.append("path")
                             .attr("clip-path", "url(#clip)")
                             .attr("id", "seriesArea" + i)
                             .attr("class", "seriesarea " + series[i].color)
                             .data([series[i].data])
-                        //series[i].areaElement.append("title").text(series[i].name)           // tooltip for area
                     }
                 }
             }
@@ -352,43 +347,60 @@
             xTitle = _attribs[16].value;
             yTitle = _attribs[17].value;
 
+            legend = chart.append("g")
+                .attr("class", "legend")
+                .attr("y", 25)
+                .attr("height", 100)
+                .attr("width", 100);
+
             return true;
         }
 
-        // Show tooltip when hovering over line
-        function lineMouseover(d, i) {
-            var dataX = x.invert(d3.mouse(this.parentNode)[0]);                         //find the mouse's horizontal coordinate relative to the drawing container, invert the scale to find the x value at the mouse point
-            
-            var j = d.length;
-            while ((j--) && (d[j].x > dataX));                                          //scan through the data array to find the value closest to the mouse
-
-            var closest = 0;
-            if (j >= 0) {
-                if (isNaN(d[j + 1]) || (dataX - d[j].x < d[j + 1].x - dataX))           //d[j] will now be the first datapoint *less than* the mousepoint compare it with d[j+1] to see which is closer to the mouse:
-                    closest = j;
-                else
-                    closest = j + 1;
-            }
-            tooltip.innerText = series[i].name + " " + d[closest].y + " at " + d[closest].x.getHours() + ":" + d[closest].x.getMinutes() + ":" + d[closest].x.getSeconds();
-            var top = parseInt(d3.event.pageY) - tooltip.clientHeight - 12
-            tooltip.style.setProperty("opacity", "1");
-            tooltip.style.setProperty("left", parseInt(d3.event.pageX) - parseInt(tooltip.clientWidth / 2) + "px");
-            callout.style.setProperty("opacity", "1");
-            callout.style.setProperty("left", parseInt(d3.event.pageX - 5) + "px");
-            if (top > 0) {
-                tooltip.style.setProperty("top", top + "px");
-                callout.style.setProperty("top", top + tooltip.clientHeight + 2 + "px");
+        var mouseTimer;
+        function mouseMove(ev) {
+            if (showTooltip === true) {
+                tooltipHover(ev)
             } else {
-                tooltip.style.setProperty("top", parseInt(d3.event.pageY) + 12 + "px");
-                callout.style.setProperty("top", parseInt(d3.event.pageY) + 2 + "px");
-                tooltip.style.setProperty("translate", "scale(1,-1)");
+                clearTimeout(mouseTimer);
+                mouseTimer = setTimeout(tooltipHover, 1500, ev);
             }
+        }
 
+        // Show tooltip when hovering over line
+        var showTooltip = false;
+        var seriesIndex;                 
+        var bisectDate = d3.bisector(function (d) { return d.x; }).left
+        function tooltipHover(ev) {
+            if (showTooltip === false) {
+                tooltip.style.setProperty("opacity", "1");
+                callout.style.setProperty("opacity", "1");
+                seriesIndex = 0;
+                var testX = x.invert(ev.clientX - 57);
+                var lowestVal = series[0].data.y;
+                for (var j = 1; j < series[j].data.length ; j++) if (series[j].data[bisectDate(series[j].data, testX)].y < lowestVal) {
+                    lowestVal = series[j].data[bisectDate(series[j].data, testX)].y
+                    seriesIndex = j;      // pick the lowest value series where mouse is hovering
+                }
+            }
+            showTooltip = true;
+            var x0 = x.invert(ev.clientX - 57);
+            var i = bisectDate(series[seriesIndex].data, x0);
+            if (i !== 0 && i !== series[seriesIndex].data.length) {
+                var d0 = series[seriesIndex].data[i - 1];
+                var d1 = series[seriesIndex].data[i];
+                var dd = x0 - d0.x > d1.x - x0 ? d1 : d0;
+                tooltip.innerText = series[seriesIndex].name + " " + dd.y + " at " + dd.x.getHours() + ":" + dd.x.getMinutes() + ":" + dd.x.getSeconds();
+                var ytop = parseInt(y(dd.y))
+                var xtop = ev.clientX + 125;
+                tooltip.style.setProperty("transform", "translate(" + xtop + "px," + (ytop - tooltip.clientHeight - 120) + "px)");
+                callout.style.setProperty("transform", "translate(" + (xtop + 70) + "px, " + (ytop + 13) + "px");
+            }
             clearTimeout(ttTimeout);
             ttTimeout = setTimeout(fadeTT, 2000);
         }
 
         function fadeTT() {
+            showTooltip = false;
             tooltip.style.setProperty("opacity", "0")
             callout.style.setProperty("opacity", "0")
             tooltip.addEventListener("transitionend", fadeFinish, true);
@@ -396,8 +408,8 @@
 
         // send tooltip off screen when faded
         function fadeFinish() {
-            tooltip.style.setProperty("left", "-200px")
-            callout.style.setProperty("left", "-200px")
+            tooltip.style.setProperty("transform", "translate(0px,0px)");
+            callout.style.setProperty("transform", "translate(0px,0px)");
             tooltip.removeEventListener("transitionend", fadeFinish, true);
         }
 
@@ -421,8 +433,8 @@
             x
                 .domain([new Date(new Date().valueOf() - 1000 * 3600 * historyHrs), new Date])       // assumes seconds
                 .range([0, width])
-            .nice();
-            //.nice(d3.time.second);
+                .nice(d3.time.second);
+
             oldDomain = x.domain();
 
             y
@@ -490,7 +502,7 @@
                         .attr("y", i * 25 + 10 + margin.top / 2)
                         .attr("height", 30)
                         .attr("width", 100)
-                        .attr("class", "legendtext " + series[i].color)
+                        .attr("class", "legendtext")
                         .text(series[i].name + currVal);
                 }
             }
@@ -520,7 +532,7 @@
                     if (series[i].data.length >= MAXPOINTS) series[i].data.shift();       //remove the old value if array is too large
 
                     if (_designing == false) {
-                        render(0);
+                        render(0, i);
                         adjustZoom(series[i].data[series[i].data.length - 1].x);                 // slide graph to the show the new value
                     }
 
@@ -530,9 +542,6 @@
 
         // load JSON dataset from the server
         function load(instance, loadVal) {
-            //var minTime, maxTime;
-            tooltip.style.setProperty("left", "50%");                                // show loading tooltip
-            tooltip.style.setProperty("top", "50%");                                
             loaded = true;
             var loadArr = JSON.parse(loadVal);
             if (loadArr.length > 0) {
@@ -542,7 +551,6 @@
                             var rec = loadArr[lp].split(",")
                             var JSTime = new Date((rec[0] - 621355968000000000) / 10000)         // Convert from .NET Date to JS Date by subtracting UnixEpoc and dividing by PC ticks
                             series[i].data.push({ "x": JSTime, "y": +rec[1] })
-//                            empty.push({ "x": JSTime, "y": 0 })
                             if (series[i].data.length >= MAXPOINTS) series[i].data.shift();       //remove the old value if array is too large
                         }
                         if (d3.max(series[i].data, function (d) { return d.y }) > maxVal) maxVal = d3.max(series[i].data, function (d) { return d.y })
@@ -550,11 +558,12 @@
                         y.domain([minVal, maxVal])      // Adjust scales
                         yAxis.scale(y)
                         //zoomed()
-                        render(800)
+                        render(800, i)
                     }
                 }
             }
-            tooltip.style.setProperty("left", "-200px");                                // remove loading tooltip
+            dsToLoad = dsToLoad - 1;
+            if (dsToLoad === 0) tooltip.style.setProperty("left", "-200px");                                // remove loading tooltip
         }
 
         // Move view window between these two dates
@@ -595,43 +604,46 @@
         }
 
         // Draw the chart lines, circles and areas
-        function render(duration) {
-            for (var i = 0; i < 5; i++) {
-                if (series[i].name != "") {
-                    if (series[i].d3Area != null) {             // only render the area svg if fill is specified
-                        series[i].d3Area
-                            .x(function (d) { return x(d.x); })
-                            .y0(height)
-                            .y1(height);
-                        series[i].areaElement
-                            .attr("d", series[i].d3Area)
-                        series[i].d3Area
-                            .y1(function (d) { return y(d.y); });
-                        series[i].areaElement
-                            .transition()
-                            .duration(duration)
-                            .attr("d", series[i].d3Area)
-
-                    }
-                    series[i].d3Line
-                        .x(function (d) { return x(d.x); })
-                        .y(function (d) { return height; })
-
-                    series[i].lineElement
-                        .on("mouseover", lineMouseover)
-                        .attr("d", series[i].d3Line)
-  
-                    series[i].d3Line
-                        .y(function (d) { return y(d.y); })
-
-                    series[i].lineElement
-                      .transition()
-                      .duration(duration)
-                      .attr("d", series[i].d3Line)
+        function render(duration, i) {
+            if (series[i].d3Area != null) {             // only render the area svg if fill is specified
+                series[i].d3Area
+                    .x(function (d) { return x(d.x); })
+                    .y0(height)
+                if (duration !== 0) {                   // duration > 0 will use animation, setting height at bottom then animating to y values
+                    series[i].d3Area.y1(height);
+                } else {
+                    series[i].d3Area.y1(function (d) { return y(d.y); });
+                }
+                series[i].areaElement
+                    .attr("d", series[i].d3Area)
+                if (duration !== 0) {
+                    series[i].d3Area
+                        .y1(function (d) { return y(d.y); });
+                    series[i].areaElement
+                        .transition()
+                        .duration(duration)
+                        .attr("d", series[i].d3Area)
                 }
             }
-            adjustLegend();
 
+            series[i].d3Line.x(function (d) { return x(d.x); })
+            if (duration !== 0) {
+                series[i].d3Line.y(function (d) { return height; });
+            } else {
+                series[i].d3Line.y(function (d) { return y(d.y); });
+            }
+
+            series[i].lineElement
+                .attr("d", series[i].d3Line)
+            if (duration !== 0) {
+                series[i].d3Line.y(function (d) { return y(d.y); })
+                series[i].lineElement
+                  .transition()
+                  .duration(duration)
+                  .attr("d", series[i].d3Line);
+            }
+            adjustLegend();
+            chart.select(".y.axis").call(yAxis);
         }
         // Drag events
         function start_drag() {
@@ -646,8 +658,9 @@
                         if (series[i].name != "") {
                             tooltip.style.setProperty("left", "50%");                                // show loading tooltip
                             tooltip.style.setProperty("top", "50%");
-                            tooltip.innerText = "Loading..."
-                            fwFunc("history", series[i].FQN, x.domain()[0].valueOf(), series[0].data[0].x.valueOf())
+                            tooltip.innerText = "Loading...";
+                            fwFunc("history", series[i].FQN, x.domain()[0].valueOf(), series[0].data[0].x.valueOf());
+                            dsToLoad = dsToLoad + 1;
                         }
                     }
                 }
