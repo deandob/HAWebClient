@@ -34,12 +34,11 @@
         }
 
         .triangle {
-            font-size: 0px;
-            line-height: 0%;
+            height: 0px;
             width: 0px;
             border-top: 10px solid #66A867;
-            border-left: 5px solid #eeeeee;
-            border-right: 5px solid #cccccc;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
         }
     </style>
 
@@ -65,14 +64,21 @@
     <span id="attrib18" data-type="input" data-name="Initial History (hrs)" data-default="24" />
     <span id="ontop" data-default="true" />
 
-    <div id="callout" class="triangle" style="position: absolute; left: -200px; top:0px; z-index: 101; opacity: 1; transition: opacity 0.15s ease-in-out 0.15s"></div>
-    <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 1; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.15s ease-in-out 0.15s">Loading...</div>
-    
+        <div id="callout" class="triangle" style="position: absolute; left: -200px; top:0px; z-index: 101; opacity: 1; transition: opacity 0.15s ease-in-out 0.15s"></div>
+        <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 0.9; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.15s ease-in-out 0.15s">Loading...</div>
+
+        
     <div id="group">
         <svg id="widget" width="500" height="500" style="position: absolute; left: 0px; top: 0px;">
             <style type="text/css">
                 svg {
                     shape-rendering: crispEdges;
+                }
+
+                text {
+                    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+                    font-weight: normal;
+                    font-style: normal;
                 }
 
                 .axis path, .axis line { /* X and Y axis */
@@ -105,12 +111,6 @@
                     stroke-opacity: 0.3;
                 }
 
-                text {
-                    font-family: "Open Sans", Arial, Helvetica, sans-serif;
-                    font-weight: normal;
-                    font-style: normal;
-                }
-
                 .title {
                     font-weight: normal;
                     font-size: 16px;
@@ -134,7 +134,7 @@
 
                 .legendtext {
                     text-anchor: end;
-                    stroke: #D0D0D0;
+                    stroke: #888888;
                 }
 
                 .blue {
@@ -240,7 +240,7 @@
         var minVal = 0;
         var POINTS_GAP = 5;          // default spacing between points
         //TODO: MAXPOINTS SHOULD BE ADJUSTED BASED ON WIDTH, AND DROP VALUES IF ARRAY RESOLUTION IS LESS THAN A PIXEL
-        var MAXPOINTS = 100000;        //how many data points to keep in the display buffer for panning
+        var MAXPOINTS = 5000;        //how many data points to keep in the display buffer for panning
         var xTitle = "";
         var yTitle = "";
         var chartTitle = "";
@@ -358,12 +358,14 @@
 
         var mouseTimer;
         function mouseMove(ev) {
-            if (showTooltip === true) {
-                tooltipHover(ev)
-            } else {
-                clearTimeout(mouseTimer);
-                mouseTimer = setTimeout(tooltipHover, 1500, ev);
-            }
+            if (!_designing && loaded) {
+                if (showTooltip === true) {
+                    tooltipHover(ev)
+                } else {
+                    clearTimeout(mouseTimer);
+                    mouseTimer = setTimeout(tooltipHover, 1500, ev);
+                }
+            } 
         }
 
         // Show tooltip when hovering over line
@@ -371,38 +373,48 @@
         var seriesIndex;                 
         var bisectDate = d3.bisector(function (d) { return d.x; }).left
         function tooltipHover(ev) {
-            if (showTooltip === false) {
-                tooltip.style.setProperty("opacity", "1");
-                callout.style.setProperty("opacity", "1");
-                seriesIndex = 0;
-                var testX = x.invert(ev.clientX - 57);
-                var lowestVal = series[0].data.y;
-                for (var j = 1; j < series[j].data.length ; j++) if (series[j].data[bisectDate(series[j].data, testX)].y < lowestVal) {
-                    lowestVal = series[j].data[bisectDate(series[j].data, testX)].y
-                    seriesIndex = j;      // pick the lowest value series where mouse is hovering
-                }
-            }
-            showTooltip = true;
             var x0 = x.invert(ev.clientX - 57);
+            if (showTooltip === false) {                    // set up tooltip
+                seriesIndex = 0;
+                var lowestVal = 99e99;
+                var cursorAbove = true;
+                for (var j = 0; j < series[j].data.length ; j++) {          // latch tooltip to the series closest to the cursor only when inside area
+                    var lineVal = y(series[j].data[bisectDate(series[j].data, x0)].y)
+                    if (ev.clientY > lineVal) cursorAbove = false;
+                    var testAbs = Math.abs(lineVal - ev.clientY + 17);
+                    if (testAbs < lowestVal) {
+                        lowestVal = testAbs
+                        seriesIndex = j;
+                    }
+                }
+                if (cursorAbove) return;            // ignore when cursor is above graph
+                tooltip.style.setProperty("opacity", "0.8");
+                callout.style.setProperty("opacity", "1");
+                showTooltip = true;
+            }
             var i = bisectDate(series[seriesIndex].data, x0);
+            clearTimeout(ttTimeout);
+            ttTimeout = setTimeout(fadeTT, 2000);
             if (i !== 0 && i !== series[seriesIndex].data.length) {
                 var d0 = series[seriesIndex].data[i - 1];
                 var d1 = series[seriesIndex].data[i];
                 var dd = x0 - d0.x > d1.x - x0 ? d1 : d0;
                 tooltip.innerText = series[seriesIndex].name + " " + dd.y + " at " + dd.x.getHours() + ":" + dd.x.getMinutes() + ":" + dd.x.getSeconds();
                 var ytop = parseInt(y(dd.y))
-                var xtop = ev.clientX + 125;
-                tooltip.style.setProperty("transform", "translate(" + xtop + "px," + (ytop - tooltip.clientHeight - 120) + "px)");
-                callout.style.setProperty("transform", "translate(" + (xtop + 70) + "px, " + (ytop + 13) + "px");
+                var xtop = ev.clientX;
+                var chartOffset = parseInt(chart.style("left")) + 75;
+                callout.style.setProperty("transform", "translate(" + (xtop + 195) + "px, " + (ytop + 15) + "px");
+                if (xtop < chartOffset) xtop = chartOffset;
+                if (xtop + parseInt(tooltip.clientWidth) > (chartOffset + parseInt(chart.style("width")))) xtop = chartOffset + parseInt(chart.style("width")) - 5 - parseInt(tooltip.clientWidth)
+                if (ytop < 20) ytop = 20;
+                tooltip.style.setProperty("transform", "translate(" + (xtop + 125) + "px," + (ytop - 17) + "px)");
             }
-            clearTimeout(ttTimeout);
-            ttTimeout = setTimeout(fadeTT, 2000);
         }
 
         function fadeTT() {
             showTooltip = false;
-            tooltip.style.setProperty("opacity", "0")
-            callout.style.setProperty("opacity", "0")
+            tooltip.style.setProperty("opacity", "0");
+            callout.style.setProperty("opacity", "0");
             tooltip.addEventListener("transitionend", fadeFinish, true);
         }
 
@@ -485,8 +497,9 @@
         }
 
         function adjustLegend() {
-            legend.selectAll("rect").remove()
-            legend.selectAll("text").remove()
+            if (typeof legend === 'undefined') return;
+            legend.selectAll("rect").remove();
+            legend.selectAll("text").remove();
             for (i = 0; i < 5; i++) {
                 if (series[i].name != "") {
                     legend.append("rect")
@@ -526,10 +539,8 @@
                         if (_designing == false) zoomed()
                     }
 
-                    //TODO: If PC time is different to server time, will get gaps between end of history & first new point plotted. Could ask the server for time and use the delta as an adjustment factor
                     series[i].data.push({ "x": new Date(), "y": +feedVal });
-
-                    if (series[i].data.length >= MAXPOINTS) series[i].data.shift();       //remove the old value if array is too large
+                    if (series[i].data.length >= MAXPOINTS) series[i].data.pop();       //remove the old value if array is too large
 
                     if (_designing == false) {
                         render(0, i);
@@ -550,8 +561,10 @@
                         for (var lp = 0; lp < loadArr.length; lp++) {
                             var rec = loadArr[lp].split(",")
                             var JSTime = new Date((rec[0] - 621355968000000000) / 10000)         // Convert from .NET Date to JS Date by subtracting UnixEpoc and dividing by PC ticks
-                            series[i].data.push({ "x": JSTime, "y": +rec[1] })
-                            if (series[i].data.length >= MAXPOINTS) series[i].data.shift();       //remove the old value if array is too large
+                            series[i].data.unshift({ "x": JSTime, "y": +rec[1] })
+                            //TODO: Only works if scrolling backwards, lose recent records if array is too big and not repopulated
+                            
+                            if (series[i].data.length >= MAXPOINTS) series[i].data.pop();       //remove the old value if array is too large
                         }
                         if (d3.max(series[i].data, function (d) { return d.y }) > maxVal) maxVal = d3.max(series[i].data, function (d) { return d.y })
                         if (d3.min(series[i].data, function (d) { return d.y }) < minVal) minVal = d3.min(series[i].data, function (d) { return d.y })
@@ -563,7 +576,10 @@
                 }
             }
             dsToLoad = dsToLoad - 1;
-            if (dsToLoad === 0) tooltip.style.setProperty("left", "-200px");                                // remove loading tooltip
+            if (dsToLoad === 0) {
+                tooltip.style.setProperty("left", "-200px");                                // remove loading tooltip
+                tooltip.style.setProperty("top", "0px");
+            }
         }
 
         // Move view window between these two dates
@@ -650,17 +666,21 @@
             chart.style("cursor", "e-resize")
         }
 
+        //TODO: smarter loads for back & forward
+
         function stop_drag() {
             if (!_designing) {
                 chart.style("cursor", "default");
                 if (x.domain()[0] < series[0].data[0].x) {                       // scrolling & out of data, get more data
                     for (var i = 0; i < 5; i++) {
                         if (series[i].name != "") {
-                            tooltip.style.setProperty("left", "50%");                                // show loading tooltip
+                            tooltip.style.setProperty("left", "50%");                                
                             tooltip.style.setProperty("top", "50%");
                             tooltip.innerText = "Loading...";
+                            tooltip.style.setProperty("opacity", "1");                                // show loading tooltip
                             fwFunc("history", series[i].FQN, x.domain()[0].valueOf(), series[0].data[0].x.valueOf());
                             dsToLoad = dsToLoad + 1;
+                            loaded = false;
                         }
                     }
                 }

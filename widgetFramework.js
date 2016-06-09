@@ -5,6 +5,8 @@ var _widgetName, _widgetNum, _iniWidth, _iniHeight, _widgetID, _gScale, _attribs
 var _designing = false, _started = false, _toolbox = false, _editing = false;
 var _cacheIni = [];
 
+//TODO: Use _ for function names in widgets to avoid duplicate function calls (or use events)
+
 // As widget loading and the loading this script is async, wait until the parent has inserted widget name so I know who I am before I can start
 setTimeout(_nameLoaded, 1)
 
