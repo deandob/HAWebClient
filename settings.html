@@ -21,16 +21,16 @@
             <h4>&nbsp;&nbsp;&nbsp;Settings</h4>
             <br />
             <ul id="sidebarList" class="nav nav-tabs">
-                <li id="tabConsole" class="active"><a class="pointer" data-target="#console" data-toggle="tab" onclick="consoleScreen()"><i class="icon-table icon-large"></i> <span>Console</span></a></li>
-                <li id="tabGeneral"><a class="pointer" data-target="#general" data-toggle="tab" onclick="generalScreen()"><i class="icon-settings icon-large"></i> <span>General</span></a></li>
-                <li id="tabEvents"><a class="pointer" data-target="#events" data-toggle="tab" onclick="eventsScreen()"><i class="icon-diary icon-large"></i> <span>Events</span></a></li>
-                <li id="tabTriggers"><a class="pointer" data-target="#triggers" data-toggle="tab" onclick="triggersScreen()" id="tab-triggers"><i class="icon-lightning icon-large"></i> <span>Triggers</span></a></li>
-                <li id="tabActions"><a class="pointer" data-target="#actions" data-toggle="tab" onclick="actionsScreen()" id="tab-actions"><i class="icon-hammer icon-large"></i> <span>Actions</span></a></li>
-                <li id="tabTransforms"><a class="pointer" data-target="#transforms" data-toggle="tab" onclick="transformsScreen()" id="tab-transforms"><i class="icon-wand icon-large"></i> <span>Transforms</span></a></li>
-                <li id="tabStore"><a class="pointer" data-target="#store" data-toggle="tab" onclick="storeScreen()" id="tab-store"><i class="icon-cart icon-large"></i> <span>Store</span></a></li>
-                <li id="tabPlugins"><a class="pointer" data-target="#plugins" data-toggle="tab" onclick="pluginsScreen()" id="tab-plugins"><i class="icon-power-cord icon-large"></i> <span>Plugins</span></a></li>
-                <li id="tabPrograms"><a class="pointer" data-target="#programs" data-toggle="tab" onclick="programsScreen()" id="tab-programs"><i class="icon-file-css icon-large"></i> <span>Programs</span></a></li>
-                <li id="tabSecurity"><a class="pointer" data-target="#security" data-toggle="tab" onclick="securityScreen()" id="tab-security"><i class="icon-lock-fill icon-large"></i> <span>Security</span></a></li>
+                <li id="tabConsole" class="active"><a class="pointer" data-target="#console" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Console</span></a></li>
+                <li id="tabGeneral"><a class="pointer" data-target="#general" data-toggle="tab"><i class="icon-settings icon-large"></i> <span>General</span></a></li>
+                <li id="tabEvents"><a class="pointer" data-target="#events" data-toggle="tab"><i class="icon-diary icon-large"></i> <span>Events</span></a></li>
+                <li id="tabTriggers"><a class="pointer" data-target="#triggers" data-toggle="tab" id="tab-triggers"><i class="icon-lightning icon-large"></i> <span>Triggers</span></a></li>
+                <li id="tabActions"><a class="pointer" data-target="#actions" data-toggle="tab" id="tab-actions"><i class="icon-hammer icon-large"></i> <span>Actions</span></a></li>
+                <li id="tabTransforms"><a class="pointer" data-target="#transforms" data-toggle="tab" id="tab-transforms"><i class="icon-wand icon-large"></i> <span>Transforms</span></a></li>
+                <li id="tabStore"><a class="pointer" data-target="#store" data-toggle="tab" id="tab-store"><i class="icon-cart icon-large"></i> <span>Store</span></a></li>
+                <li id="tabPlugins"><a class="pointer" data-target="#plugins" data-toggle="tab" id="tab-plugins"><i class="icon-power-cord icon-large"></i> <span>Plugins</span></a></li>
+                <li id="tabPrograms"><a class="pointer" data-target="#programs" data-toggle="tab" id="tab-programs"><i class="icon-file-css icon-large"></i> <span>Programs</span></a></li>
+                <li id="tabSecurity"><a class="pointer" data-target="#security" data-toggle="tab" id="tab-security"><i class="icon-lock-fill icon-large"></i> <span>Security</span></a></li>
             </ul>
             <div id="editOptions" style="display: none; position: absolute; bottom: 2px; left: 15px;">
                 <p class="nav-header">Editing Options</p>
@@ -59,8 +59,9 @@
     </div>
 
     <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
-        <!-- Console --------------------------------------------------------------->
-        <div class="tab-pane fade in active" id="console">
+
+<!-- #region Console ------------------------------------------------------------------------------------------------------->
+        <div class="tab-pane fade in active" id="console" >
             <h4>Console Logs</h4>
             <br />
             <div class="row">
@@ -92,7 +93,16 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
-                                    <textarea id="logs" rows="20" style="width: 100%"></textarea>
+                                    <button type="button" id="logButDebug" onclick="logButDebug()" class="btn btn-primary tip pointer nofocus" data-original-title="Toggle Debug Mode On/Off">Verbose On</button>&nbsp;&nbsp;&nbsp;
+                                    <button type="button" id="logButStatestore" onclick="logButStatestore()" class="btn btn-primary tip pointer nofocus" data-original-title="Display Contents of State Store">State Store</button>&nbsp;&nbsp;&nbsp;
+                                    <button type="button" id="logButMessages" onclick="logButMessages()" class="btn btn-primary tip pointer nofocus" data-original-title="Toggle Console and Node Plugin Messages">Console</button>&nbsp;&nbsp;&nbsp;
+                                    <button type="button" onclick="logButClear()" class="btn btn-primary tip pointer nofocus" data-original-title="Clear the screen">Clear Screen</button>&nbsp;&nbsp;&nbsp;
+                                    <br /><br />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea id="logs" rows="30" readonly style="width: 100%"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -100,8 +110,9 @@
                 </div>
             </div>
         </div>
+<!-- #endregion -->
 
-        <!-- General --------------------------------------------------------------->
+<!-- #region General --------------------------------------------------------------->
         <div class="tab-pane fade" id="general">
             <h4>General Settings</h4>
             <br />
@@ -157,8 +168,9 @@
                 </div>
             </div>
         </div>
+        <!-- #endregion -->
 
-        <!-- Events --------------------------------------------------------------->
+<!-- #region Events --------------------------------------------------------------->
         <div class="tab-pane fade" id="events">
             <h4>Manage Events</h4><br />
             <div class="row">
@@ -271,8 +283,9 @@
                 </div>
             </div>
         </div>
+        <!-- #endregion -->
 
-        <!-- Triggers --------------------------------------------------------------->
+<!-- #region Triggers --------------------------------------------------------------->
         <div class="tab-pane fade" id="triggers">
             <h4>Manage Triggers</h4>
             <br />
@@ -614,8 +627,9 @@
                 </div>
             </div>
         </div>
+<!-- #endregion -->
 
-        <!-- Actions --------------------------------------------------------------->
+<!-- #region Actions --------------------------------------------------------------->
         <div class="tab-pane fade" id="actions">
             <h4>Manage Actions</h4>
             <br />
@@ -762,8 +776,9 @@
                 </div>
             </div>
         </div>
+<!-- #endregion -->
 
-<!-- Transforms --------------------------------------------------------------->
+<!-- #region Transforms --------------------------------------------------------------->
         <div class="tab-pane fade" id="transforms">
             <h4>Manage Transforms</h4>
             <br />
@@ -1025,8 +1040,9 @@
                 </div>
             </div>
         </div>
+<!-- #endregion -->
 
-<!-- Programs --------------------------------------------------------------->
+<!-- #region Programs --------------------------------------------------------------->
         <div class="tab-pane fade" id="programs">
             <h4>Manage Programs</h4>
             <br />
@@ -1096,8 +1112,9 @@
                 </div>
             </div>
         </div>
+<!-- #endregion -->
 
-<!-- Plugin Manager --------------------------------------------------------------->
+<!-- #region Plugin Manager --------------------------------------------------------------->
         <div class="tab-pane fade" id="plugins">
             <h4>Manage Plugin Settings</h4>
             <br />
@@ -1153,8 +1170,9 @@
                 </div>
             </div>
         </div>
+<!-- #endregion -->
 
-<!-- Store --------------------------------------------------------------->
+<!-- #region Store --------------------------------------------------------------->
         <div class="tab-pane fade" id="store">
             <h4>Add Widgets and Plugins</h4>
             <br />
@@ -1212,8 +1230,9 @@
             </div>
             <br /><br /><br /><br />
         </div>
+<!-- #endregion -->
 
-        <!-- Security --------------------------------------------------------------->
+<!-- #region Security --------------------------------------------------------------->
         <div class="tab-pane fade" id="security">
             <h4>User Administration</h4>
             <br />
@@ -1271,6 +1290,7 @@
             </div>
             <br /><br /><br /><br />
         </div>
+<!-- #endregion -->
 
     </div>
     <!--<script src="//maxcdn.bootstrapcdn.com/bootlint/0.2.0/bootlint.min.js"></script>-->
@@ -1284,6 +1304,7 @@
     <script src="js/active-line.js"></script>
 
     <script>
+//#region ---------------------------------------- Initialise screen functions
         // datetime picker https://github.com/Eonasdan/bootstrap-datetimepicker
         //One off time & date = EventFrom date + time + one off
         //One off anything = event
@@ -1314,90 +1335,99 @@
                 addButtonEntry("transFuncChCategoryList", parent.categories[category].Cat, "transFuncChCategory")
                 addButtonEntry("transFuncOutCategoryList", parent.categories[category].Cat, "transFuncOutCategory")
             }
-            //window.addEventListener('resize', function (event) {
-            //    window.location.reload()
-            //});
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {                 // Tab Navigation call relevant entry and exit functions
+                clearRec();
+                var nameToTab = e.target.parentNode.id.substr(3, 1).toLowerCase() + e.target.parentNode.id.substr(4);
+                var nameFromTab = e.relatedTarget.parentNode.id.substr(3, 1).toLowerCase() + e.relatedTarget.parentNode.id.substr(4);
+                if (typeof window[nameFromTab + "ScreenExit"] == "function") window[nameFromTab + "ScreenExit"]();
+                if (typeof window[nameToTab + "ScreenEnter"] == "function") window[nameToTab + "ScreenEnter"]();
+            })
+
+            consoleScreenEnter();                                                       // Starting tab
+        }
+//#endregion
+
+//#region ---------------------------------------- Console screen functions
+        function consoleScreenEnter() {
+            var logArea = document.getElementById("logs");
+            document.getElementById("editOptions").style.display = "none";
+            logArea.innerHTML = "Receiving logs (verbose mode: OFF)";
+            parent.send("CONSOLE", "", "START");             
         }
 
-////////////////// Tab settings startup functions
-        function consoleScreen() {
-            clearRec();
-            document.getElementById("editOptions").style.display = "None";
+        function updateLogs(data) {
+            var logArea = document.getElementById("logs");
+            if (logArea.innerHTML.length > 100000) logArea.innerHTML = "Screen Cleared...";
+            logArea.innerHTML = logArea.innerHTML + "&#13;&#10;" + data
+            logArea.scrollTop = logArea.scrollHeight
         }
 
-        function generalScreen() {
-            clearRec();
+        function logButDebug() {
+            var logArea = document.getElementById("logs");
+            var debugBut = document.getElementById("logButDebug");
+            if (debugBut.innerText == "Verbose On") {
+                logArea.innerHTML = "Receiving logs (verbose mode: ON)";
+                parent.send("CONSOLE", "", "START DEBUG");
+                debugBut.innerText = "Verbose Off";
+                debugBut.className = debugBut.className + " active";
+                logArea.innerHTML = logArea.innerHTML + "&#13;&#10;" + "Verbose mode: ON";
+            } else {
+                parent.send("CONSOLE", "", "STOP DEBUG");
+                debugBut.innerText = "Verbose On";
+                debugBut.className = debugBut.className.replace(" active","");
+                logArea.innerHTML = logArea.innerHTML + "&#13;&#10;" + "Verbose mode: OFF";
+            }
         }
 
-        function triggersScreen() {
-            clearRec();
+        function logButMessages() {
+
+        }
+
+        function logButStatestore() {
+            document.getElementById("logs").innerHTML = "State Store"
+            parent.send("CONSOLE", "", "STATESTORE");
+        }
+
+        function logButClear() {
+            document.getElementById("logs").innerHTML = "Screen Cleared"
+        }
+
+        function consoleScreenExit() {
+            parent.send("CONSOLE", "", "STOP");
+        }
+//#endregion
+
+//#region ---------------------------------------- General settings screen functions
+        function generalScreenEnter() {
+        }
+//#endregion
+
+//#region ---------------------------------------- Triggers settings screen functions
+        function triggersScreenEnter() {
             loadNames("TRIGGERS")
             document.getElementById("editOptions").style.display = "inline";
         }
+//#endregion
 
-        function eventsScreen() {
-            clearRec();
+//#region ---------------------------------------- Events settings screen functions
+        function eventsScreenEnter() {
             loadNames("EVENTS")
             document.getElementById("editOptions").style.display = "inline";
         }
+//#endregion
 
-        function actionsScreen() {
-            clearRec();
+//#region ---------------------------------------- Actions settings screen functions
+        function actionsScreenEnter() {
             loadNames("ACTIONS")
             document.getElementById("editOptions").style.display = "inline";
         }
+//#endregion
 
-        function transformsScreen() {
-            clearRec();
+//#region ---------------------------------------- Transforms settings screen functions
+        function transformsScreenEnter() {
             loadNames("TRANSFUNCS")
             document.getElementById("editOptions").style.display = "inline";
-        }
-
-        function seriesScreen() {
-            clearRec();
-            loadNames("SERIES")
-            document.getElementById("editOptions").style.display = "inline";
-        }
-
-        function storeScreen() {
-            clearRec();
-        }
-
-        function pluginsScreen() {
-            clearRec();
-        }
-
-        function programsScreen() {
-            clearRec();
-            loadNames("WIDGETS")
-            myCodeMirror = CodeMirror.fromTextArea(codeEditor, {
-                mode: "javascript",
-                lineNumbers: true,
-                tabMode: true,
-                matchBrackets: true,
-                searchMode: 'inline',
-                styleActiveLine: true,
-                gutters: ["CodeMirror-lint-markers", "breakpoints"],
-                lint: true
-            });
-            myCodeMirror.on("gutterClick", function (cm, n) {
-                var info = cm.lineInfo(n);
-                cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
-            });
-            function makeMarker() {
-                var marker = document.createElement("div");
-                marker.style.color = "#822";
-                marker.innerHTML = "●";
-                return marker;
-            }
-
-            document.getElementById("editOptions").style.display = "inline";
-            myCodeMirror.getScrollerElement().style.height = window.innerHeight - 230 + "px"
-            myCodeMirror.getScrollerElement().style.width = window.innerWidth + "px"
-        }
-
-        function securityScreen() {
-            clearRec();
         }
 
         //////////////////////////////////////////////////// Transform Functions
@@ -1545,7 +1575,55 @@
             }
         }
 
-        /////////////////////////////////////////////////////////////////////////
+//#endregion
+
+//#region ---------------------------------------- Store settings screen functions
+        function storeScreenEnter() {
+        }
+//#endregion
+
+//#region ---------------------------------------- Programs settings screen functions
+        function programsScreenEnter() {
+            myCodeMirror.setValue("");
+            loadNames("WIDGETS")
+            myCodeMirror = CodeMirror.fromTextArea(codeEditor, {
+                mode: "javascript",
+                lineNumbers: true,
+                tabMode: true,
+                matchBrackets: true,
+                searchMode: 'inline',
+                styleActiveLine: true,
+                gutters: ["CodeMirror-lint-markers", "breakpoints"],
+                lint: true
+            });
+            myCodeMirror.on("gutterClick", function (cm, n) {
+                var info = cm.lineInfo(n);
+                cm.setGutterMarker(n, "breakpoints", info.gutterMarkers ? null : makeMarker());
+            });
+            function makeMarker() {
+                var marker = document.createElement("div");
+                marker.style.color = "#822";
+                marker.innerHTML = "●";
+                return marker;
+            }
+
+            document.getElementById("editOptions").style.display = "inline";
+            myCodeMirror.getScrollerElement().style.height = window.innerHeight - 230 + "px"
+            myCodeMirror.getScrollerElement().style.width = window.innerWidth + "px"
+        }
+//#endregion
+
+//#region ---------------------------------------- Security settings screen functions
+        function securityScreenEnter() {
+        }
+//#endregion
+
+//#region ---------------------------------------- Plugins settings screen functions
+        function pluginsScreenEnter() {
+        }
+//#endregion
+
+//#region ---------------------------------------- Miscellaneous functions
         function togglePanel(toggle1, toggle2, icon) {
             $("." + toggle1).collapse("toggle")
             $("." + toggle2).collapse("toggle");
@@ -1574,10 +1652,6 @@
             }
         }
 
-        function loadNames(tableName) {
-            parent.send("AUTOMATION", "GET:NAMES(" + tableName + ")", tableName)
-        }
-
         // Load the names of the triggers/actions into the toolbox for selecting
         function popToolbox(item, CB, call) {
             toolboxCB = CB                  // callback once loaded
@@ -1595,67 +1669,317 @@
             $("#" + item + " :selected").remove();
         }
 
-        // Clear all fields
-        function clearRec() {
-            var elements = document.getElementsByName("textInput")
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].value = "";
+        // Functions to call once the modal messagebox is closed
+        function modalCallback(modalFunction, param) {
+            switch (modalFunction) {
+                case "Delete Record":
+                    switch (getActiveTab().toUpperCase()) {
+                        case "TRIGGERS":
+                            sendServer("DEL", "TRIGGERS", param, param)
+                            break;
+                        case "EVENTS":
+                            sendServer("DEL", "EVENTS", param, param)
+                            break;
+                        case "ACTIONS":
+                            sendServer("DEL", "ACTIONS", param, param)
+                            break;
+                        case "TRANSFORMS":
+                            sendServer("DEL", "TRANSFORMS", param, param)
+                            break;
+                        default:
+                    }
+                    return true;
+                    break;
+                default:
+                    parent.status("");
+                    return false;
             }
-            var elements = document.getElementsByName("oneInput")
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].value = "1";
-            }
-            var elements = document.getElementsByName("valueInput")
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].value = "value";
-            }
-            var elements = document.getElementsByName("numInput")
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].value = "0";
-            }
-            var elements = document.getElementsByName("chkInput")
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].checked = false;
-            }
-            var elements = document.getElementsByName("chkInputInv")
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].checked = true;
-            }
-            var elements = document.getElementsByName("dropEmpty")
-            for (var i = 0; i < elements.length; i++) {
-                pressBut(elements[i].id, "");
-            }
-            var elements = document.getElementsByName("dropRound")
-            for (var i = 0; i < elements.length; i++) {
-                pressBut(elements[i].id, "2");
-            }
-            var elements = document.getElementsByName("allInput")
-            for (var i = 0; i < elements.length; i++) {
-                pressBut(elements[i].id, "All");
-            }
-            var elements = document.getElementsByName("startWith")
-            for (var i = 0; i < elements.length; i++) {
-                pressBut(elements[i].id, "Start");
-            }
-            var elements = document.getElementsByName("history")
-            for (var i = 0; i < elements.length; i++) {
-                pressBut(elements[i].id, "Current");
-            }
-            var elements = document.getElementsByName("equalsInput")
-            for (var i = 0; i < elements.length; i++) {
-                pressBut(elements[i].id, "equals");
-            }
-            var elements = document.getElementsByName("noneInput")
-            for (var i = 0; i < elements.length; i++) {
-                pressBut(elements[i].id, "None");
-            }
-            var elements = document.getElementsByName("multiSel")
-            for (var i = 0; i < elements.length; i++) {
-                elements[i].innerHTML = "";
-            }
-            if (getActiveTab() == "Programs") myCodeMirror.setValue("");
         }
 
+        // Search sidebar and return the active selected tab
+        function getActiveTab() {
+            var elements = document.getElementById("sidebarList").childNodes;
+            for (var i = 0; i < elements.length; i++) {
+                if (elements[i].className == "active") return (elements[i].innerText.trim());
+            }
+            return "";
+        }
+
+        // Add names to a combo list
+        function addListEntry(listName, listVal, dropPress) {
+            //var listParent = listName.replace("List");              // Must use consistent naming
+            var list = document.getElementById(listName);
+            var iconElement = document.createElement("li");
+            iconElement.id = "li-" + list.childElementCount;
+            iconElement.innerHTML = "<a class='pointer' onclick='dropPressed(\"" + listVal + "\",\"" + listName.replace("List", "") + "\",\"" + dropPress + "\")'>" + listVal + "</a></li>"
+            list.appendChild(iconElement);
+        }
+
+        // Add names to a button list
+        function addButtonEntry(listName, listVal, butName) {
+            var list = document.getElementById(listName);
+            var iconElement = document.createElement("li");
+            iconElement.id = "li-" + list.childElementCount;
+            iconElement.innerHTML = "<a class='pointer' onclick='pressBut(\"" + butName + "\",\"" + listVal + "\")'>" + listVal + "</a></li>"
+            list.appendChild(iconElement);
+        }
+
+        function pressBut(button, value) {
+            document.getElementById(button).innerHTML = value + "&nbsp;&nbsp;<span class='caret'></span>";
+        }
+
+        // Action when item is selected in a drop down list
+        function dropPressed(selected, dropdown, sendNet) {
+            switch (getActiveTab().toUpperCase()) {
+                case "PROGRAMS":
+                    document.getElementById(dropdown).value = selected
+                    if (sendNet == "true") {
+                        var progType = $("#programType").val().toUpperCase()
+                        parent.send("AUTOMATION", "GET:" + progType + "S(" + selected + ")", selected)
+                    }
+                    break;
+                case "TRIGGERS":
+                    if (dropdown === "trigName") document.getElementById("trigName").value = selected
+                    if (dropdown === "trigScriptName") document.getElementById("trigScriptName").innerHTML = selected + "&nbsp;&nbsp;<span class='caret'></span>"
+                    if (sendNet == "true") parent.send("AUTOMATION", "GET:TRIGGERS(" + selected + ")", selected)
+                    break;
+                case "EVENTS":
+                    document.getElementById(dropdown).value = selected
+                    if (sendNet == "true") {
+                        parent.send("AUTOMATION", "GET:EVENTS(" + selected + ")", selected)
+                        parent.send("AUTOMATION", "GET:EVENTTRIGGERS(" + selected + ")", selected)
+                        parent.send("AUTOMATION", "GET:EVENTACTIONS(" + selected + ")", selected)
+                    }
+                    break;
+                case "ACTIONS":
+                    if (dropdown === "actionName") document.getElementById("actionName").value = selected
+                    if (dropdown === "actionScriptName") document.getElementById(dropdown).innerHTML = selected + "&nbsp;&nbsp;<span class='caret'></span>"
+                    if (sendNet == "true") parent.send("AUTOMATION", "GET:ACTIONS(" + selected + ")", selected)
+                    break;
+                case "TRANSFORMS":
+                    if (sendNet == "true") {
+                        clearRecs()
+                        parent.send("AUTOMATION", "GET:TRANSFORMS(" + selected + ")", selected)
+                        parent.send("AUTOMATION", "GET:FUNCS(" + selected + ")", selected)
+                    }
+                    document.getElementById(dropdown).value = selected;
+                    break;
+                default:
+            }
+        }
+
+        /////////// NOT FINISHED
+        function filterChannels() {
+            for (var trigPlug in trigPlugs) {
+                for (var trigCh in trigPlugs[trigPlug].Channels) {
+                    addToolboxEntry("selectToolbox", trigPlugs[trigPlug].Channels[trigCh].Name, trigPlugs[trigPlug].Channels[trigCh].Desc, "", trigPlugs[trigPlug].Category, trigPlugs[trigPlug].ClassName);
+                }
+            }
+
+            loadChannels(document.getElementById("selectSearchTxt").value.trim(), false)
+        }
+
+        // Add an entry to the toolbox
+        function addToolboxEntry(toolbox, name, desc, list, cat, plugin) {
+            //if (plugins[plugin].Channels[item].Name.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
+            //        plugins[plugin].ClassName.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
+            //        plugins[plugin].Category.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
+            //        filter === "") {                                                                                    // filter elements
+            //chElem.innerHTML = "<i class='icon-" + IOIcon + "' icon-large>&nbsp;</i><i class='icon-" + channelIcon + " icon-large' id='" + plugins[plugin].Category + "/" + plugins[plugin].ClassName + "/" + plugins[plugin].Channels[item].Name + "'></i><br/>" + plugins[plugin].ClassName + "<br/>" + plugins[plugin].Channels[item].Name + "<br/><br/>"
+
+            var chElem = document.createElement("li");
+            chElem.style.setProperty("cursor", "pointer");
+            chElem.className = "tip"
+            chElem.setAttribute("data-original-title", desc);
+            chElem.setAttribute("data-list", list);
+            //document.getElementById("noSelect").setAttribute("data-list", list);
+            chElem.id = cat + "/" + plugin + "/" + name         // store the category, class and channel names in the ID field for future use
+            var icon = "hammer"                                 // Actions selected
+            if (list.indexOf("Trig") != -1) icon = "lightning"  // Triggers
+            var className = ""
+            if (cat !== undefined) {                            // channels selected, add channel class (plugin) name
+                className = plugin.toUpperCase() + "<br/>"
+                icon = parent.categories[parent.categories.map(function (e) { return e.Cat; }).indexOf(cat)].Icon;
+            }
+            chElem.innerHTML = "<i id='" + cat + "/" + plugin + "/" + name + "' class='icon-" + icon + " icon-large'></i><br/>" + className + name + "<br/><br/>"
+            document.getElementById("selectToolboxScroll").appendChild(chElem)
+        }
+
+        // Called when am item is selected from the toolbox (dual function, adding trig/action to events, and select channel)
+        function selTBItem(event) {
+            if (event.target.id != "") {
+                var name = event.target.id.split("/")
+                var mySel = document.getElementById(event.target.id);
+                var list = mySel.getAttribute("data-list")      // name of the select list stored in data attribute
+                if (name[0] !== "undefined") {                    // Channel selected
+                    //var myPanel = document.getElementById("selectToolbox").getAttribute("data-panel")               // Set the advanced field values (used when sending messages back to host)
+                    if (name[0] !== "noSelect") {               // None button selected
+                        document.getElementById(toolboxCB + "Val").innerText = name[2] + " (" + name[1].toUpperCase() + ")"
+                    } else {
+                        document.getElementById(toolboxCB + "Val").innerText = "None"
+                        name[0] = "ALL"
+                        name[1] = ""
+                        name[2] = ""
+                    }
+                    pressBut(toolboxCB + "Category", name[0].toUpperCase());
+                    //document.getElementById(toolboxCB + "Category").innerHTML = name[0].toUpperCase() + "&nbsp;&nbsp;<span class='caret'/>"
+                    $('#' + toolboxCB + 'Class').val(name[1]);
+                    $('#' + toolboxCB + 'Instance').val(name[2]);
+                    $('#' + toolboxCB + 'Scope').val("");
+                } else {                                        // Action or Trigger selected
+                    if ($("#" + list).find("option[value='" + name[2] + "']").length == 0) {    // Only add if the entry is not already in the listbox
+                        $("#" + list).append("<option value='" + name[2] + "'>" + name[2] + " - " + mySel.getAttribute("data-original-title") + "</option>");
+                    }
+                }
+                toggleTB("selectToolbox", "close");
+            }
+        }
+
+        // Find the selected index of a conditional dropdown
+        function getCat(catID) {
+            return parent.categories[catID].Cat;
+        }
+
+        // Populate pulldown from list
+        function popPulldown(id, JSONitems, field, sendNet) {
+            $("#" + id).children('li').remove();
+            var items = JSON.parse(JSONitems)
+            if (items == null) {
+                addListEntry(id, "<i>no items found<i>", false);
+            } else {
+                for (var item in items) {
+                    addListEntry(id, items[item][field], sendNet);
+                }
+            }
+        }
+
+        // Convert from JS date format to dotnet UTC ticks
+        function getNetDateTime(JSDateTime, dateTime) {
+            if (JSDateTime == "" || JSDateTime == undefined) return nullDate;
+            var convStr = JSDateTime.replace(/\u200E/g, "");       // remove hidden unicode left-to-right mark
+            switch (dateTime) {                 // convert date to UTC strings
+                case "date":
+                    var myDate = new Date(convStr);
+                    myDate.setHours(0)
+                    myDate.setMinutes(0)
+                    myDate.setSeconds(0)
+                    myDate.setMilliseconds(0)
+                    break;
+                case "time":
+                    var myDate = new Date();
+                    var splitDate = convStr.split(":");
+                    if (splitDate.length < 2) return nullDate;
+                    if (convStr.trim().split(" ")[1] === "PM")
+                        myDate.setHours(+splitDate[0] + 12, +splitDate[1].split(" ")[0]);
+                    else myDate.setHours(+splitDate[0], +splitDate[1].split(" ")[0]);
+                    break;
+                case "datetime":
+                    var myDate = new Date(convStr)
+                    break;
+                default:
+            }
+            return (myDate.valueOf() * pcTicks + unixEpoc).toString();                  // send back date as UTC
+        }
+
+        // Convert from PC date format ticks to Javascript date from UTC to local time
+        function getJSDateTime(ticks, dateortime) {
+            var datetime = new Date((ticks - unixEpoc) / pcTicks)
+            if (datetime.valueOf() > 0) {
+                if (dateortime == "date") return datetime.toLocaleDateString();
+                if (dateortime == "time") return datetime.toLocaleTimeString();
+                return datetime.toLocaleString();
+            } else return "";
+        }
+
+        // enable bootstrap tooltips
+        function enableTooltip() {
+            $(".tip").tooltip({ delay: { show: parent.tooltipDelay } });
+        }
+
+        // setup datetime pickers
+        $(function () {
+            $('#dtpFromDate').datetimepicker({
+                language: 'en',
+                pickTime: false
+            });
+            $('#dtpFromTime').datetimepicker({
+                language: 'en',
+                pickDate: false,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpToDate').datetimepicker({
+                language: 'en',
+                pickTime: false
+            });
+            $('#dtpToTime').datetimepicker({
+                language: 'en',
+                pickDate: false,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpTimeofDay').datetimepicker({
+                language: 'en',
+                pickDate: false,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpEventFrom').datetimepicker({
+                language: 'en',
+                pickDate: true,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpEventTo').datetimepicker({
+                language: 'en',
+                pickDate: true,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+        });
+
+        // Clear all fields
+        function clearRecs() {
+            clearRecVal("textInput", "");
+            clearRecVal("oneInput", "1");
+            clearRecVal("valueInput", "value");
+            clearRecVal("numInput", "0");
+            clearRecVal("dropEmpty", "");
+            clearRecChecked("chkInput", false);
+            clearRecChecked("chkInputInv", true);
+            clearRecPressBut("dropEmpty", "");
+            clearRecPressBut("dropRound", "2");
+            clearRecPressBut("allInput", "All");
+            clearRecPressBut("startWith", "Start");
+            clearRecPressBut("history", "Current");
+            clearRecPressBut("equalsInput", "equals");
+            clearRecPressBut("noneInput", "None");
+            clearRecHTML("multiSel", "");
+        }
+
+        function clearRecVal(fieldName, val) {
+            var elements = document.getElementsByName(fieldName)
+            for (var i = 0; i < elements.length; i++) elements[i].value = val;
+        }
+
+        function clearRecChecked(fieldName, val) {
+            var elements = document.getElementsByName(fieldName)
+            for (var i = 0; i < elements.length; i++) elements[i].checked = val;
+        }
+
+        function clearRecPressBut(fieldName, val) {
+            var elements = document.getElementsByName(fieldName)
+            for (var i = 0; i < elements.length; i++) pressBut(elements[i].id, val);
+        }
+
+        function clearRecHTML(fieldName, val) {
+            var elements = document.getElementsByName(fieldName)
+            for (var i = 0; i < elements.length; i++) elements[i].innerHTML = val;
+        }
+
+//#endregion
+
+//#region ---------------------------------------- Data record edits
         function delRec() {
             parent.status("Processing delete...")
             switch (getActiveTab().toUpperCase()) {
@@ -1792,7 +2116,9 @@
                 default:
             }
         }
+//#endregion
 
+//#region ---------------------------------------- Populate Objects from server data
         // Find the selected index of a conditional dropdown
         function condIndex(listID) {
             var selVal = $('#' + listID).prop("textContent").trim().toLowerCase()
@@ -1854,7 +2180,7 @@
             return [{
                 "trigName": $('#trigName').val().trim(),
                 "trigDesc": $('#trigDesc').val().trim(),
-                "trigScriptName": ( $('#trigScriptName').text().trim() === "None" ? "" : $('#trigScriptName').text().trim()),
+                "trigScriptName": ($('#trigScriptName').text().trim() === "None" ? "" : $('#trigScriptName').text().trim()),
                 "trigScriptParam": $('#trigScriptParam').text().trim(),
                 "trigScriptValue": $('#trigScriptValue').val().trim(),
                 "trigScriptCond": condIndex('trigScriptCond'),
@@ -1936,202 +2262,27 @@
             }
             return -1;
         }
+//#endregion
 
-        // Functions to call once the modal messagebox is closed
-        function modalCallback(modalFunction, param) {
-            switch (modalFunction) {
-                case "Delete Record":
-                    switch (getActiveTab().toUpperCase()) {
-                        case "TRIGGERS":
-                            sendServer("DEL", "TRIGGERS", param, param)
-                            break;
-                        case "EVENTS":
-                            sendServer("DEL", "EVENTS", param, param)
-                            break;
-                        case "ACTIONS":
-                            sendServer("DEL", "ACTIONS", param, param)
-                            break;
-                        case "TRANSFORMS":
-                            sendServer("DEL", "TRANSFORMS", param, param)
-                            break;
-                        default:
-                    }
-                    return true;
-                    break;
-                default:
-                    parent.status("");
-                    return false;
-            }
+//#region ---------------------------------------- Networking functions
+        function loadNames(tableName) {
+            parent.send("AUTOMATION", "GET:NAMES(" + tableName + ")", tableName)
         }
 
         function sendServer(addDelUpd, func, name, data) {
             parent.send("AUTOMATION", addDelUpd + ":" + func + "(" + name + ")", data)             //Build the command string to send to the server in format GET:<Function>(Pop<Function>CB) where Function is Actions, triggers etc., PopActionsCD is the callback routing
         }
 
-        // Search sidebar and return the active selected tab
-        function getActiveTab() {
-            var elements = document.getElementById("sidebarList").childNodes;
-            for (var i = 0; i < elements.length; i++) {
-                if (elements[i].className == "active") return (elements[i].innerText.trim());
-            }
-            return "";
-        }
-
-        // Add names to a combo list
-        function addListEntry(listName, listVal, dropPress) {
-            //var listParent = listName.replace("List");              // Must use consistent naming
-            var list = document.getElementById(listName);
-            var iconElement = document.createElement("li");
-            iconElement.id = "li-" + list.childElementCount;
-            iconElement.innerHTML = "<a class='pointer' onclick='dropPressed(\"" + listVal + "\",\"" + listName.replace("List", "") + "\",\"" + dropPress + "\")'>" + listVal + "</a></li>"
-            list.appendChild(iconElement);
-        }
-
-        // Add names to a button list
-        function addButtonEntry(listName, listVal, butName) {
-            var list = document.getElementById(listName);
-            var iconElement = document.createElement("li");
-            iconElement.id = "li-" + list.childElementCount;
-            iconElement.innerHTML = "<a class='pointer' onclick='pressBut(\"" + butName + "\",\"" + listVal + "\")'>" + listVal + "</a></li>"
-            list.appendChild(iconElement);
-        }
-
-        function pressBut(button, value) {
-            document.getElementById(button).innerHTML = value + "&nbsp;&nbsp;<span class='caret'></span>";
-        }
-
-        // Action when item is selected in a drop down list
-        function dropPressed(selected, dropdown, sendNet) {
-            switch (getActiveTab().toUpperCase()) {
-                case "PROGRAMS":
-                    //document.getElementById("programName").value = selected
-                    document.getElementById(dropdown).value = selected
-                    if (sendNet == "true") {
-                        var progType = $("#programType").val().toUpperCase()
-                        parent.send("AUTOMATION", "GET:" + progType + "S(" + selected + ")", selected)
-                    }
-                    break;
-                case "TRIGGERS":
-//                    document.getElementById("trigName").value = selected
-                    if (dropdown === "trigName") document.getElementById("trigName").value = selected
-                    if (dropdown === "trigScriptName") document.getElementById("trigScriptName").innerHTML = selected + "&nbsp;&nbsp;<span class='caret'></span>"
-                    if (sendNet == "true") parent.send("AUTOMATION", "GET:TRIGGERS(" + selected + ")", selected)
-                    break;
-                case "EVENTS":
-//                    document.getElementById("eventName").value = selected
-                    document.getElementById(dropdown).value = selected
-                    if (sendNet == "true") {
-                        parent.send("AUTOMATION", "GET:EVENTS(" + selected + ")", selected)
-                        parent.send("AUTOMATION", "GET:EVENTTRIGGERS(" + selected + ")", selected)
-                        parent.send("AUTOMATION", "GET:EVENTACTIONS(" + selected + ")", selected)
-                    }
-                    break;
-                case "ACTIONS":
-                    if (dropdown === "actionName") document.getElementById("actionName").value = selected
-                    if (dropdown === "actionScriptName") document.getElementById(dropdown).innerHTML = selected + "&nbsp;&nbsp;<span class='caret'></span>"
-                    if (sendNet == "true") parent.send("AUTOMATION", "GET:ACTIONS(" + selected + ")", selected)
-                    break;
-                case "TRANSFORMS":
-                    if (sendNet == "true") {
-                        clearRec()
-                        parent.send("AUTOMATION", "GET:TRANSFORMS(" + selected + ")", selected)
-                        parent.send("AUTOMATION", "GET:FUNCS(" + selected + ")", selected)
-                    }
-//                    document.getElementById("transformName").value = selected
-                    document.getElementById(dropdown).value = selected;
-                    break;
-                default:
-            }
-        }
-
-        /////////// NOT FINISHED
-        function filterChannels() {
-            for (var trigPlug in trigPlugs) {
-                for (var trigCh in trigPlugs[trigPlug].Channels) {
-                    addToolboxEntry("selectToolbox", trigPlugs[trigPlug].Channels[trigCh].Name, trigPlugs[trigPlug].Channels[trigCh].Desc, "", trigPlugs[trigPlug].Category, trigPlugs[trigPlug].ClassName);
-                }
-            }
-
-            loadChannels(document.getElementById("selectSearchTxt").value.trim(), false)
-        }
-
-        // Add an entry to the toolbox
-        function addToolboxEntry(toolbox, name, desc, list, cat, plugin) {
-            //if (plugins[plugin].Channels[item].Name.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
-            //        plugins[plugin].ClassName.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
-            //        plugins[plugin].Category.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
-            //        filter === "") {                                                                                    // filter elements
-            //chElem.innerHTML = "<i class='icon-" + IOIcon + "' icon-large>&nbsp;</i><i class='icon-" + channelIcon + " icon-large' id='" + plugins[plugin].Category + "/" + plugins[plugin].ClassName + "/" + plugins[plugin].Channels[item].Name + "'></i><br/>" + plugins[plugin].ClassName + "<br/>" + plugins[plugin].Channels[item].Name + "<br/><br/>"
-
-            var chElem = document.createElement("li");
-            chElem.style.setProperty("cursor", "pointer");
-            chElem.className = "tip"
-            chElem.setAttribute("data-original-title", desc);
-            chElem.setAttribute("data-list", list);
-            //document.getElementById("noSelect").setAttribute("data-list", list);
-            chElem.id = cat + "/" + plugin + "/" + name         // store the category, class and channel names in the ID field for future use
-            var icon = "hammer"                                 // Actions selected
-            if (list.indexOf("Trig") != -1) icon = "lightning"  // Triggers
-            var className = ""
-            if (cat !== undefined) {                            // channels selected, add channel class (plugin) name
-                className = plugin.toUpperCase() + "<br/>"
-                icon = parent.categories[parent.categories.map(function (e) { return e.Cat; }).indexOf(cat)].Icon;
-            }
-            chElem.innerHTML = "<i id='" + cat + "/" + plugin + "/" + name + "' class='icon-" + icon + " icon-large'></i><br/>" + className + name + "<br/><br/>"
-            document.getElementById("selectToolboxScroll").appendChild(chElem)
-        }
-
-        // Called when am item is selected from the toolbox (dual function, adding trig/action to events, and select channel)
-        function selTBItem(event) {
-            if (event.target.id != "") {
-                var name = event.target.id.split("/")
-                var mySel = document.getElementById(event.target.id);
-                var list = mySel.getAttribute("data-list")      // name of the select list stored in data attribute
-                if (name[0] !== "undefined") {                    // Channel selected
-                    //var myPanel = document.getElementById("selectToolbox").getAttribute("data-panel")               // Set the advanced field values (used when sending messages back to host)
-                    if (name[0] !== "noSelect") {               // None button selected
-                        document.getElementById(toolboxCB + "Val").innerText = name[2] + " (" + name[1].toUpperCase() + ")"
-                    } else {
-                        document.getElementById(toolboxCB + "Val").innerText = "None"
-                        name[0] = "ALL"
-                        name[1] = ""
-                        name[2] = ""
-                    }
-                    pressBut(toolboxCB + "Category", name[0].toUpperCase());
-                    //document.getElementById(toolboxCB + "Category").innerHTML = name[0].toUpperCase() + "&nbsp;&nbsp;<span class='caret'/>"
-                    $('#' + toolboxCB + 'Class').val(name[1]);
-                    $('#' + toolboxCB + 'Instance').val(name[2]);
-                    $('#' + toolboxCB + 'Scope').val("");
-                } else {                                        // Action or Trigger selected
-                    if ($("#" + list).find("option[value='" + name[2] + "']").length == 0) {    // Only add if the entry is not already in the listbox
-                        $("#" + list).append("<option value='" + name[2] + "'>" + name[2] + " - " + mySel.getAttribute("data-original-title") + "</option>");
-                    }
-                }
-                toggleTB("selectToolbox", "close");
-            }
-        }
-
-        // Find the selected index of a conditional dropdown
-        function getCat(catID) {
-            return parent.categories[catID].Cat;
-        }
-
-        // Populate pulldown from list
-        function popPulldown(id, JSONitems, field, sendNet) {
-            $("#" + id).children('li').remove();
-            var items = JSON.parse(JSONitems)
-            if (items == null) {
-                addListEntry(id, "<i>no items found<i>", false);
-            } else {
-                for (var item in items) {
-                    addListEntry(id, items[item][field], sendNet);
-                }
-            }
-        }
-
         // Process messages received from the host
         function recvHost(msg) {
             switch (msg.ClassName) {
+                case "CONSOLE":
+                    switch (msg.Instance) {
+                        case "LOGS":
+                            updateLogs(msg.Data);
+                            break;
+                    }
+                    break;
                 case "AUTOMATION":
                     if (msg.Data != "") {
                         switch (msg.Scope.substr(0, msg.Scope.indexOf("("))) {
@@ -2319,7 +2470,7 @@
                             case "DEL:TRIGGERS":
                                 if (msg.Data == "OK") {
                                     parent.status("Trigger '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
-                                    clearRec()
+                                    clearRecs()
                                     loadNames("TRIGGERS")
                                 } else {
                                     parent.status("WARNING - Error deleting trigger '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
@@ -2328,7 +2479,7 @@
                             case "DEL:ACTIONS":
                                 if (msg.Data == "OK") {
                                     parent.status("Action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
-                                    clearRec()
+                                    clearRecs()
                                     loadNames("ACTIONS")
                                 } else {
                                     parent.status("WARNING - Error deleting action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
@@ -2337,7 +2488,7 @@
                             case "DEL:EVENTS":
                                 if (msg.Data == "OK") {
                                     parent.status("Event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
-                                    clearRec()
+                                    clearRecs()
                                     loadNames("EVENTS")
                                 } else {
                                     parent.status("WARNING - Error deleting event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
@@ -2346,7 +2497,7 @@
                             case "DEL:TRANSFORMS":
                                 if (msg.Data == "OK") {
                                     parent.status("Transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
-                                    clearRec()
+                                    clearRecs()
                                     loadNames("TRANSFUNCS")
                                 } else {
                                     parent.status("WARNING - Error deleting transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
@@ -2454,93 +2605,7 @@
                     //alert("Don't understand server message class: " + msg.ClassName + " scope: " + msg.Scope + " data: " + msg.Data)
             }
         }
-
-        //////////////////// Utilities
-
-        // Convert from JS date format to dotnet UTC ticks
-        function getNetDateTime(JSDateTime, dateTime) {
-            if (JSDateTime == "" || JSDateTime == undefined) return nullDate;
-            var convStr = JSDateTime.replace(/\u200E/g, "");       // remove hidden unicode left-to-right mark
-            switch (dateTime) {                 // convert date to UTC strings
-                case "date":
-                    var myDate = new Date(convStr);
-                    myDate.setHours(0)
-                    myDate.setMinutes(0)
-                    myDate.setSeconds(0)
-                    myDate.setMilliseconds(0)
-                    break;
-                case "time":
-                    var myDate = new Date();
-                    var splitDate = convStr.split(":");
-                    if (splitDate.length < 2) return nullDate;
-                    if (convStr.trim().split(" ")[1] === "PM") 
-                        myDate.setHours(+splitDate[0] + 12, +splitDate[1].split(" ")[0]);
-                    else myDate.setHours(+splitDate[0], +splitDate[1].split(" ")[0]);
-                    break;
-                case "datetime":
-                    var myDate = new Date(convStr)
-                    break;
-                default:
-            }
-            return (myDate.valueOf() * pcTicks + unixEpoc).toString();                  // send back date as UTC
-        }
-
-        // Convert from PC date format ticks to Javascript date from UTC to local time
-        function getJSDateTime(ticks, dateortime) {
-            var datetime = new Date((ticks - unixEpoc) / pcTicks)
-            if (datetime.valueOf() > 0) {
-                if (dateortime == "date") return datetime.toLocaleDateString();
-                if (dateortime == "time") return datetime.toLocaleTimeString();
-                return datetime.toLocaleString();
-            } else return "";
-        }
-
-        // enable bootstrap tooltips
-        function enableTooltip() {
-            $(".tip").tooltip({ delay: { show: parent.tooltipDelay } });
-        }
-
-        // setup datetime pickers
-        $(function () {
-            $('#dtpFromDate').datetimepicker({
-                language: 'en',
-                pickTime: false
-            });
-            $('#dtpFromTime').datetimepicker({
-                language: 'en',
-                pickDate: false,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpToDate').datetimepicker({
-                language: 'en',
-                pickTime: false
-            });
-            $('#dtpToTime').datetimepicker({
-                language: 'en',
-                pickDate: false,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpTimeofDay').datetimepicker({
-                language: 'en',
-                pickDate: false,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpEventFrom').datetimepicker({
-                language: 'en',
-                pickDate: true,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpEventTo').datetimepicker({
-                language: 'en',
-                pickDate: true,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-        });
+//#endregion
 
     </script>
 </body>

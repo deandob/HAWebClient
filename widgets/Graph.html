@@ -28,15 +28,22 @@
         }
 
         .tooltip {
+            border: 2px solid #bbbbbb;
+            background-color: #e6e6e6;
+            color: #606060;
+        }
+
+        /*.tooltip {
             border: 2px solid #b6c9a6;
             background-color: #dff0d8;
             color: #468847;
-        }
+        }*/
 
         .triangle {
             height: 0px;
             width: 0px;
-            border-top: 10px solid #66A867;
+            /*border-top: 10px solid #66A867;*/
+            border-top: 10px solid #909090;
             border-left: 5px solid transparent;
             border-right: 5px solid transparent;
         }
@@ -65,7 +72,7 @@
     <span id="ontop" data-default="true" />
 
         <div id="callout" class="triangle" style="position: absolute; left: -200px; top:0px; z-index: 101; opacity: 1; transition: opacity 0.15s ease-in-out 0.15s"></div>
-        <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 0.9; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.15s ease-in-out 0.15s">Loading...</div>
+        <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 0.8; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.15s ease-in-out 0.15s">Loading...</div>
 
         
     <div id="group">
@@ -275,7 +282,8 @@
         // Zoom and drag events
         if (!_toolbox) {
             zoom = d3.behavior.zoom()
-                .on("zoom", zoomed);
+                .on("zoom", zoomed)
+                .on("zoomend", checkLoadMore);
             drag = d3.behavior.drag()
                 .on("dragstart", start_drag)
                 .on("dragend", stop_drag);
@@ -379,9 +387,8 @@
                 var lowestVal = 99e99;
                 var cursorAbove = true;
                 for (var j = 0; j < series[j].data.length ; j++) {          // latch tooltip to the series closest to the cursor only when inside area
-                    var lineVal = y(series[j].data[bisectDate(series[j].data, x0)].y)
-                    if (ev.clientY > lineVal) cursorAbove = false;
-                    var testAbs = Math.abs(lineVal - ev.clientY + 17);
+                    if (ev.clientY > y(series[j].data[bisectDate(series[j].data, x0)].y)) cursorAbove = false;
+                    var testAbs = Math.abs(y(series[j].data[bisectDate(series[j].data, x0)].y) - ev.clientY + 17);
                     if (testAbs < lowestVal) {
                         lowestVal = testAbs
                         seriesIndex = j;
@@ -570,7 +577,6 @@
                         if (d3.min(series[i].data, function (d) { return d.y }) < minVal) minVal = d3.min(series[i].data, function (d) { return d.y })
                         y.domain([minVal, maxVal])      // Adjust scales
                         yAxis.scale(y)
-                        //zoomed()
                         render(800, i)
                     }
                 }
@@ -671,17 +677,21 @@
         function stop_drag() {
             if (!_designing) {
                 chart.style("cursor", "default");
-                if (x.domain()[0] < series[0].data[0].x) {                       // scrolling & out of data, get more data
-                    for (var i = 0; i < 5; i++) {
-                        if (series[i].name != "") {
-                            tooltip.style.setProperty("left", "50%");                                
-                            tooltip.style.setProperty("top", "50%");
-                            tooltip.innerText = "Loading...";
-                            tooltip.style.setProperty("opacity", "1");                                // show loading tooltip
-                            fwFunc("history", series[i].FQN, x.domain()[0].valueOf(), series[0].data[0].x.valueOf());
-                            dsToLoad = dsToLoad + 1;
-                            loaded = false;
-                        }
+                checkLoadMore();
+            }
+        }
+
+        function checkLoadMore() {
+            if (x.domain()[0] < series[0].data[0].x) {                       // scrolling & out of data, get more data
+                for (var i = 0; i < 5; i++) {
+                    if (series[i].name != "") {
+                        tooltip.style.setProperty("left", "50%");
+                        tooltip.style.setProperty("top", "50%");
+                        tooltip.innerText = "Loading...";
+                        tooltip.style.setProperty("opacity", "0.8");                                // show loading tooltip
+                        fwFunc("history", series[i].FQN, x.domain()[0].valueOf(), series[0].data[0].x.valueOf());
+                        dsToLoad = dsToLoad + 1;
+                        loaded = false;
                     }
                 }
             }

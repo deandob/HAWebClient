@@ -37,7 +37,6 @@ function _nameLoaded() {
                     _fw_hostRequest(_cacheIni[ini].func, _cacheIni[ini].param0, _cacheIni[ini].param1, _cacheIni[ini].param2)        // process ini messages cached before widget finished loading
                 }
                 parent.widgetRequest(_widgetName, "adjustsize", "leftoffset", 5000 + parent.widgets[_widgetNum].locX + "px");
-                //parent.widgetRequest(_widgetName, "display", true);
             }
         }
     }

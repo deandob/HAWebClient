@@ -45,7 +45,7 @@ body {
 }
 
 .nofocus {
-    outline: none;
+    outline: none !important;
 }
 
 .icon-large {

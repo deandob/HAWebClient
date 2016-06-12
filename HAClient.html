@@ -423,9 +423,6 @@
                                                 default:
                                             }
                                             break;
-                                        case "HISTORY":
-                                            if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHost(msg);         // TODO: Redundant??
-                                            break;
                                         case "SETTINGS":
                                             switch (msg.Scope.toUpperCase()) {
                                                 case "GET:CATEGORIES()":
@@ -480,7 +477,8 @@
                                             }
                                             break;
                                         default:
-                                            iFrame.contentWindow.recvHost(msg)
+                                            if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHost(msg);
+                                            //iFrame.contentWindow.recvHost(msg)
                                     }
                                     break;
                                 default:
