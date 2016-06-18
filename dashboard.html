@@ -364,10 +364,10 @@
                             }
                             break;
                         case "input":
-                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.value
+                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.value;
                             break;
                         case "data":
-                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.innerHTML
+                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.innerHTML;
                         default:
                     }
                     widgetOptionCounter = widgetOptionCounter + 1;
@@ -1008,7 +1008,7 @@
                         return (typeof plugins[param0.toUpperCase() + "/" + param1.toUpperCase()] !== "undefined") ? plugins[param0.toUpperCase() + "/" + param1.toUpperCase()].Channels : ""
                         break;
                     case "selectchannels":
-                        toggleToolbox("channelToolbox", "open")
+                        toggleToolbox("channelToolbox", "open");
                         break;
                     case "save":
                         saveScreen();               //TODO: Can be smarter rather than saving all the data
@@ -1025,7 +1025,7 @@
                         break;
                     case "send":
                         if (param0.split("/").length !== 3) return false;                                           // channel must be in the form CATEGORY/classname/instance
-                        parent.channelSend(param0.toString(), param1.toString(), param2.toString())
+                        parent.channelSend(param0.toString(), param1.toString(), param2.toString());
                         for (var widget in widgets) {                                                               // if other widgets on the screen subscribe to the same channel send message to them as message won't be echoed back
                             if ((widgetNum.toString() !== widget) && (widgets[widget].screen === selScreenNum) && (widgets[widget].device === parent.device)) {
                                 for (var attrib in widgets[widget].attribs) {
