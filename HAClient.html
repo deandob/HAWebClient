@@ -130,16 +130,18 @@
     <script>
         "use strict";
 
+        var clientName = localStorage.getItem("clientName");
+        if (clientName == null) clientName = "";
         var user = "";
         var device = "desktop";                           // TODO: detect device used to load appropriate screens
         var deviceWidth = screen.availWidth;
         var debugURL = "";
         var wsPort;
-        //var serverName = document.domain;
-        var serverName = "192.168.0.2";
+        var serverName = document.domain;
         var categories;
         var tooltipDelay = 1500;                            // Delay before showing tooltip when hovering
         var connection = "local";
+        localStorage.setItem("lastname", "Smith");
 
         switch (document.URL.toLowerCase().split("?")[1]) {         // command line options after URL '?'
             case "remote":
@@ -173,8 +175,6 @@
         //TODO: Add extra bootstrap column classes to stack differently on smaller devices
         //TODO: Field for general settings web files location so that widgets can be retrieved
 
-        //TODO: Popup toaster app for smartphones for alerts - no whatsapp
-
         //if (deviceWidth < 1200) device = "tablet";
         if (deviceWidth < 1025) device = "phone";
         iFrame.height = window.innerHeight - 114;               // compensate for bootstrap navbar
@@ -186,7 +186,7 @@
         }
 
         function settingsFrame() {
-            if (user != "") {
+            if (clientName != "") {
                 iFrame.removeEventListener("load", designOff);
                 iFrame.removeEventListener("load", designOn);
                 iFrame.setAttribute("src", "settings.html" + debugURL);
@@ -202,7 +202,7 @@
         }
 
         function dashboardFrame() {
-            if (user != "") {
+            if (clientName != "") {
                 iFrame.removeEventListener("load", designOff);
                 iFrame.removeEventListener("load", designOn);
                 if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
@@ -222,7 +222,7 @@
         }
 
         function design() {
-            if (user != "") {
+            if (clientName != "") {
                 iFrame.removeEventListener("load", designOff);
                 iFrame.removeEventListener("load", designOn);
                 if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
@@ -345,7 +345,7 @@
 
         function waitForWidgets() {
             if (!iFrame.contentWindow.allLoaded) {
-                setTimeout(waitForWidgets, 800);                // TODO: NOT ROBUST ENOUGH FOR LARGER SCREENS
+                setTimeout(waitForWidgets, 900);                // TODO: NOT ROBUST ENOUGH FOR LARGER SCREENS
             } else {
                 designOn();
             }
@@ -375,7 +375,7 @@
         }
 
         var templMsg = {
-            client: user,               // NEED TO CONVERT TO .NET FORMAT
+            client: clientName,               // NEED TO CONVERT TO .NET FORMAT
             func: func.action,
             level: 3,
             network: 1,
@@ -387,7 +387,8 @@
         }
 
         var ws;
-        (function startNet() {
+        startNet();
+        function startNet() {
             try {
                 ws = new WebSocket("ws://" + serverName + ":" + wsPort + "/HAclient");
             } catch (exception) {
@@ -437,12 +438,13 @@
                                                     switch (msg.Scope.toUpperCase()) {
                                                         case "CONNECT":             // user session connected
                                                             var connData = JSON.parse(msg.Data)
-                                                            user = connData.ClientName
+                                                            clientName = connData.ClientName
+                                                            if (localStorage.getItem("clientName") != clientName) localStorage.setItem("clientName", clientName);       // save clientName from server (local javascript can't get client name) 
                                                             netName = connData.ServerName;
                                                             document.getElementById("headerTitle").innerHTML = "&nbsp;" + netName
                                                             netState = "localsession"
                                                             iFrame.setAttribute("src", "dashboard.html" + debugURL)
-                                                            document.getElementById("displayUser").innerHTML = "<strong>" + user + "</strong>";
+                                                            document.getElementById("displayUser").innerHTML = "<strong>" + clientName + "</strong>";
                                                             document.getElementById("dashButton").style.setProperty("display", "inline");
                                                             document.getElementById("settingsButton").style.setProperty("display", "inline");
                                                             document.getElementById("designButton").style.setProperty("display", "inline");
@@ -463,7 +465,7 @@
                                                             break;
                                                         case "DISCONNECT":
                                                             netState = "disconnected";
-                                                            user = "";
+                                                            clientName = "";
                                                             iFrame.setAttribute("src", "")
                                                             document.getElementById("displayUser").innerHTML = "Please login first";
                                                             document.getElementById("dashButton").style.setProperty("display", "none");
@@ -478,7 +480,6 @@
                                             break;
                                         default:
                                             if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHost(msg);
-                                            //iFrame.contentWindow.recvHost(msg)
                                     }
                                     break;
                                 default:
@@ -515,7 +516,7 @@
             } catch (exception) {
                 alert("General Network Error was reported: " + exception);
             }
-        })();
+        };
 
         function checkSession() {
             if (netState === "connected") {                                 // No session established after 3 seconds
@@ -528,7 +529,7 @@
                 templMsg.category = "SYSTEM";                               // General system message
                 templMsg.func = func.action;                                // Raise user or system action
                 templMsg.className = className;
-                templMsg.instance = user;
+                templMsg.instance = clientName;
                 templMsg.scope = scope;
                 templMsg.data = data;
                 ws.send(buildJSON(templMsg))
@@ -553,7 +554,7 @@
         // Structure the message based on event format
         function buildJSON(myMsg) {
             var myJSONObject = {
-                "Client": user, "Func": myMsg.func, "Level": myMsg.level, "Network": myMsg.network, "Category": myMsg.category, "ClassName": myMsg.className, "Instance": myMsg.instance, "Scope": myMsg.scope, "Data": myMsg.data
+                "Client": clientName, "Func": myMsg.func, "Level": myMsg.level, "Network": myMsg.network, "Category": myMsg.category, "ClassName": myMsg.className, "Instance": myMsg.instance, "Scope": myMsg.scope, "Data": myMsg.data
             };
             return JSON.stringify(myJSONObject);
         }

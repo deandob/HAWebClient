@@ -38,10 +38,8 @@
             color: #468847;
         }
 
-        .noSelect {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+        .noselect {
+            user-select: none;
         }
 
     </style >
@@ -56,7 +54,7 @@
 
     <div id="group">
         <div id="scale">
-            <div id="widget" style="opacity: 1; position: absolute; left: 0px; top: 0px; width: 100px; height: 100px; text-align: left; overflow: hidden;"><a id="icon" class="wi wi-day-lightning noselect"></a></div>
+            <div id="widget" class="noselect" style="opacity: 1; position: absolute; left: 0px; top: 0px; width: 100px; height: 100px; text-align: left; overflow: hidden;"><a id="icon" class="wi wi-day-lightning noselect"></a></div>
         </div>
     </div>
 

@@ -123,12 +123,12 @@
                     <image id="imgRange" x="1" y="1" width="512" height="512" xlink:href=""></image>
                     <rect x="0" y="558" height="42" width="512" style="fill:white" />
                     <rect x="0" y="0" rx="5" ry="5" width="514" height="600" style="fill-opacity: 0; stroke: rgb(100,100,100); stroke-width: 2px; stroke-opacity: 0.8" />
-                    <image id="imgRain0" x="1" y="1" width="512" height="512" xlink:href="" style="display:normal"></image>
+                    <image id="imgRain0" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
                     <image id="imgRain1" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
                     <image id="imgRain2" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
                     <image id="imgRain3" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
                     <image id="imgRain4" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
-                    <image id="imgRain5" x="1" y="1" width="512" height="512" xlink:href="" style="display:none"></image>
+                    <image id="imgRain5" x="1" y="1" width="512" height="512" xlink:href="" style="display:inline"></image>
                     <circle id="myLocSurr" r="0" fill-opacity="0.2" fill="rgb(255,0,0)" />
                     <circle id="myLoc" r="0" fill="rgb(255,0,0)" />
                     <rect id="butRect64" class="greenpressed" x="8" y="562" ry="4" rx="4" height="30" width="80" style="stroke-width:2px" />
@@ -167,7 +167,8 @@
             locations = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".locations.png";
             range = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".range.png";
             rain = "ftp://ftp.bom.gov.au/anon/gen/radar/";
-            rain1 = "http://wac.72dd.edgecastcdn.net/8072DD/radimg/radar/"
+            //rain1 = "http://wac.72dd.edgecastcdn.net/8072DD/radimg/radar/"
+            rain1 = "http://ws.cdn.bom.gov.au/radar/"
             document.getElementById("imgBackground").setAttribute("xlink:href", background);
             document.getElementById("imgLegend").setAttribute("xlink:href", legend);
             document.getElementById("imgWaterways").setAttribute("xlink:href", waterways);
@@ -196,11 +197,11 @@
 
         var loopNum = 5, checkLatestLp = 0;
         var tzOffset = new Date(Date.now()).getTimezoneOffset() * 60000         // find timezone offset in mSec as the radar times are UTC
-        function displayLoop() {
 
+        function displayLoop() {
             for (var lp = 0; lp < 6; lp++) {
                 if (loopNum == lp) {
-                    document.getElementById("imgRain" + lp).style.setProperty("display", "normal");
+                    document.getElementById("imgRain" + lp).style.setProperty("display", "inline");
                 } else {
                     document.getElementById("imgRain" + lp).style.setProperty("display", "none");
                 }

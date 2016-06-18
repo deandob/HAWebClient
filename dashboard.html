@@ -776,12 +776,8 @@
             var widgetName = "objWidget" + widgetNum;
             objWidget.id = widgetName;
             objWidget.addEventListener("load", widgetLoaded, false);
-            //objWidget.height = 0;
-            //objWidget.style["top"] = -500;
-            //objWidget.style["width"] = 1;
-            //objWidget.style["visibility"] = "hidden"
-            //objWidget.style.setProperty("display", "none");                    // wait until fully loaded before displaying
-            objWidget.style.left = "-5000px"
+            objWidget.style.setProperty("display", "none");                    // wait until fully loaded before displaying
+            objWidget.style.left = "0px"
             document.getElementById("widgetContainer").appendChild(objWidget);          // Add object to dashboard canvas
             return widgetName;
         }
@@ -790,9 +786,6 @@
         var allLoaded = false;
         function widgetLoaded(e) {
             var loadObj = e.currentTarget;
-            //loadObj.style.setProperty("display", "none");
-            //loadObj.style.left = "-5000px"
-            //loadObj.style.setProperty("left", "-5000px");
             var loadName = loadObj.id;
             var loadNum = parseInt(loadName.replace("objWidget", ""));
             var loadDoc = loadObj.contentDocument;
@@ -814,14 +807,13 @@
                 widgetID.setAttribute("data-type", widgets[loadNum].type);      // widget type = classname for messages
                 loadObj.style.setProperty("position", "absolute");
                 loadObj.style.setProperty("overflow", "hidden");        // ??
-                //loadObj.style.setProperty("left", widgets[loadNum].locX + "px");
+                loadObj.style.setProperty("left", widgets[loadNum].locX + "px");
                 loadObj.style.setProperty("top", widgets[loadNum].locY + "px");
 
                 loadObj.style.setProperty("z-index", widgets[loadNum].zOrder);
                 loadObj.width = widgets[loadNum].scaleX * parseInt(widgets[loadNum].iniWidth);
                 loadObj.height = widgets[loadNum].scaleY * parseInt(widgets[loadNum].iniHeight);
                 loadDoc.defaultView.addEventListener("contextmenu", function (event) { event.preventDefault(); return false; });    // stop generic right click menu
-                //widgetID.style.setProperty("display", "none");
 
                 // When moving anywhere on the page, drag the window until the mouse button comes up
                 loadDoc.defaultView.addEventListener('dragstart', function (event) { event.preventDefault(); }, false);               // stop HTML5 drag drop action
