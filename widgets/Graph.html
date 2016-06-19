@@ -141,7 +141,7 @@
 
                 .legendtext {
                     text-anchor: end;
-                    stroke: #888888;
+                    fill: #888888;
                 }
 
                 .blue {
@@ -187,7 +187,7 @@
 
 
         function toolboxStart() {           // called when loaded in toolbox
-            _widgetID.height.baseVal.value = parent.TBWidth                // ensure when dragging height is 100
+            _widgetID.height.baseVal.value = 100                // ensure when dragging height is 100
             tooltip.style.setProperty("opacity", "0");                    
             chart.append("path")                // random line to show in toolbox
                 .attr("d", "M0,40 L10,70 L20,60 L30,30 L40,35 L50,45 L60,80 L70,70 L80,85 L90,60 L100,65")
@@ -323,31 +323,31 @@
         }
 
         function widgetStart(mode) {            // widget specific startup after object is loaded
-            _widgetID.style.setProperty("left", margin.left + "px")
-            _widgetID.style.setProperty("top", margin.top + "px")
-            historyHrs = parseFloat(_attribs[18].value)
+            _widgetID.style.setProperty("left", margin.left + "px");
+            _widgetID.style.setProperty("top", margin.top + "px");
+            historyHrs = parseFloat(_attribs[18].value);
             if (isNaN(historyHrs)) historyHrs = 24;
 
             for (var i = 0; i < 5; i++) {
-                series[i].FQN = _attribs[i * 3].value        // extract name from svg _attribs
+                series[i].FQN = _attribs[i * 3].value;        // extract name from svg _attribs
                 if (series[i].FQN != "") {         // only load up series if it has a name
                     dsToLoad = dsToLoad + 1;
-                    fwFunc("history", series[i].FQN, Date.now() - 1000 * 3600 * historyHrs, Date.now())         // request data from server
-                    series[i].name = series[i].FQN.split("/")[2]
-                    series[i].color = _attribs[i * 3 + 2].value
-                    series[i].d3Line = d3.svg.line()
+                    fwFunc("history", series[i].FQN, Date.now() - 1000 * 3600 * historyHrs, Date.now());         // request data from server
+                    series[i].name = series[i].FQN.split("/")[2];
+                    series[i].color = _attribs[i * 3 + 2].value;
+                    series[i].d3Line = d3.svg.line();
                     series[i].lineElement = chart.append("path")
                         .attr("clip-path", "url(#clip)")
                         .attr("id", "seriesLine" + i)
                         .attr("class", "seriesline " + series[i].color)
-                        .data([series[i].data])
+                        .data([series[i].data]);
                     if (_attribs[i * 3 + 1].value == true) {  // if area fill
-                        series[i].d3Area = d3.svg.area()
+                        series[i].d3Area = d3.svg.area();
                         series[i].areaElement = chart.append("path")
                             .attr("clip-path", "url(#clip)")
                             .attr("id", "seriesArea" + i)
                             .attr("class", "seriesarea " + series[i].color)
-                            .data([series[i].data])
+                            .data([series[i].data]);
                     }
                 }
             }

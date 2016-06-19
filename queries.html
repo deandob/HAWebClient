@@ -18,19 +18,12 @@
 <body id="mainbody" draggable="false" style="overflow-x: hidden">
     <div class="sidebar">
         <div class="tabs-left">
-            <h4>&nbsp;&nbsp;&nbsp;Settings</h4>
+            <h4>&nbsp;&nbsp;&nbsp;Queries</h4>
             <br />
             <ul id="sidebarList" class="nav nav-tabs">
-                <li id="tabConsole" class="active"><a class="pointer" data-target="#console" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Console</span></a></li>
-                <li id="tabGeneral"><a class="pointer" data-target="#general" data-toggle="tab"><i class="icon-settings icon-large"></i> <span>General</span></a></li>
+                <li id="tabTime" class="active"><a class="pointer" data-target="#console" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Single</span></a></li>
+                <li id="tabGraph"><a class="pointer" data-target="#general" data-toggle="tab"><i class="icon-settings icon-large"></i> <span>Graph</span></a></li>
                 <li id="tabEvents"><a class="pointer" data-target="#events" data-toggle="tab"><i class="icon-diary icon-large"></i> <span>Events</span></a></li>
-                <li id="tabTriggers"><a class="pointer" data-target="#triggers" data-toggle="tab" id="tab-triggers"><i class="icon-lightning icon-large"></i> <span>Triggers</span></a></li>
-                <li id="tabActions"><a class="pointer" data-target="#actions" data-toggle="tab" id="tab-actions"><i class="icon-hammer icon-large"></i> <span>Actions</span></a></li>
-                <li id="tabTransforms"><a class="pointer" data-target="#transforms" data-toggle="tab" id="tab-transforms"><i class="icon-wand icon-large"></i> <span>Transforms</span></a></li>
-                <li id="tabStore"><a class="pointer" data-target="#store" data-toggle="tab" id="tab-store"><i class="icon-cart icon-large"></i> <span>Store</span></a></li>
-                <li id="tabPlugins"><a class="pointer" data-target="#plugins" data-toggle="tab" id="tab-plugins"><i class="icon-power-cord icon-large"></i> <span>Plugins</span></a></li>
-                <li id="tabPrograms"><a class="pointer" data-target="#programs" data-toggle="tab" id="tab-programs"><i class="icon-file-css icon-large"></i> <span>Programs</span></a></li>
-                <li id="tabSecurity"><a class="pointer" data-target="#security" data-toggle="tab" id="tab-security"><i class="icon-lock-fill icon-large"></i> <span>Security</span></a></li>
             </ul>
             <div id="editOptions" style="display: none; position: absolute; bottom: 2px; left: 15px;">
                 <p class="nav-header">Editing Options</p>
@@ -60,234 +53,9 @@
 
     <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
 
-<!-- #region Console ------------------------------------------------------------------------------------------------------->
-        <div class="tab-pane fade in active" id="console" >
-            <h4>Console Logs</h4>
-            <br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Monitor the system<br /><br /></p>
-                    </div>
-                </div>
-            </div><br />
-            <div class="col-md-2">
-                <p>Log Name</p>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="logNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <p>Log Description</p>
-                <input type="text" class="form-control" id="LogDesc" name="textInput" placeholder="" disabled>
-            </div>
-            <br /><br /><br /><br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Console</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <button type="button" id="logButDebug" onclick="logButDebug()" class="btn btn-primary tip pointer nofocus" data-original-title="Toggle Debug Mode On/Off">Verbose On</button>&nbsp;&nbsp;&nbsp;
-                                    <button type="button" id="logButStatestore" onclick="logButStatestore()" class="btn btn-primary tip pointer nofocus" data-original-title="Display Contents of State Store">State Store</button>&nbsp;&nbsp;&nbsp;
-                                    <button type="button" id="logButMessages" onclick="logButMessages()" class="btn btn-primary tip pointer nofocus" data-original-title="Toggle Console and Node Plugin Messages">Console</button>&nbsp;&nbsp;&nbsp;
-                                    <button type="button" onclick="logButClear()" class="btn btn-primary tip pointer nofocus" data-original-title="Clear the screen">Clear Screen</button>&nbsp;&nbsp;&nbsp;
-                                    <br /><br />
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <textarea id="logs" rows="30" readonly style="width: 100%"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-<!-- #endregion -->
-
-<!-- #region General --------------------------------------------------------------->
-        <div class="tab-pane fade" id="general">
-            <h4>General Settings</h4>
-            <br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Adjust general system settings<br /><br /></p>
-                    </div>
-                </div>
-            </div><br />
-            <div class="col-md-2">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="generalNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
-                    </div>
-                </div>
-            </div>
-            <br /><br /><br /><br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">General</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p>Web Site Location</p>
-                                    <input id="webLocation" name="textInput" type="text" class="form-control" placeholder="xxxxx">
-                                </div>
-                                <div class="col-md-6">
-                                    <p>Title</p>
-                                    <input id="NavTitle" name="textInput" type="text" class="form-control" placeholder="My Home">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-5">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Widget Designer</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <p>Grid Size</p>
-                                    <input id="genGridSize" name="textInput" type="text" class="form-control" value="5">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- #endregion -->
-
-<!-- #region Events --------------------------------------------------------------->
-        <div class="tab-pane fade" id="events">
-            <h4>Manage Events</h4><br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Events connect triggers with actions that allows control when changes happen. Activation of any of the triggers will run all actions.<br /><br /></p>
-                    </div>
-                </div>
-            </div><br />
-            <div class="col-md-2">
-                <p>Name</p>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="eventName" name="textInput" placeholder="New or Select Event">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="eventNameList" class="dropdown-menu pull-right">
-                            <li><a class="pointer"><i>No saved events</i></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <p>Description</p>
-                <input type="text" class="form-control" id="eventDesc" name="textInput" placeholder="Enter new Event description">
-            </div>
-            <div class="col-md-1">
-                <p>Times Run</p>
-                <input type="text" class="form-control" id="eventTimesRun" name="textInput" placeholder="0" disabled>
-            </div>
-            <div class="col-md-3">
-                <p>Last Fired</p>
-                <input type="text" class="form-control" id="eventLastFired" name="textInput" placeholder="Never" disabled>
-            </div>
-
-            <br /><br /><br /><br />
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Event Settings</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="checkbox">
-                                        <label><input id="eventChkEnabled" name="chkInputInv" type="checkbox" checked="checked"> Enabled</label>
-                                    </div>
-                                    <div class="checkbox">
-                                        <label><input id="eventChkOneOff" type="checkbox"> One Off</label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <p>Date/Time From</p>
-                                    <div class="input-group date" id="dtpEventFrom">
-                                        <input id="eventFromDate" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
-                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <br />
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <p>Date/Time To</p>
-                                    <div class="input-group date" id="dtpEventTo">
-                                        <input id="eventToDate" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
-                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Event Triggers</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <select id="eventTrigSel" multiple size="8" class="form-control" name="multiSel"></select>
-                                </div>
-                            </div>
-                            <br />
-                            <div class="col-md-6">
-                                <button id="eventTrigAdd" type="button" onclick="popToolbox('TRIGGERS', 'eventTrigSel', 'eventLB')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
-                            </div>
-                            <div class="col-md-6">
-                                <button id="eventTrigDel" type="button" onclick="delEventItem('eventTrigSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Event Actions</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <select id="eventActionSel" multiple size="8" class="form-control" name="multiSel"></select>
-                                </div>
-                            </div>
-                            <br />
-                            <div class="col-md-6">
-                                <button id="eventActionAdd" type="button" onclick="popToolbox('ACTIONS', 'eventActionSel', 'eventLB')" onfocus="    blur()" class="btn btn-default btn-block">Add</button>
-                            </div>
-                            <div class="col-md-6">
-                                <button id="eventActionDel" type="button" onclick="delEventItem('eventActionSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- #endregion -->
-
-<!-- #region Triggers --------------------------------------------------------------->
-        <div class="tab-pane fade" id="triggers">
-            <h4>Manage Triggers</h4>
+<!-- #region Single --------------------------------------------------------------->
+        <div class="tab-pane fade" id="single">
+            <h4>Single Query</h4>
             <br />
             <div class="row">
                 <div class="col-md-10">
@@ -628,6 +396,123 @@
             </div>
         </div>
 <!-- #endregion -->
+
+
+<!-- #region Events --------------------------------------------------------------->
+        <div class="tab-pane fade" id="events">
+            <h4>Query Grapsh</h4><br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Events connect triggers with actions that allows control when changes happen. Activation of any of the triggers will run all actions.<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="col-md-2">
+                <p>Name</p>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="eventName" name="textInput" placeholder="New or Select Event">
+                    <div class="input-group-btn">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                        <ul id="eventNameList" class="dropdown-menu pull-right">
+                            <li><a class="pointer"><i>No saved events</i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <p>Description</p>
+                <input type="text" class="form-control" id="eventDesc" name="textInput" placeholder="Enter new Event description">
+            </div>
+            <div class="col-md-1">
+                <p>Times Run</p>
+                <input type="text" class="form-control" id="eventTimesRun" name="textInput" placeholder="0" disabled>
+            </div>
+            <div class="col-md-3">
+                <p>Last Fired</p>
+                <input type="text" class="form-control" id="eventLastFired" name="textInput" placeholder="Never" disabled>
+            </div>
+
+            <br /><br /><br /><br />
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Event Settings</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="checkbox">
+                                        <label><input id="eventChkEnabled" name="chkInputInv" type="checkbox" checked="checked"> Enabled</label>
+                                    </div>
+                                    <div class="checkbox">
+                                        <label><input id="eventChkOneOff" type="checkbox"> One Off</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>Date/Time From</p>
+                                    <div class="input-group date" id="dtpEventFrom">
+                                        <input id="eventFromDate" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
+                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p>Date/Time To</p>
+                                    <div class="input-group date" id="dtpEventTo">
+                                        <input id="eventToDate" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
+                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Event Triggers</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <select id="eventTrigSel" multiple size="8" class="form-control" name="multiSel"></select>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="col-md-6">
+                                <button id="eventTrigAdd" type="button" onclick="popToolbox('TRIGGERS', 'eventTrigSel', 'eventLB')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button id="eventTrigDel" type="button" onclick="delEventItem('eventTrigSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Event Actions</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <select id="eventActionSel" multiple size="8" class="form-control" name="multiSel"></select>
+                                </div>
+                            </div>
+                            <br />
+                            <div class="col-md-6">
+                                <button id="eventActionAdd" type="button" onclick="popToolbox('ACTIONS', 'eventActionSel', 'eventLB')" onfocus="    blur()" class="btn btn-default btn-block">Add</button>
+                            </div>
+                            <div class="col-md-6">
+                                <button id="eventActionDel" type="button" onclick="delEventItem('eventActionSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- #endregion -->
+
 
 <!-- #region Actions --------------------------------------------------------------->
         <div class="tab-pane fade" id="actions">
@@ -1042,279 +927,16 @@
         </div>
 <!-- #endregion -->
 
-<!-- #region Programs --------------------------------------------------------------->
-        <div class="tab-pane fade" id="programs">
-            <h4>Manage Programs</h4>
-            <br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Modify plugins, widgets and scripts<br /><br /></p>
-                    </div>
-                </div>
-            </div><br />
-            <div class="col-md-2">
-                <p>Name</p>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="programName" name="textInput" placeholder="New or Select Program">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="programNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <p>Description</p>
-                <input type="text" class="form-control" id="programDesc" name="textInput" placeholder="Enter Program description">
-            </div>
-            <div class="col-md-2">
-                <p>Type</p>
-                <div class="input-group tip" data-original-title="select program type" data-placement="below">
-                    <input type="text" id="programType" class="form-control" value="Widget" disabled>
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="scriptTypeList" class="dropdown-menu pull-right">
-                            <li><a onclick="selProgramType('Widget')">Widget</a></li>
-                            <li><a onclick="selProgramType('Script')">Script</a></li>
-                            <li><a onclick="selProgramType('Plugin')">Plugin</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <p>Language</p>
-                <div class="input-group tip" data-original-title="select Program language" data-placement="below">
-                    <div class="input-group">
-                        <input type="text" id="programLang" class="form-control" value="HTML" disabled>
-                        <div class="input-group-btn">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                            <ul id="programLangList" class="dropdown-menu pull-right">
-                                <li><a onclick="selProgramLang('HTML')">HTML</a></li>
-                                <li><a onclick="selProgramLang('VB.NET')">VB.NET</a></li>
-                                <li><a onclick="selProgramLang('C#')">C#</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br /><br /><br /><br />
-
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Program Text</h4></div>
-                        <div class="panel-body">
-                            <div class="col-md-12">
-                                <textarea id="codeEditor" rows="20"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-<!-- #endregion -->
-
-<!-- #region Plugin Manager --------------------------------------------------------------->
-        <div class="tab-pane fade" id="plugins">
-            <h4>Manage Plugin Settings</h4>
-            <br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Settings for plugins<br /><br /></p>
-                    </div>
-                </div>
-            </div><br />
-            <div class="col-md-2">
-                <p>Name</p>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="pluginName" name="textInput" placeholder="New or Select Plugin">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="pluginNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <p>Description</p>
-                <input type="text" class="form-control" id="pluginDesc" name="textInput" placeholder="Enter Plugin description">
-            </div>
-            <div class="col-md-2">
-                <p>Language</p>
-                <div class="input-group tip" data-original-title="select Program language" data-placement="below">
-                    <div class="input-group">
-                        <input type="text" id="pluginLang" class="form-control" value="Node.JS" disabled>
-                        <div class="input-group-btn">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                            <ul id="pluginLangList" class="dropdown-menu pull-right">
-                                <li><a onclick="selProgramLang('HTML')">HTML</a></li>
-                                <li><a onclick="selProgramLang('VB.NET')">VB.NET</a></li>
-                                <li><a onclick="selProgramLang('C#')">C#</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br /><br /><br /><br />
-
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Program Text</h4></div>
-                        <div class="panel-body">
-                            <div class="col-md-10">
-                                <textarea id="xxx" rows="20"></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-<!-- #endregion -->
-
-<!-- #region Store --------------------------------------------------------------->
-        <div class="tab-pane fade" id="store">
-            <h4>Add Widgets and Plugins</h4>
-            <br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Add and Remove Widgets and Plugins<br /><br /></p>
-                    </div>
-                </div>
-            </div><br />
-            <div class="col-md-2">
-                <p>Name</p>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="storeName" name="textInput" placeholder="New or Select Program">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="storeList" class="dropdown-menu pull-right dropdown-scroll"></ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <p>Description</p>
-                <input type="text" class="form-control" id="storeDesc" name="textInput" placeholder="Enter Program description">
-            </div>
-            <div class="col-md-2">
-                <p>Type</p>
-                <div class="input-group tip" data-original-title="select program type" data-placement="below">
-                    <input type="text" id="storeType" class="form-control" value="Widget" disabled>
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="storeTypeList" class="dropdown-menu pull-right">
-                            <li><a onclick="selProgramType('Widget')">Widget</a></li>
-                            <li><a onclick="selProgramType('Script')">Script</a></li>
-                            <li><a onclick="selProgramType('Plugin')">Plugin</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <p>Language</p>
-                <div class="input-group tip" data-original-title="select Program language" data-placement="below">
-                    <div class="input-group">
-                        <input type="text" id="xxxx" class="form-control" value="SVG" disabled>
-                        <div class="input-group-btn">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                            <ul id="xxxx" class="dropdown-menu pull-right">
-                                <li><a onclick="selProgramLang('SVG')">SVG</a></li>
-                                <li><a onclick="selProgramLang('HTML')">HTML</a></li>
-                                <li><a onclick="selProgramLang('VB.NET')">VB.NET</a></li>
-                                <li><a onclick="selProgramLang('C#')">C#</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br /><br /><br /><br />
-        </div>
-<!-- #endregion -->
-
-<!-- #region Security --------------------------------------------------------------->
-        <div class="tab-pane fade" id="security">
-            <h4>User Administration</h4>
-            <br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;manage user access to resources<br /><br /></p>
-                    </div>
-                </div>
-            </div><br />
-            <div class="col-md-2">
-                <p>Name</p>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="storeName" name="textInput" placeholder="New or Select Program">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="storeList" class="dropdown-menu pull-right dropdown-scroll"></ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <p>Description</p>
-                <input type="text" class="form-control" id="storeDesc" name="textInput" placeholder="Enter Program description">
-            </div>
-            <div class="col-md-2">
-                <p>Type</p>
-                <div class="input-group tip" data-original-title="select program type" data-placement="below">
-                    <input type="text" id="storeType" class="form-control" value="Widget" disabled>
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="storeTypeList" class="dropdown-menu pull-right">
-                            <li><a onclick="selProgramType('Widget')">Widget</a></li>
-                            <li><a onclick="selProgramType('Script')">Script</a></li>
-                            <li><a onclick="selProgramType('Plugin')">Plugin</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <p>Language</p>
-                <div class="input-group tip" data-original-title="select Program language" data-placement="below">
-                    <div class="input-group">
-                        <input type="text" id="xxxx" class="form-control" value="SVG" disabled>
-                        <div class="input-group-btn">
-                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                            <ul id="xxxx" class="dropdown-menu pull-right">
-                                <li><a onclick="selProgramLang('SVG')">SVG</a></li>
-                                <li><a onclick="selProgramLang('HTML')">HTML</a></li>
-                                <li><a onclick="selProgramLang('VB.NET')">VB.NET</a></li>
-                                <li><a onclick="selProgramLang('C#')">C#</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <br /><br /><br /><br />
-        </div>
-<!-- #endregion -->
-
     </div>
     <!--<script src="//maxcdn.bootstrapcdn.com/bootlint/0.2.0/bootlint.min.js"></script>-->
 
     <script src="js/jquery-2.1.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-datetimepicker.min.js"></script>
-    <!--CodeMirror-->
-    <script src="js/codemirror.js"></script>
-    <script src="js/javascript.js"></script>
-    <script src="js/active-line.js"></script>
 
     <script>
 //#region ---------------------------------------- Initialise screen functions
         // datetime picker https://github.com/Eonasdan/bootstrap-datetimepicker
-        //One off time & date = EventFrom date + time + one off
-        //One off anything = event
-        //Active time daily, fortnightly = checkbox + time
-        //Active from range dates = EventFrom date + To date
-        //Active from certain date = from date filled + to date blank
-        //Active to a certain date = from date blank + to date filled
-        //Every Tuesday fortnight at 7pm. daily at 11am = checkbox + time
-        //Server local time but displayed with client locale
-        // move programs code from the automation class to a new programs class (in both client & console)
 
         "use strict";
 
@@ -1322,7 +944,6 @@
         var unixEpoc = 621355968000000000; // epoch start in .NET time
         var nullDate = 0;      // 1-1-0001 in .NET
         var condStr = ["equals", "greater", "less", "not", "contains", "change"];
-        var myCodeMirror;
         var toolboxCB;          // global for callback routine from toolbox load calls
 
         // Startup function after DOM is loaded and all content loaded
@@ -1344,16 +965,12 @@
                 if (typeof window[nameToTab + "ScreenEnter"] == "function") window[nameToTab + "ScreenEnter"]();
             })
 
-            consoleScreenEnter();                                                       // Starting tab
+            singleQueryEnter();                                                       // Starting tab
         }
 //#endregion
 
 //#region ---------------------------------------- Console screen functions
-        function consoleScreenEnter() {
-            var logArea = document.getElementById("logs");
-            document.getElementById("editOptions").style.display = "none";
-            logArea.innerHTML = "Receiving logs (verbose mode: OFF)";
-            parent.send("CONSOLE", "", "START");             
+        function singleQueryEnter() {
         }
 
         function updateLogs(data) {
@@ -1404,22 +1021,13 @@
 //#endregion
 
 //#region ---------------------------------------- Triggers settings screen functions
-        function triggersScreenEnter() {
-            loadNames("TRIGGERS")
-            document.getElementById("editOptions").style.display = "inline";
+        function graphsScreenEnter() {
         }
 //#endregion
 
 //#region ---------------------------------------- Events settings screen functions
         function eventsScreenEnter() {
             loadNames("EVENTS")
-            document.getElementById("editOptions").style.display = "inline";
-        }
-//#endregion
-
-//#region ---------------------------------------- Actions settings screen functions
-        function actionsScreenEnter() {
-            loadNames("ACTIONS")
             document.getElementById("editOptions").style.display = "inline";
         }
 //#endregion

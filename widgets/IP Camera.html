@@ -146,7 +146,7 @@
         }
 
         function toolboxStart() {           // called when loaded in toolbox
-            document.getElementById("allControls").style.setProperty("display", "none")
+            document.getElementById("allControls").style.setProperty("display", "none");
         }
 
         function startEdit() {              // called when editing started
@@ -517,59 +517,59 @@
             dispVid(recStreamPort, "/" + selected.file)
         }
 
-            // Setup stream to play
-            function dispVid(port, selFile) {
-                _widgetID.pause();
-                vidSource.src = "http://" + serverName + ":" + port + "/" + cameraName + selFile;                            // stream URL
-                _widgetID.load();                // BUG HERE: Does not adjust the source.
-            }
+        // Setup stream to play
+        function dispVid(port, selFile) {
+            _widgetID.pause();
+            vidSource.src = "http://" + serverName + ":" + port + "/" + cameraName + selFile;                            // stream URL
+            _widgetID.load();                // BUG HERE: Does not adjust the source.
+        }
 
-            ////TODO: When the camera selection changes, get the file list
+        ////TODO: When the camera selection changes, get the file list
 
-            // Called from framework for incoming channel events
-            function feed(channel, scope, data) {
-                switch (scope) {
-                    case "recfiles":
-                        recFiles = JSON.parse(data);
-                        for (var file in recFiles) {
-                            if (recFiles[file].substr(-3, 3) === "mp4") {
-                                var itemDate = {
-                                    date: new Date(recFiles[file].substr(0, 4), parseInt(recFiles[file].substr(4, 2)) - 1, recFiles[file].substr(6, 2), recFiles[file].substr(9, 2), recFiles[file].substr(11, 2), recFiles[file].substr(13, 2)),
-                                    file: recFiles[file],
-                                    type: "rec",
-                                    index: motion.length
-                                }
-                                motion.push(itemDate)                       // save the recorded motion files to array
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            switch (scope) {
+                case "recfiles":
+                    recFiles = JSON.parse(data);
+                    for (var file in recFiles) {
+                        if (recFiles[file].substr(-3, 3) === "mp4") {
+                            var itemDate = {
+                                date: new Date(recFiles[file].substr(0, 4), parseInt(recFiles[file].substr(4, 2)) - 1, recFiles[file].substr(6, 2), recFiles[file].substr(9, 2), recFiles[file].substr(11, 2), recFiles[file].substr(13, 2)),
+                                file: recFiles[file],
+                                type: "rec",
+                                index: motion.length
                             }
+                            motion.push(itemDate)                       // save the recorded motion files to array
                         }
-                        chart.selectAll("rect")
-                            .data(motion)
-                            .enter().append("rect")
-                            .attr("clip-path", "url(#clip)")
-                            .attr("class", "points")
-                            .attr("x", function (d) { return x(d.date); })
-                            .attr("y", "16")
-                            .attr("height", "8")
-                            .attr("width", "4")
-                            .attr("fill", "red")
-                            .attr("stroke-width", "1")
-                            .attr("stroke-opacity", "0")
-                            .attr("transform", "translate(" + margin.left + ",0)")
-                            .on("mousedown", selTime);
-                        break;
-                    default:
-                }
+                    }
+                    chart.selectAll("rect")
+                        .data(motion)
+                        .enter().append("rect")
+                        .attr("clip-path", "url(#clip)")
+                        .attr("class", "points")
+                        .attr("x", function (d) { return x(d.date); })
+                        .attr("y", "16")
+                        .attr("height", "8")
+                        .attr("width", "4")
+                        .attr("fill", "red")
+                        .attr("stroke-width", "1")
+                        .attr("stroke-opacity", "0")
+                        .attr("transform", "translate(" + margin.left + ",0)")
+                        .on("mousedown", selTime);
+                    break;
+                default:
             }
+        }
 
-            // Called from framework for initial channel status
-            function ini(channel, scope, data) {
-                switch (scope) {
-                    case "":
-                        break;
-                    default:
-                }
+        // Called from framework for initial channel status
+        function ini(channel, scope, data) {
+            switch (scope) {
+                case "":
+                    break;
+                default:
             }
-            //function playbackFailed(e) {
+        }
+        //function playbackFailed(e) {
             //    // video playback failed - show a message saying why
             //    //switch (e.target.error.code) {
             //    if (widgetID.error !== null) {

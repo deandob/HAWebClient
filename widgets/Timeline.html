@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Timeline Widget</title>
+</head>
+<body id="body">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .axis path, .axis line { /* X and Y axis */
+            fill: none;
+            stroke: #808080;
+        }
+
+        .title {
+            font-weight: normal;
+            font-size: 16px;
+            opacity: 0.5;
+        }
+
+        .x.axis line, .y.axis line { /* grid lines */
+            stroke: #808080;
+            stroke-opacity: 0.4;
+        }
+
+        .x.axis text, .y.axis text {
+            fill: #808080;
+            fill-opacity: 1;
+            font-size: 12px;
+            font-style: normal;
+            font-weight: 400;
+        }
+
+        .x.axis .minor, y.axis .minor {
+            stroke: #808080;
+            stroke-opacity: 0.3;
+        }
+
+    </style>
+
+    <span id="TBtooltip" data-default="View events on a timeline" />
+    <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
+    <span id="attrib1" data-type="input" data-name="Chart Title" data-default="" />
+    <span id="attrib2" data-type="input" data-name="Initial History (hrs)" data-default="24" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <div id="widget" width="200" height="50" style="position: absolute; left:0px; top:0px;">
+            <svg id="timeline" style="position:absolute; top:20px; z-index:102" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+            </svg>
+        </div>
+    </div>
+
+    <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script src="../js/d3.min.js" type="text/javascript"></script>
+    <script>
+
+        function toolboxStart() {           // called when loaded in toolbox
+            _widgetID.style.height = 30;                // ensure when dragging height is 100
+            historyHrs = 24;
+        }
+
+        function startEdit() {              // called when editing started
+        }
+
+        function endEdit(param0) {                // called when editing finishes
+        }
+
+        function startDesign() {            // called when switching to design mode
+            zoom.x()            // disable zoom
+        }
+
+        function endDesign() {
+            zoom.x(x)           // enable zoom
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+            width = _iniWidth * scaleX
+
+            clipPath
+                .attr("width", width)
+
+            var DAY_HISTORY = 1             // how many days back to use
+
+            x
+                .domain([new Date(new Date().valueOf() - 1000 * 3600 * historyHrs), new Date])       // assumes seconds
+                .nice(d3.time.second)
+                .range([0, width - margin.right]);
+
+            xAxis
+                .scale(x)
+                .orient("bottom")
+                //.tickFormat(d3.time.format("%H:%M.%S"))  
+                //.ticks(d3.time.seconds, 10)              
+                .ticks(4 * scaleX)                  // adjust number of ticks based on size of graph
+
+            bground
+               .attr("width", width)
+
+            if (_toolbox == false) {
+                chart.call(zoom.x((x)));      // enable x axis zoom
+                chart.call(drag);           // enable drag events
+            }
+
+            chart.selectAll("circle.currtime").attr("cx", function (d) { return x(d); })
+            chart.selectAll(".x.axis").attr("transform", "translate(" + margin.left + "," + (height - 18) + ")").call(xAxis)
+
+            title
+                .attr("x", width / 2)
+                .attr("y", 0 - (margin.top / 2))
+                .text(chartTitle);
+        }
+
+        function clicked(event) {           // click in dashboard mode
+        }
+
+        // Setup and manage masks. Click and drag to create a new mask, click inside an existing mask to delete it
+        function designClicked(event) {                // User clicks widget in design mode to set frame
+        }
+
+        function mouseMove(event) {
+        }
+
+        var margin = { top: 0, bottom: 2, left: 5, right: 15 };
+        var xAxis, yAxis, x, y, width, height, clipPath, bground, zoom, drag, historyHrs, title;
+        var chart = d3.select("#timeline");
+        var chartTitle = "";
+        var currTime = [];
+
+        timeline = document.getElementById("timeline");
+
+        height = 30 - margin.top - margin.bottom;           // fixed height
+        chart.style("height", height);
+
+        bground = chart.append("rect")                  // used for grabbing & zooming
+            .attr("fill", "black")
+            .attr("opacity", 0)
+            .attr("x", margin.left)
+            .attr("height", height)
+
+        // ensure the chart that is outside the axis does not get drawn
+        clipPath = chart.append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("x", 0)
+            .attr("height", height)
+
+        // setup Axis
+        x = d3.time.scale()
+        xAxis = d3.svg.axis()
+        chart.append("g")
+            .attr("class", "x axis")
+
+        // Zoom and drag events
+        zoom = d3.behavior.zoom()
+            .on("zoom", zoomed)
+        drag = d3.behavior.drag()
+            .on("dragstart", start_drag)
+            .on("dragend", stop_drag)
+
+        // setup axis titles from host after charts have been initialized
+        title = chart.append("text")
+            .attr("class", "title")
+            .attr("text-anchor", "middle")
+     
+        // track current time on timeline
+        currTime.push(new Date())                           
+        chart.selectAll("circle.currtime")
+            .data(currTime)
+            .enter()
+            .append("circle")
+            .attr("clip-path", "url(#clip)")
+            .attr("class", "currtime")
+            .attr("id", "currtime")
+            .attr("cx", function (d) { return x(d); })
+            .attr("cy", "19")
+            .attr("r", "5")
+            .attr("fill", "orange")
+            .attr("stroke-width", "1")
+            .attr("stroke-opacity", "0")
+            .attr("transform", "translate(" + margin.left + ",-8)")
+            .on("mousedown", selLive);
+
+        // Move the current time marker along axis
+        setInterval(function () {
+            currTime[0] = new Date()
+            chart.selectAll("circle.currtime")
+                    .data(currTime)
+                    .attr("clip-path", "url(#clip)")
+                    .attr("cx", function (d) { return x(d) })
+            }, 1000);
+
+        //// Widget specific functions
+        var timeline, channelName;
+        function widgetStart(mode) {            // widget specific startup
+            //chartTitle = _attribs[1].value;
+            historyHrs = parseFloat(_attribs[2].value)
+
+            return true;
+        }
+
+        function selLive() {
+            if (selSegment !== null && selSegment !== undefined) {
+                selSegment.setAttribute("fill", "red")
+                selSegment.setAttribute("height", "8")
+                selSegment.setAttribute("y", "16")
+            }
+            document.getElementById("currtime").setAttribute("fill", "orange")
+            dispVid(liveStreamPort, "")
+        }
+
+
+        // Zoom event
+        function zoomed() {
+            if (_designing == false) {
+                chart.select(".x.axis").call(xAxis);
+                chart.selectAll("rect.points")
+                    .attr("clip-path", "url(#clip)")
+                    .attr("x", function (d) { return x(d.date) })
+                chart.selectAll("circle.currtime")
+                    .attr("clip-path", "url(#clip)")
+                    .attr("cx", function (d) { return x(d) })
+            }
+        }
+
+        // Drag events
+        function start_drag() {
+            chart.style("cursor", "e-resize")
+        }
+        function stop_drag() {
+            chart.style("cursor", "default")
+        }
+
+        // Select MP4 or JPG to display
+        function dispType(type) {
+        }
+
+        // Called from framework for incoming channel events
+        function feed(channel, scope, data) {
+            switch (scope) {
+                case "recfiles":
+                    recFiles = JSON.parse(data);
+                    for (var file in recFiles) {
+                        if (recFiles[file].substr(-3, 3) === "mp4") {
+                            var itemDate = {
+                                date: new Date(recFiles[file].substr(0, 4), parseInt(recFiles[file].substr(4, 2)) - 1, recFiles[file].substr(6, 2), recFiles[file].substr(9, 2), recFiles[file].substr(11, 2), recFiles[file].substr(13, 2)),
+                                file: recFiles[file],
+                                type: "rec",
+                                index: motion.length
+                            }
+                            motion.push(itemDate)                       // save the recorded motion files to array
+                        }
+                    }
+                    chart.selectAll("rect")
+                        .data(motion)
+                        .enter().append("rect")
+                        .attr("clip-path", "url(#clip)")
+                        .attr("class", "points")
+                        .attr("x", function (d) { return x(d.date); })
+                        .attr("y", "16")
+                        .attr("height", "8")
+                        .attr("width", "4")
+                        .attr("fill", "red")
+                        .attr("stroke-width", "1")
+                        .attr("stroke-opacity", "0")
+                        .attr("transform", "translate(" + margin.left + ",0)")
+                        .on("mousedown", selTime);
+                    break;
+                default:
+            }
+        }
+
+        // Called from framework for initial channel status
+        function ini(channel, scope, data) {
+            switch (scope) {
+                case "":
+                    break;
+                default:
+            }
+        }
+    </script>
+</body>
+</html>

@@ -36,6 +36,8 @@
                     <li id="settingsButton" class="pointer" style="display: none"><a onclick="settingsFrame()" class="tip" data-original-title="Setup events, triggers and system settings" data-placement="bottom"><i class="icon-cog icon-large"></i> Settings</a></li>
                     <li class="divider-vertical"></li>
                     <li id="designButton" class="pointer" style="display:none"><a onclick="design()" class="tip" data-original-title="Manage home automation widgets" data-placement="bottom"><i class="icon-pencil icon-large"></i> Design</a></li>
+                    <li class="divider-vertical"></li>
+                    <li id="queryButton" class="pointer" style="display:none"><a onclick="queriesFrame()" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>
                     <li id="toolboxDropdown" class="dropdown pointer" style="display:none">
                         <a class="dropdown-toggle tip" data-toggle="dropdown" data-original-title="Select toolbox from dropdown" data-placement="right"><i class="icon-edit icon-large"></i> Toolbox <b class="caret"></b></a>
                         <ul class="dropdown-menu" role="menu">
@@ -193,6 +195,7 @@
                 document.getElementById("dashButton").className = "pointer";
                 document.getElementById("settingsButton").className = "active";
                 document.getElementById("designButton").className = "pointer";
+                document.getElementById("queryButton").className = "pointer";
                 document.getElementById("toolboxDropdown").style.setProperty("display", "none")
                 document.getElementById("selDevice").style.setProperty("display", "none")
                 document.getElementById("helpButton").className = "pointer";
@@ -200,6 +203,24 @@
                 status("Settings Mode");
             }
         }
+
+        function queriesFrame() {
+            if (clientName != "") {
+                iFrame.removeEventListener("load", designOff);
+                iFrame.removeEventListener("load", designOn);
+                iFrame.setAttribute("src", "queries.html" + debugURL);
+                document.getElementById("dashButton").className = "pointer";
+                document.getElementById("settingsButton").className = "pointer";
+                document.getElementById("designButton").className = "pointer";
+                document.getElementById("queryButton").className = "active";
+                document.getElementById("toolboxDropdown").style.setProperty("display", "none")
+                document.getElementById("selDevice").style.setProperty("display", "none")
+                document.getElementById("helpButton").className = "pointer";
+                document.getElementById("displayUser").style.setProperty("display", "inline")
+                status("Queries Mode");
+            }
+        }
+
 
         function dashboardFrame() {
             if (clientName != "") {
@@ -214,6 +235,7 @@
                 document.getElementById("dashButton").className = "active";
                 document.getElementById("settingsButton").className = "pointer";
                 document.getElementById("designButton").className = "pointer";
+                document.getElementById("queryButton").className = "pointer";
                 document.getElementById("toolboxDropdown").style.setProperty("display", "none")
                 document.getElementById("selDevice").style.setProperty("display", "none")
                 document.getElementById("helpButton").className = "pointer";
@@ -443,13 +465,13 @@
                                                             netName = connData.ServerName;
                                                             document.getElementById("headerTitle").innerHTML = "&nbsp;" + netName
                                                             netState = "localsession"
-                                                            iFrame.setAttribute("src", "dashboard.html" + debugURL)
+                                                            iFrame.setAttribute("src", "dashboard.html" + debugURL);
                                                             document.getElementById("displayUser").innerHTML = "<strong>" + clientName + "</strong>";
                                                             document.getElementById("dashButton").style.setProperty("display", "inline");
                                                             document.getElementById("settingsButton").style.setProperty("display", "inline");
                                                             document.getElementById("designButton").style.setProperty("display", "inline");
+                                                            document.getElementById("queryButton").style.setProperty("display", "inline");
                                                             document.getElementById("logonButton").style.setProperty("visibility", "visible");
-                                                            document.getElementById("designButton").style.setProperty("display", "inline");
                                                             status("Ready.")
                                                             send("SETTINGS", "GET:CATEGORIES()", "")
                                                             break;
@@ -458,9 +480,9 @@
                                                             netState = "usersession"
                                                             iFrame.setAttribute("src", "dashboard.html" + debugURL)
                                                             document.getElementById("displayUser").innerHTML = "Welcome <strong>" + user + "</strong>";
-                                                            document.getElementById("dashButton").style.setProperty("display", "inline");
-                                                            document.getElementById("settingsButton").style.setProperty("display", "inline");
-                                                            document.getElementById("designButton").style.setProperty("display", "inline");
+                                                            //document.getElementById("dashButton").style.setProperty("display", "inline");
+                                                            //document.getElementById("settingsButton").style.setProperty("display", "inline");
+                                                            //document.getElementById("designButton").style.setProperty("display", "inline");
                                                             status("Ready. Logged in as " + user)
                                                             break;
                                                         case "DISCONNECT":
@@ -470,7 +492,8 @@
                                                             document.getElementById("displayUser").innerHTML = "Please login first";
                                                             document.getElementById("dashButton").style.setProperty("display", "none");
                                                             document.getElementById("settingsButton").style.setProperty("display", "none");
-                                                            document.getElementById("settingsButton").style.setProperty("display", "none");
+                                                            document.getElementById("designButton").style.setProperty("display", "none");
+                                                            document.getElementById("queryButton").style.setProperty("display", "none");
                                                             break;
                                                         default:
                                                     }
