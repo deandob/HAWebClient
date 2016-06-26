@@ -6,6 +6,7 @@ var _designing = false, _started = false, _toolbox = false, _editing = false;
 var _cacheIni = [];
 
 //TODO: Use _ for function names in widgets to avoid duplicate function calls (or use events)
+//TODO: Consider using prototypes in the parent rather than using this script, then call directly from the widget
 
 // As widget loading and the loading this script is async, wait until the parent has inserted widget name so I know who I am before I can start
 setTimeout(_nameLoaded, 1)
@@ -13,8 +14,9 @@ setTimeout(_nameLoaded, 1)
 function _nameLoaded() {
     _widgetName = document.getElementById("widget").getAttribute("data-widgetName");               // Name of widget in parent DOM 'objWidgetX'
     
+    //var tt= document.getElementById("widget");               // Name of widget in parent DOM 'objWidgetX'
     if (_widgetName === null) {
-        setTimeout(_nameLoaded, 1)                                                                   // not ready, wait and try again
+        setTimeout(_nameLoaded, 0)                                                                   // not ready, wait and try again
     } else {
         _widgetNum = parseInt(_widgetName.replace("objWidget", "").replace("TB", ""))
         if (parent.design === true) {                                                               // In design mode?
@@ -193,6 +195,16 @@ function channelSend(channel, scope, data) {
     if (typeof parent.widgetRequest === "function") return parent.widgetRequest(_widgetName, "send", channel, scope, data);
 }
 
+//Using prototypes
+//function HAfw() {
+//    this.firstFunc = function () {
+//        alert('first function');
+//    };
+//    this.secondFunc = function () {
+//        alert('second function calls:');
+//        this.firstFunc();
+//    };
+//};
 
 //document.addEventListener("custom", function (me) {
 //    alert("here")

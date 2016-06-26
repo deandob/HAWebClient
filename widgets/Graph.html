@@ -233,8 +233,7 @@
 
         function clicked(event) {
             switch (event.which) {
-                case 3:
-                    alert('right pressed');
+                case 3:             // right pressed
                     break;
                 default:
             }
@@ -364,6 +363,7 @@
             return true;
         }
 
+        // setup for tooltip hover
         var mouseTimer;
         function mouseMove(ev) {
             if (!_designing && loaded) {

@@ -12,13 +12,6 @@
             src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
         }
 
-        @font-face {
-            font-family: 'Open Sans';
-            font-style: normal;
-            font-weight: 700;
-            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
-        }
-
         body {
             font-family: 'Open Sans', sans-serif;
             font-size: 14px;
@@ -34,7 +27,7 @@
 
         .title {
             font-weight: normal;
-            font-size: 16px;
+            font-size: 14px;
             opacity: 0.5;
         }
 
@@ -62,6 +55,7 @@
     <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
     <span id="attrib1" data-type="input" data-name="Chart Title" data-default="" />
     <span id="attrib2" data-type="input" data-name="Initial History (hrs)" data-default="24" />
+    <span id="attrib3" data-type="input" data-name="Match Value" data-default="all" />
     <span id="ontop" data-default="true" />
 
     <div id="group">
@@ -80,12 +74,6 @@
             historyHrs = 24;
         }
 
-        function startEdit() {              // called when editing started
-        }
-
-        function endEdit(param0) {                // called when editing finishes
-        }
-
         function startDesign() {            // called when switching to design mode
             zoom.x()            // disable zoom
         }
@@ -94,13 +82,25 @@
             zoom.x(x)           // enable zoom
         }
 
+        // Result set in JSON of any channel history request 
+        function history(channel, scope, data) {
+            processFeed(channel, data);
+        }
+
+        function feed(channel, scope, data) {
+            return processFeed(channel, data);              // current values
+        }
+
+        // Called from framework for initial channel status 
+        function ini(channel, scope, data) {
+            return;
+        }
+
         function scale(scaleX, scaleY) {    // manage scaling
             width = _iniWidth * scaleX
 
             clipPath
                 .attr("width", width)
-
-            var DAY_HISTORY = 1             // how many days back to use
 
             x
                 .domain([new Date(new Date().valueOf() - 1000 * 3600 * historyHrs), new Date])       // assumes seconds
@@ -112,7 +112,7 @@
                 .orient("bottom")
                 //.tickFormat(d3.time.format("%H:%M.%S"))  
                 //.ticks(d3.time.seconds, 10)              
-                .ticks(4 * scaleX)                  // adjust number of ticks based on size of graph
+                .ticks(3.5 * scaleX)                  // adjust number of ticks based on size of graph
 
             bground
                .attr("width", width)
@@ -131,21 +131,13 @@
                 .text(chartTitle);
         }
 
-        function clicked(event) {           // click in dashboard mode
-        }
-
-        // Setup and manage masks. Click and drag to create a new mask, click inside an existing mask to delete it
-        function designClicked(event) {                // User clicks widget in design mode to set frame
-        }
-
-        function mouseMove(event) {
-        }
-
         var margin = { top: 0, bottom: 2, left: 5, right: 15 };
-        var xAxis, yAxis, x, y, width, height, clipPath, bground, zoom, drag, historyHrs, title;
+        var dragging = false;
+        var timeline, xAxis, yAxis, x, y, width, height, clipPath, bground, zoom, drag, historyHrs, title;
         var chart = d3.select("#timeline");
         var chartTitle = "";
         var currTime = [];
+        var items = [];
 
         timeline = document.getElementById("timeline");
 
@@ -199,36 +191,28 @@
             .attr("stroke-width", "1")
             .attr("stroke-opacity", "0")
             .attr("transform", "translate(" + margin.left + ",-8)")
-            .on("mousedown", selLive);
 
-        // Move the current time marker along axis
+        // Move the current time marker along axis each second
         setInterval(function () {
-            currTime[0] = new Date()
-            chart.selectAll("circle.currtime")
-                    .data(currTime)
-                    .attr("clip-path", "url(#clip)")
-                    .attr("cx", function (d) { return x(d) })
-            }, 1000);
+            if (dragging == false) {
+                currTime[0] = new Date();
+                zoom.x(x.domain([new Date(x.domain()[0].valueOf() + 1000), new Date(x.domain()[1].valueOf() + 1000)]));       // shuffle the chart to the new end point
+                chart.selectAll("circle.currtime")
+                        .data(currTime)
+                        .attr("clip-path", "url(#clip)")
+                        .attr("cx", function (d) { return x(d) });
+                zoomed();
+            }
+        }, 1000);
 
         //// Widget specific functions
-        var timeline, channelName;
         function widgetStart(mode) {            // widget specific startup
-            //chartTitle = _attribs[1].value;
-            historyHrs = parseFloat(_attribs[2].value)
-
+            chartTitle = _attribs[1].value;
+            historyHrs = parseFloat(_attribs[2].value);
+            if (isNaN(historyHrs)) historyHrs = 24;
+            if (_attribs[0].value !== "") fwFunc("history", _attribs[0].value, Date.now() - 1000 * 3600 * historyHrs, Date.now());         // request data from server
             return true;
         }
-
-        function selLive() {
-            if (selSegment !== null && selSegment !== undefined) {
-                selSegment.setAttribute("fill", "red")
-                selSegment.setAttribute("height", "8")
-                selSegment.setAttribute("y", "16")
-            }
-            document.getElementById("currtime").setAttribute("fill", "orange")
-            dispVid(liveStreamPort, "")
-        }
-
 
         // Zoom event
         function zoomed() {
@@ -245,49 +229,39 @@
 
         // Drag events
         function start_drag() {
-            chart.style("cursor", "e-resize")
+            chart.style("cursor", "e-resize");
+            dragging = true;
         }
         function stop_drag() {
-            chart.style("cursor", "default")
-        }
-
-        // Select MP4 or JPG to display
-        function dispType(type) {
+            chart.style("cursor", "default");
+            dragging = false;
         }
 
         // Called from framework for incoming channel events
-        function feed(channel, scope, data) {
-            switch (scope) {
-                case "recfiles":
-                    recFiles = JSON.parse(data);
-                    for (var file in recFiles) {
-                        if (recFiles[file].substr(-3, 3) === "mp4") {
-                            var itemDate = {
-                                date: new Date(recFiles[file].substr(0, 4), parseInt(recFiles[file].substr(4, 2)) - 1, recFiles[file].substr(6, 2), recFiles[file].substr(9, 2), recFiles[file].substr(11, 2), recFiles[file].substr(13, 2)),
-                                file: recFiles[file],
-                                type: "rec",
-                                index: motion.length
-                            }
-                            motion.push(itemDate)                       // save the recorded motion files to array
-                        }
-                    }
-                    chart.selectAll("rect")
-                        .data(motion)
-                        .enter().append("rect")
-                        .attr("clip-path", "url(#clip)")
-                        .attr("class", "points")
-                        .attr("x", function (d) { return x(d.date); })
-                        .attr("y", "16")
-                        .attr("height", "8")
-                        .attr("width", "4")
-                        .attr("fill", "red")
-                        .attr("stroke-width", "1")
-                        .attr("stroke-opacity", "0")
-                        .attr("transform", "translate(" + margin.left + ",0)")
-                        .on("mousedown", selTime);
-                    break;
-                default:
+        function processFeed(channel, data) {
+            var newItems = JSON.parse(data);
+            var mysplit;
+            for (var rec in newItems) {
+                mySplit = newItems[rec].split(",");
+                if (_attribs[3].value !== "All" && _attribs[3].value !== "" && _attribs[3].value != mySplit[1]) continue;               // is the value a match?
+                items.push({ date: new Date((mySplit[0] - 621355968000000000) / 10000), value: mySplit[1] });
             }
+            chart.selectAll("rect.points")
+                .data(items)
+                .enter().append("rect")
+                .attr("clip-path", "url(#clip)")
+                .attr("class", "points")
+                .attr("x", function (d) { return x(d).date; })
+                .attr("y", "16")
+                .attr("height", "8")
+                .attr("width", "4")
+                .attr("fill", "red")
+                .attr("stroke-width", "1")
+                .attr("stroke-opacity", "0")
+                .attr("transform", "translate(" + margin.left + ",-10)")
+                .append("svg:title")
+                .text(function (d) { return d.date + ": " + d.value; });
+            zoomed();
         }
 
         // Called from framework for initial channel status

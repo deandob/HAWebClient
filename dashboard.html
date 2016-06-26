@@ -1020,8 +1020,10 @@
                         return parent.serverName;
                         break;
                     case "history":
-                        histReqs.push({ "widgetNum": widgetNum, "channel": param0, "range": param1 + "," + param2 })                     // Save history request so results can be sent back to widget
-                        parent.send("HISTORY", param0, param1 + "," + param2)                                       // Get history records for channel (param0) since time (param1) in javascript time
+                        (function (widgetNum, param0, param1, param2, param3) {
+                            histReqs.push({ "widgetNum": widgetNum, "channel": param0, "range": param1 + "," + param2 });                     // Save history request so results can be sent back to widget
+                            parent.send("HISTORY", param0, param1 + "," + param2)                                       // Get history records for channel (param0) since time (param1) in javascript time
+                        })(widgetNum, param0, param1, param2, param3);
                         break;
                     case "send":
                         if (param0.split("/").length !== 3) return false;                                           // channel must be in the form CATEGORY/classname/instance
