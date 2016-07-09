@@ -69,7 +69,6 @@
     <span id="attrib16" data-type="input" data-name="X Axis" data-default="Time" />
     <span id="attrib17" data-type="input" data-name="Y Axis" data-default="" />
     <span id="attrib18" data-type="input" data-name="Initial History (hrs)" data-default="24" />
-    <span id="attrib19" data-type="dropdown" data-name="Linear, StepAfter, Step, MonotoneX, Moving Average" data-default="Linear" />
     <span id="ontop" data-default="true" />
 
         <div id="callout" class="triangle" style="position: absolute; left: -200px; top:0px; z-index: 101; opacity: 1; transition: opacity 0.15s ease-in-out 0.15s"></div>
@@ -97,13 +96,11 @@
                 .x.axis line { /* grid lines */
                     stroke: #D0D0D0;
                     stroke-opacity: 0.5;
-                    shape-rendering: crispEdges;
                 }
 
                 .y.axis line { /* grid lines */
                     stroke: #D0D0D0;
                     stroke-opacity: 0.4;
-                    shape-rendering: crispEdges;
                 }
 
                 .x.axis text, .y.axis text {
@@ -112,8 +109,8 @@
 
                 .x.axis .label, .y.axis .label {
                     opacity: 1;
-                    stroke: #999;
-                    font-style: normal;
+                    stroke: #D0D0D0;
+                    font-style: italic;
                 }
 
                 .x.axis .minor, y.axis .minor {
@@ -123,7 +120,7 @@
 
                 .title {
                     font-weight: normal;
-                    font-size: 14px;
+                    font-size: 16px;
                     opacity: 0.5;
                 }
 
@@ -135,7 +132,6 @@
                     fill: none !important;
                     stroke-width: 2;
                     stroke-opacity: 1;
-                    shape-rendering: crispEdges;
                 }
 
                 .seriesarea {
@@ -184,7 +180,7 @@
     </div>
 
     <script src="../widgetFramework.js"></script>
-    <script src="../js/d3v4.min.js"></script>
+    <script src="../js/d3.min.js"></script>
     <script>
 
         //TODO: buttons for different timescales (1 hour, 1 day, 1 month)
@@ -193,14 +189,11 @@
         function toolboxStart() {           // called when loaded in toolbox
             _widgetID.height.baseVal.value = 100                // ensure when dragging height is 100
             tooltip.style.setProperty("opacity", "0");                    
-            dragRect = chart.append("rect")
-                .style("fill", "rgba(255,255,255,0.1)")
-                .attr("width", "200").attr("height","200")
             chart.append("path")                // random line to show in toolbox
                 .attr("d", "M0,40 L10,70 L20,60 L30,30 L40,35 L50,45 L60,80 L70,70 L80,85 L90,60 L100,65")
                 .attr("stroke", "red")
                 .attr("stroke-width", "2")
-                .attr("fill", "none");
+                .attr("fill", "none")
         }
 
         function endEdit() {                // called when editing finishes
@@ -208,7 +201,7 @@
         
         function startDesign() {            // called when switching to design mode
             tooltip.style.setProperty("opacity", "0");
-            /////////////////zoom.x()            // disable zoom
+            zoom.x()            // disable zoom
             for (var i = 0; i < 5; i++) {
                 chart.select("#seriesLine" + i).remove()
                 chart.select("#seriesArea" + i).remove()
@@ -216,7 +209,7 @@
         }
 
         function endDesign() {              // called when switching from design mode
-            ///////////////zoom.x(x)           // enable zoom
+            zoom.x(x)           // enable zoom
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
@@ -247,7 +240,7 @@
         }
 
         //// Widget specific functions
-        var zoomRect, gX, gYoldDomain, historyHrs, xAxis, yAxis, x, y, width, height, clipPath, title, yLabel, xLabel, bground, drag, tooltip, callout, ttTimeout, loaded = false;
+        var oldDomain, historyHrs, xAxis, yAxis, x, y, width, height, clipPath, title, yLabel, xLabel, bground, zoom, drag, tooltip, callout, ttTimeout, loaded = false;
         var dsToLoad = 0;
         var maxVal = 1;
         var minVal = 0;
@@ -257,7 +250,7 @@
         var xTitle = "";
         var yTitle = "";
         var chartTitle = "";
-        var margin = { top: 20, right: 2, bottom: 30, left: 50 }
+        var margin = { top: 25, right: 2, bottom: 45, left: 55 }
 
         var chart = d3.select("#widget");
 
@@ -266,29 +259,34 @@
 
         // chart background to grab for panning
         bground = chart.append("rect")
-            .attr("fill", "white")
-                .style("pointer-events", "all")
-                .call(d3.zoom()
-                    .on("zoom", zoomed)
-                    .on("end", checkLoadMore)
-                );
+            .attr("fill", "white");
 
         // setup Axis
-        x = d3.scaleTime();
-        y = d3.scaleLinear();
+        x = d3.time.scale();
+        y = d3.scale.linear();
 
-        xAxis = d3.axisBottom();
-        yAxis = d3.axisLeft();
+        xAxis = d3.svg.axis();
+        yAxis = d3.svg.axis();
 
-        gX = chart.append("g")
+        chart.append("g")
             .attr("class", "x axis");
-        gY = chart.append("g")
+        chart.append("g")
             .attr("class", "y axis");
 
         // ensure the chart that is outside the axis does not get drawn
         clipPath = chart.append("clipPath")
             .attr("id", "clip")
             .append("rect");
+
+        // Zoom and drag events
+        if (!_toolbox) {
+            zoom = d3.behavior.zoom()
+                .on("zoom", zoomed)
+                .on("zoomend", checkLoadMore);
+            drag = d3.behavior.drag()
+                .on("dragstart", start_drag)
+                .on("dragend", stop_drag);
+        }
 
         // setup axis titles from host after charts have been initialized
         title = chart.append("text")
@@ -298,12 +296,12 @@
         yLabel = chart.select(".y.axis")
             .append("text")
             .attr("class", "label")
-            .attr("text-anchor", "middle");
+            .attr("text-anchor", "middle")
 
         xLabel = chart.select(".x.axis")
             .append("text")
             .attr("class", "label")
-            .attr("text-anchor", "middle");
+            .attr("text-anchor", "middle")
 
         var legend; 
 
@@ -328,19 +326,6 @@
             _widgetID.style.setProperty("top", margin.top + "px");
             historyHrs = parseFloat(_attribs[18].value);
             if (isNaN(historyHrs)) historyHrs = 24;
-            var curve = d3.curveLinear;
-            _attribs.push({value: "StepAfter"});           ////////////////////// TEMPORARY
-            switch (_attribs[19].value) {
-                case "StepAfter":
-                    curve = d3.curveStepAfter;
-                    break;
-                case "Step":
-                    curve = d3.curveStep;
-                    break;
-                case "MonotoneX":
-                    curve = d3.curveMonotoneX;
-                    break;
-            }
 
             for (var i = 0; i < 5; i++) {
                 series[i].FQN = _attribs[i * 3].value;        // extract name from svg _attribs
@@ -349,15 +334,14 @@
                     fwFunc("history", series[i].FQN, Date.now() - 1000 * 3600 * historyHrs, Date.now());         // request data from server
                     series[i].name = series[i].FQN.split("/")[2];
                     series[i].color = _attribs[i * 3 + 2].value;
-                    series[i].d3Line = d3.line().curve(curve);
+                    series[i].d3Line = d3.svg.line();
                     series[i].lineElement = chart.append("path")
                         .attr("clip-path", "url(#clip)")
                         .attr("id", "seriesLine" + i)
                         .attr("class", "seriesline " + series[i].color)
-                        //.attr("vector-effect", "non-scaling-stroke")
                         .data([series[i].data]);
                     if (_attribs[i * 3 + 1].value == true) {  // if area fill
-                        series[i].d3Area = d3.area().curve(curve);
+                        series[i].d3Area = d3.svg.area();
                         series[i].areaElement = chart.append("path")
                             .attr("clip-path", "url(#clip)")
                             .attr("id", "seriesArea" + i)
@@ -375,21 +359,6 @@
                 .attr("y", 25)
                 .attr("height", 100)
                 .attr("width", 100);
-
-            // Zoom and drag events
-            drag = d3.drag()
-                .on("start", start_drag)
-                .on("end", stop_drag);
-
-//            zoomRect = chart.append("rect")
-//                .style("fill", "none")
-//                .style("pointer-events", "all")
-//                .call(d3.zoom()
-//                    .on("zoom", zoomed)
-//                    .on("end", checkLoadMore)
-//                );
-
-            ////////d3.zoom().translateExtent([10,10])
 
             return true;
         }
@@ -442,7 +411,7 @@
                 var xtop = ev.clientX;
                 var chartOffset = parseInt(chart.style("left")) + 75;
                 callout.style.setProperty("transform", "translate(" + (xtop + 195) + "px, " + (ytop + 15) + "px");
-                if (xtop < chartOffset) xtop = chartOffset;                     // Don't let the tooltip go outside the object boundaries
+                if (xtop < chartOffset) xtop = chartOffset;
                 if (xtop + parseInt(tooltip.clientWidth) > (chartOffset + parseInt(chart.style("width")))) xtop = chartOffset + parseInt(chart.style("width")) - 5 - parseInt(tooltip.clientWidth)
                 if (ytop < 20) ytop = 20;
                 tooltip.style.setProperty("transform", "translate(" + (xtop + 125) + "px," + (ytop - 17) + "px)");
@@ -483,7 +452,7 @@
             x
                 .domain([new Date(new Date().valueOf() - 1000 * 3600 * historyHrs), new Date])       // assumes seconds
                 .range([0, width])
-                .nice(d3.timeSecond);
+                .nice(d3.time.second);
 
             oldDomain = x.domain();
 
@@ -494,6 +463,7 @@
 
             xAxis
                 .scale(x)
+                .orient("bottom")
                 //.tickFormat(d3.time.format("%H:%M.%S"))  
                 //.ticks(d3.time.seconds, 10)              
                 .tickSize(-height)
@@ -501,6 +471,7 @@
 
             yAxis
                 .scale(y)
+                .orient("left")
                 .tickSize(-width);
 
             title
@@ -521,9 +492,8 @@
                 .attr("width", width)
                 .attr("height", height)
 
-            if (_toolbox == false) {    // NOT WORKING AS ALWAYS FALSE
-                /////////////////chart.call(zoom.x(x));      // enable x axis zoom
-                chart.call(x);
+            if (_toolbox == false) {
+                chart.call(zoom.x(x));      // enable x axis zoom
                 chart.call(drag);           // enable drag events
             }
 
@@ -531,7 +501,6 @@
             chart.selectAll(".y.axis").call(yAxis)
 
             adjustLegend();
-
         }
 
         function adjustLegend() {
@@ -568,13 +537,13 @@
                         maxVal = +feedVal * 1.2;
                         y.domain([minVal, maxVal])
                         yAxis.scale(y)
-                        //////////////////if (_designing == false) zoomed()
+                        if (_designing == false) zoomed()
                     }
                     if (+feedVal * 0.8 < minVal) {
                         minVal = +feedVal * 0.8;
                         y.domain([minVal, maxVal])
                         yAxis.scale(y)
-                        /////////////////if (_designing == false) zoomed()
+                        if (_designing == false) zoomed()
                     }
 
                     series[i].data.push({ "x": new Date(), "y": +feedVal });
@@ -582,7 +551,7 @@
 
                     if (_designing == false) {
                         render(0, i);
-                        //////////////////adjustZoom(series[i].data[series[i].data.length - 1].x);                 // slide graph to the show the new value
+                        adjustZoom(series[i].data[series[i].data.length - 1].x);                 // slide graph to the show the new value
                     }
 
                 }
@@ -626,42 +595,33 @@
             d3.transition().duration(300).tween("zoom", function () {
                 var ix = d3.interpolate(0, endX.valueOf() - oldEnd.valueOf());     // interpolate between 0 and the delta of old domain end and new
                 return function (t) {
-                    //zoom.x(x.domain([new Date(oldStart.valueOf() + ix(t)), new Date(oldEnd.valueOf() + ix(t))]));       // shuffle the chart to the new end point
+                    zoom.x(x.domain([new Date(oldStart.valueOf() + ix(t)), new Date(oldEnd.valueOf() + ix(t))]));       // shuffle the chart to the new end point
                     zoomed();
                 };
             });
         }
 
 
-        function zoomTransform() {
-
-        }
-
         // Zoom event
         function zoomed() {
             if (_designing == false) {
-                var tt = d3.event.transform.rescaleX(x)
-                x.domain([x.domain()[0], oldDomain[1]])
-                x.domain(d3.extent(data, function (d) { return d.date; }));
-                if (x.domain()[1].valueOf() < Date.now()) {                // dont allow panning into the future
-                    gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
+                chart.select(".y.axis").call(yAxis);
+                if (x.domain()[1].valueOf() > Date.now()) {                // dont allow panning into the future
                     if (oldDomain[1] - oldDomain[0] !== x.domain()[1] - x.domain()[0]) {
-                        //chart.translate(d3.event.transform.x, 0);
-                        //chart.select(".x.axis").call(xAxis.scale(d3.event.transform.rescaleX(x)));
+                        zoom.x(x.domain([x.domain()[0], oldDomain[1]]));                    // scaling, scale lower value only
+                    } else {
+                        zoom.x(x.domain([oldDomain[0], oldDomain[1]]));                     // panning, don't move
+                        return
                     }
                 }
-
+                chart.select(".x.axis").call(xAxis);
                 for (var i = 0; i < 5; i++) {
                     if (series[i].name != "") {
-                        //if (series[i].d3Area != null) chart.select("#seriesArea" + i).attr("transform", "translate(" + d3.event.transform.x + "," + 0 + ") scale(" + d3.event.transform.k + ",1)");
-                        //chart.select("#seriesLine" + i).attr("d", series[i].d3Line(series[i].data))
-                        //range = x.range().map(transform.invertX, transform),
-                        //domain = range.map(x.invert, x);
+                        if (series[i].d3Area != null) chart.select("#seriesArea" + i).attr("d", series[i].d3Area(series[i].data));
                         chart.select("#seriesLine" + i).attr("d", series[i].d3Line(series[i].data))
                     }
                 }
                 oldDomain = x.domain();
-
             }
         }
 
@@ -688,7 +648,7 @@
                 }
             }
 
-            series[i].d3Line.x(function (d) { return x(d.x); });
+            series[i].d3Line.x(function (d) { return x(d.x); })
             if (duration !== 0) {
                 series[i].d3Line.y(function (d) { return height; });
             } else {

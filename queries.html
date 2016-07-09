@@ -21,7 +21,7 @@
             <h4>&nbsp;&nbsp;&nbsp;Queries</h4>
             <br />
             <ul id="sidebarList" class="nav nav-tabs">
-                <li id="tabTime" class="active"><a class="pointer" data-target="#console" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Single</span></a></li>
+                <li id="tabSingle" class="active"><a class="pointer" data-target="#console" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Single</span></a></li>
                 <li id="tabGraph"><a class="pointer" data-target="#general" data-toggle="tab"><i class="icon-settings icon-large"></i> <span>Graph</span></a></li>
                 <li id="tabEvents"><a class="pointer" data-target="#events" data-toggle="tab"><i class="icon-diary icon-large"></i> <span>Events</span></a></li>
             </ul>
@@ -50,24 +50,25 @@
         </div>
         <div id="selectToolboxScroll" class="toolboxScroll" onclick="selTBItem(event)" style="top: 150px"></div>
     </div>
+    <div id="widgetContainer" style="z-index: 0; height: 100%; width: 100%" draggable="false"></div>
 
     <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
 
 <!-- #region Single --------------------------------------------------------------->
-        <div class="tab-pane fade" id="single">
+        <div class="tab-pane fade in active" id="single">
             <h4>Single Query</h4>
             <br />
             <div class="row">
                 <div class="col-md-10">
                     <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Triggers monitor the system based on current state, change of state and time parameters<br /><br /></p>
+                        <p><br />&nbsp;&nbsp;Query a single result (current or most recent)<br /><br /></p>
                     </div>
                 </div>
             </div><br />
             <div class="col-md-2">
                 <p>Name</p>
                 <div class="input-group">
-                    <input type="text" class="form-control" id="trigName" name="textInput" placeholder="New or Select Trigger">
+                    <input type="text" class="form-control" id="trigName" name="textInput" placeholder="New or Select Query">
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
                         <ul id="trigNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
@@ -79,15 +80,14 @@
                 <input type="text" class="form-control" id="trigDesc" name="textInput" placeholder="Enter Trigger description">
             </div>
             <div class="col-md-3">
-                <p>Last Fired</p>
-                <input type="text" class="form-control" id="trigLastFired" name="textInput" placeholder="Never" disabled>
-            </div>
+                <p>Execute Query</p>
+                <button type="button" id="singleButRun" onclick="singleButRun()" class="btn btn-primary tip pointer nofocus" data-original-title="Press to execute query">Run</button>&nbsp;&nbsp;&nbsp;            </div>
             <br /><br /><br /><br />
             <div class="row">
                 <div class="col-md-4">
                     <div class="panel-group">
                         <div class="panel panel-info">
-                            <div class="panel-heading"><span class="panel-title">Trigger on Channel Change</span><a id="trigChgPanelIcon" onclick="togglePanel('trigChgColl1','trigChgColl2','trigChgPanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
+                            <div class="panel-heading"><span class="panel-title">Query Channel</span><a id="trigChgPanelIcon" onclick="togglePanel('trigChgColl1','trigChgColl2','trigChgPanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
                             <div class="trigChgColl1 panel-collapse collapse in">
                                 <div class="panel-body">
                                     <div class="row">
@@ -927,7 +927,7 @@
         </div>
 <!-- #endregion -->
 
-    </div>
+        </div>
     <!--<script src="//maxcdn.bootstrapcdn.com/bootlint/0.2.0/bootlint.min.js"></script>-->
 
     <script src="js/jquery-2.1.1.min.js"></script>
@@ -969,50 +969,192 @@
         }
 //#endregion
 
-//#region ---------------------------------------- Console screen functions
-        function singleQueryEnter() {
+        var widgets = [];
+        var widget = function (type, ext, locX, locY, scaleX, scaleY) {
+            this.type = type;
+            this.ext = ext;
+            this.locX = locX;
+            this.locY = locY;
+            this.scaleX = 1;
+            this.scaleY = 1;
+            this.iniWidth = null;
+            this.iniHeight = null;
+            this.zOrder = 10;
+            this.attribs = [];
+            this.iniMsg = [];
+            this.loadCnt = 0;
+        };
+
+        // Generic property structure for widgets
+        var widgetAttrib = function (name, type, value) {
+            this.name = name;
+            this.type = type;
+            this.value = value;
         }
 
-        function updateLogs(data) {
-            var logArea = document.getElementById("logs");
-            if (logArea.innerHTML.length > 100000) logArea.innerHTML = "Screen Cleared...";
-            logArea.innerHTML = logArea.innerHTML + "&#13;&#10;" + data
-            logArea.scrollTop = logArea.scrollHeight
+        widgets.push(new widget("timeline", "html", 300, 200, 1, 1));
+        widgets.push(new widget("graph", "html", 300, 200, 1, 1));
+
+        // Load the widgets onto the canvas
+        function loadWidget(widgetNum) {
+            var objWidget = document.createElement("object");
+            objWidget.type = "text/html";
+            objWidget.data = "widgets/" + widgets[widgetNum].type + "." + widgets[widgetNum].ext + parent.debugURL     // location of widget
+            objWidget.className = "widget";
+            var widgetName = "objWidget" + widgetNum;
+            objWidget.id = widgetName;
+            objWidget.addEventListener("load", widgetLoaded, false);
+            objWidget.style.setProperty("display", "none");                    // wait until fully loaded before displaying
+            objWidget.style.left = "0px"
+            document.getElementById("widgetContainer").appendChild(objWidget);          // Add object to dashboard canvas
+            return widgetName;
         }
 
-        function logButDebug() {
-            var logArea = document.getElementById("logs");
-            var debugBut = document.getElementById("logButDebug");
-            if (debugBut.innerText == "Verbose On") {
-                logArea.innerHTML = "Receiving logs (verbose mode: ON)";
-                parent.send("CONSOLE", "", "START DEBUG");
-                debugBut.innerText = "Verbose Off";
-                debugBut.className = debugBut.className + " active";
-                logArea.innerHTML = logArea.innerHTML + "&#13;&#10;" + "Verbose mode: ON";
-            } else {
-                parent.send("CONSOLE", "", "STOP DEBUG");
-                debugBut.innerText = "Verbose On";
-                debugBut.className = debugBut.className.replace(" active","");
-                logArea.innerHTML = logArea.innerHTML + "&#13;&#10;" + "Verbose mode: OFF";
+        // finish widget setup once the widget is loaded
+        function widgetLoaded(e) {
+            var loadObj = e.currentTarget;
+            var loadName = loadObj.id;
+            var loadNum = parseInt(loadName.replace("objWidget", ""));
+            var loadDoc = loadObj.contentDocument;
+            var widgetID = loadDoc.getElementById("widget");
+            try {
+                if (widgets[loadNum].iniHeight === null) {        // setup initial settings when the widget is first created
+                    widgets[loadNum].iniHeight = parseInt(widgetID.getAttribute("height") || widgetID.style.getAttribute("height"))
+                    widgets[loadNum].iniWidth = parseInt(widgetID.getAttribute("width") || widgetID.style.getAttribute("width"))
+
+                    for (var i = 0; true; i++) {                                  // read the data attributes from the SPAN tags to populate attrib array
+                        var attribID = loadDoc.getElementById("attrib" + i)
+                        if (attribID === null) break;
+                        widgets[loadNum].attribs.push(new widgetAttrib(attribID.getAttribute("data-name"), attribID.getAttribute("data-type"), attribID.getAttribute("data-default")));
+                    }
+                    if (loadDoc.getElementById("ontop").getAttribute("data-default") === "true") widgets[loadNum].zOrder = 100
+                }
+
+                widgetID.setAttribute("data-widgetName", loadName);             // set a data attribute on the widget that points to the parent object as object that created the event isn't recorded in the event.currenttarget
+                widgetID.setAttribute("data-type", widgets[loadNum].type);      // widget type = classname for messages
+                loadObj.style.setProperty("position", "absolute");
+                loadObj.style.setProperty("overflow", "hidden");        // ??
+                loadObj.style.setProperty("left", widgets[loadNum].locX + "px");
+                loadObj.style.setProperty("top", widgets[loadNum].locY + "px");
+
+                loadObj.style.setProperty("z-index", widgets[loadNum].zOrder);
+                loadObj.width = widgets[loadNum].scaleX * parseInt(widgets[loadNum].iniWidth);
+                loadObj.height = widgets[loadNum].scaleY * parseInt(widgets[loadNum].iniHeight);
+                loadDoc.defaultView.addEventListener("contextmenu", function (event) { event.preventDefault(); return false; });    // stop generic right click menu
+
+            } catch (err) {
+                if (parent.debugURL !== "") throw err.stack;                        // let debugger catch the error if debugging
+                alert("Error loading widget #" + loadNum + " (" + widgets[loadNum].type + "). " + err);         // else show the user a nice error box
+                return 0
             }
         }
 
-        function logButMessages() {
-
+        // Main interface for requests coming from widgets for framework services
+        function widgetRequest(widgetName, func, param0, param1, param2, param3) {
+            if (widgetName != undefined) {                      // may receive msg from host before widget is initialised, ignore
+                var widgetNum = parseInt(widgetName.slice(9));
+                switch (func.toLowerCase()) {
+                    case "settooltip":
+                        if (param0 === "") {
+                            $("#" + widgetName).tooltip("destroy");
+                        } else {
+                            $("#" + widgetName).tooltip({ title: param0, delay: { show: 800 }, placement: "auto top", html: true });
+                        }
+                        break;
+                    case "display":                                       // display or hide widget
+                        if (param0 === true) {
+                            document.getElementById(widgetName).style.setAttribute("display", "inline");
+                        } else {
+                            document.getElementById(widgetName).style.setAttribute("display", "none");
+                        }
+                        return
+                        break;
+                    case "getattrib":                                       // XXXX BUG - SOMETIMES THE WRONG WIDGET NAME IS USED TO RETRIEVE A ATTRIB THAT DOESNT EXIST YET
+                        return widgets[widgetNum].attribs[param0].value;
+                        break;
+                    case "setattrib":
+                        widgets[widgetNum].attribs[param0].value = param1;
+                        break;
+                    case "newattrib":
+                        widgets[widgetNum].attribs.push(new widgetAttrib(param0, param1, param2));                  // Add a new attrib to the widget (eg. for a dynamic channel or state store)
+                        break;
+                    case "subscribe":
+                        parent.send("WIDGETS", "INISUB", param0)                                                        // resigter the channel on the host
+                        widgets[widgetNum].attribs.push(new widgetAttrib("", "channel", param0));                  // add channel attrib (blank name = hidden) so that channel messages from host will be sent to widget
+                        break;
+                    case "getchannels":                     // Get all the channels for a server plugin (param0 = category, param1 = class/plugin name
+                        return (typeof plugins[param0.toUpperCase() + "/" + param1.toUpperCase()] !== "undefined") ? plugins[param0.toUpperCase() + "/" + param1.toUpperCase()].Channels : ""
+                        break;
+                    case "selectchannels":
+                        toggleToolbox("channelToolbox", "open");
+                        break;
+                    case "save":
+                        saveScreen();               //TODO: Can be smarter rather than saving all the data
+                        break;
+                    case "updatestatus":
+                        parent.status(param0);
+                        break;
+                    case "servername":
+                        return parent.serverName;
+                        break;
+                    case "history":
+                        (function (widgetNum, param0, param1, param2, param3) {
+                            histReqs.push({ "widgetNum": widgetNum, "channel": param0, "range": param1 + "," + param2 });                     // Save history request so results can be sent back to widget
+                            parent.send("HISTORY", param0, param1 + "," + param2)                                       // Get history records for channel (param0) since time (param1) in javascript time
+                        })(widgetNum, param0, param1, param2, param3);
+                        break;
+                    case "send":
+                        if (param0.split("/").length !== 3) return false;                                           // channel must be in the form CATEGORY/classname/instance
+                        parent.channelSend(param0.toString(), param1.toString(), param2.toString());
+                        for (var widget in widgets) {                                                               // if other widgets on the screen subscribe to the same channel send message to them as message won't be echoed back
+                            if ((widgetNum.toString() !== widget) && (widgets[widget].screen === selScreenNum) && (widgets[widget].device === parent.device)) {
+                                for (var attrib in widgets[widget].attribs) {
+                                    if (widgets[widget].attribs[attrib].type === "channel" && widgets[widget].attribs[attrib].value === param0) widgetAction("objWidget" + widget, "feed", param0, param1, param2)
+                                }
+                            }
+                        }
+                        break;
+                    case "adjustsize":          // Adjust parent container for widgets that manage their own shape
+                        switch (param0.toLowerCase()) {
+                            case "width":
+                                document.getElementById(widgetName).style.setProperty("width", param1 + "px")
+                                break;
+                            case "height":
+                                document.getElementById(widgetName).style.setProperty("height", param1 + "px")
+                                break;
+                            case "topoffset":
+                                document.getElementById(widgetName).style.setProperty("top", (parseInt(document.getElementById(widgetName).style.getPropertyValue("top")) + parseInt(param1)) + "px")
+                                widgets[widgetNum].locY = parseInt(document.getElementById(widgetName).style.getAttribute("top"))
+                                break;
+                            case "leftoffset":
+                                document.getElementById(widgetName).style.setProperty("left", (parseInt(document.getElementById(widgetName).style.getPropertyValue("left")) + parseInt(param1)) + "px")
+                                widgets[widgetNum].locX = parseInt(document.getElementById(widgetName).style.getAttribute("left"))
+                                break;
+                            case "scalex":
+                                widgets[widgetNum].scaleX = param1;
+                                break;
+                            case "scaley":
+                                widgets[widgetNum].scaleY = param1;
+                                break;
+                            default:
+                        }
+                        break;
+                    default:
+                        return false;           // invalid function
+                }
+            }
+            return true;
         }
 
-        function logButStatestore() {
-            document.getElementById("logs").innerHTML = "State Store"
-            parent.send("CONSOLE", "", "STATESTORE");
+//#region ---------------------------------------- Single Query screen functions
+        function singleQueryEnter() {
+            loadWidget(0);
         }
 
-        function logButClear() {
-            document.getElementById("logs").innerHTML = "Screen Cleared"
+        function singleButRun() {
+            sendServer("GET", "VALUE", "XXX", "WEATHER/TRANSFORM/HIGHEST DAY MIN/VALUE")
         }
 
-        function consoleScreenExit() {
-            parent.send("CONSOLE", "", "STOP");
-        }
 //#endregion
 
 //#region ---------------------------------------- General settings screen functions
@@ -1877,8 +2019,8 @@
             parent.send("AUTOMATION", "GET:NAMES(" + tableName + ")", tableName)
         }
 
-        function sendServer(addDelUpd, func, name, data) {
-            parent.send("AUTOMATION", addDelUpd + ":" + func + "(" + name + ")", data)             //Build the command string to send to the server in format GET:<Function>(Pop<Function>CB) where Function is Actions, triggers etc., PopActionsCD is the callback routing
+        function sendServer(action, func, name, data) {
+            parent.send("SETTINGS", action + ":" + func + "(" + name + ")", data)             //Build the command string to send to the server in format GET:<Function>(Pop<Function>CB) where Function is Actions, triggers etc., PopActionsCD is the callback routing
         }
 
         // Process messages received from the host
