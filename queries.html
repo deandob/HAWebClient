@@ -1,12 +1,12 @@
 ﻿<!doctype html>
 <html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Home Automation Client</title>
     <meta name="description" content="">
     <meta id="version" content="0.75">
-    <meta name="viewport" content="width=device-width">
     <meta name="author" content="">
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -21,7 +21,7 @@
             <h4>&nbsp;&nbsp;&nbsp;Queries</h4>
             <br />
             <ul id="sidebarList" class="nav nav-tabs">
-                <li id="tabSingle" class="active"><a class="pointer" data-target="#console" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Single</span></a></li>
+                <li id="tabQuery" class="active"><a class="pointer" data-target="#query" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Query</span></a></li>
                 <li id="tabGraph"><a class="pointer" data-target="#general" data-toggle="tab"><i class="icon-settings icon-large"></i> <span>Graph</span></a></li>
                 <li id="tabEvents"><a class="pointer" data-target="#events" data-toggle="tab"><i class="icon-diary icon-large"></i> <span>Events</span></a></li>
             </ul>
@@ -54,8 +54,242 @@
 
     <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
 
+<!-- #region Transforms --------------------------------------------------------------->
+        <div class="tab-pane fade in active" id="transforms">
+            <h4>Queries</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Enter or select queries based on value and/or time<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="col-md-12">
+                        <p>Name</p>
+                        <div class="input-group">
+                            <input type="text" class="tip form-control" id="queryName" name="textInput" data-original-title="Query Name" data-placement="top" placeholder="New or Select query">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                                <ul id="queryNameList" class="dropdown-menu pull-right">
+                                    <li><a class="pointer"><i>No saved Queries</i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <p>Description</p>
+                    <input type="text" class="form-control" id="transformDesc" name="textInput" placeholder="Enter new Query description">
+                </div>
+                <div class="col-md-6">
+                    <p>&nbsp;</p>
+                    <button type="button" id="queryButRun" onclick="queryButRun()" class="btn btn-primary tip pointer nofocus" data-original-title="Press to execute query">Run Query</button>&nbsp;&nbsp;&nbsp;
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Question</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p>Type</p>
+                                    <div class="btn-group btn-group-justified">
+                                        <button type="button" id="queryTypeQuestionSel" name="dropEmpty" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            What&nbsp;&nbsp;&nbsp;<span class="caret" />
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a class="pointer" onclick="pressBut('queryTypeQuestionSel', 'What')">What</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryTypeQuestionSel', 'When')">When</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryTypeQuestionSel', 'Value')">Value</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <div class="col-md-10">
+                                    <p>Category</p>
+                                    <div class="btn-group btn-group-justified">
+                                        <button id="queryCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            &nbsp;&nbsp;<span class="caret" />
+                                        </button>
+                                        <ul id="queryCategoryList" class="dropdown-menu" role="menu"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <div class="col-md-10">
+                                        <p>Class</p>
+                                        <input type="text" class="form-control" id="queryClassInp" name="textInput" placeholder="All">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <div class="col-md-10">
+                                        <p>Channel (Instance)</p>
+                                        <input type="text" class="form-control" id="queryInstanceInp" name="textInput" placeholder="All">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Conditions</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <p>Value</p>
+                                    <div class="btn-group btn-group-justified">
+                                        <button type="button" id="trigChgCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            equals&nbsp;&nbsp;<span class="caret" />
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a class="pointer" onclick="pressBut('trigChgCond','equals')">equals</a></li>
+                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'greater')">greater</a></li>
+                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'less')">less</a></li>
+                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'not')">not</a></li>
+                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'contains')">contains</a></li>
+                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'change')">change</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <p>&nbsp;</p>
+                                    <input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <div class="col-md-4">
+                                    <p>Timeframe</p>
+                                    <fieldset id="transFuncFieldset">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="btn-group btn-group-justified">
+                                                    <button type="button" id="transFuncHistSel" name="history" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                        Current&nbsp;&nbsp;<span class="caret" />
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Current')">Current</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Average')">Average</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Count')">Count</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Sum')">Sum</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Max')">Max</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Min')">Min</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTimeOldest')">MaxTimeOldest</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTimeNewest')">MaxTimeNewest</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTimeOldest')">MinTimeOldest</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTimeNewest')">MinTimeNewest</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <fieldset id="transFuncRadioFieldset" disabled>
+                                                <div class="radio-inline">
+                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioElapsed" onclick="selSetRadio(this.id)" value="elapsed" checked>Elapsed</label>
+                                                </div>
+                                                <div class="radio-inline">
+                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioSince" onclick="selSetRadio(this.id)" value="since">Since</label>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                        <div class="row">
+                                            <br />
+                                            <fieldset id="transFuncElapsedFieldset" disabled>
+                                                <div class="col-md-7">
+                                                    <div class="input-group">
+                                                        <input id="transFuncTimeValue" name="oneInput" type="text" class="form-control" value="1">
+                                                        <div class="input-group-btn">
+                                                            <button id="transFuncTimeDrop" name="transFuncTimeInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Minutes <span class="caret" /></button>
+                                                            <ul class="dropdown-menu pull-right">
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Minutes')">Minutes</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Hours')">Hours</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Days')">Days</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Weeks')">Weeks</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Months')">Months</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Years')">Years</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                        <br />
+                                        <fieldset id="transFuncSinceFieldset" disabled>
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="input-group date" id="dtpToTime">
+                                                        <input id="transFuncFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br />
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="input-group date" id="dtpToDate">
+                                                        <input id="transFuncFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </fieldset>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Results</h4></div>
+                        <div class="panel-body">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Username</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th scope="row">1</th>
+                                        <td>Mark</td>
+                                        <td>Otto</td>
+                                        <td>@mdo</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">2</th>
+                                        <td>Jacob</td>
+                                        <td>Thornton</td>
+                                        <td>@fat</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">3</th>
+                                        <td colspan="2">Larry the Bird</td>
+                                        <td>@twitter</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+<!-- #endregion -->
+
 <!-- #region Single --------------------------------------------------------------->
-        <div class="tab-pane fade in active" id="single">
+        <div class="tab-pane fade" id="single">
             <h4>Single Query</h4>
             <br />
             <div class="row">
@@ -81,7 +315,8 @@
             </div>
             <div class="col-md-3">
                 <p>Execute Query</p>
-                <button type="button" id="singleButRun" onclick="singleButRun()" class="btn btn-primary tip pointer nofocus" data-original-title="Press to execute query">Run</button>&nbsp;&nbsp;&nbsp;            </div>
+                <button type="button" id="singleButRun" onclick="singleButRun()" class="btn btn-primary tip pointer nofocus" data-original-title="Press to execute query">Run</button>&nbsp;&nbsp;&nbsp;            
+            </div>
             <br /><br /><br /><br />
             <div class="row">
                 <div class="col-md-4">
@@ -663,271 +898,7 @@
         </div>
 <!-- #endregion -->
 
-<!-- #region Transforms --------------------------------------------------------------->
-        <div class="tab-pane fade" id="transforms">
-            <h4>Manage Transforms</h4>
-            <br />
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Create rich data sources by transforming existing channels with functions that operate on real-time and historical data<br /><br /></p>
-                    </div>
-                </div>
-            </div><br />
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="col-md-9">
-                        <p>Name</p>
-                        <div class="input-group">
-                            <input type="text" class="tip form-control" id="transformName" name="textInput" data-original-title="Transform Name" data-placement="top" placeholder="New or Select Transform">
-                            <div class="input-group-btn">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                                <ul id="transformNameList" class="dropdown-menu pull-right">
-                                    <li><a class="pointer"><i>No saved transforms</i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <p>Description</p>
-                    <input type="text" class="form-control" id="transformDesc" name="textInput" placeholder="Enter new Transform description">
-                </div>
-            </div>
-            <br />
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Output Channel</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="checkbox">
-                                        <label><input id="transFuncOutChkEnabled" name="chkInputInv" type="checkbox" checked="checked"> Enabled</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <p>Rounding</p>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="btn-group btn-group-justified">
-                                        <button id="transFuncOutRounding" name="dropRound" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                            2&nbsp;&nbsp;<span class="caret" />
-                                        </button>
-                                        <ul id="transFuncRoundingList" class="dropdown-menu" role="menu">
-                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '0')">0</a></li>
-                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '1')">1</a></li>
-                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '2')">2</a></li>
-                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '3')">3</a></li>
-                                            <li><a class="pointer" onclick="pressBut('transFuncOutRounding', '4')">4</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p>Category</p>
-                                    <div class="btn-group btn-group-justified">
-                                        <button id="transFuncOutCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                            &nbsp;&nbsp;<span class="caret" />
-                                        </button>
-                                        <ul id="transFuncOutCategoryList" class="dropdown-menu" role="menu"></ul>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <p>Channel</p>
-                                    <input id="transFuncOutInstance" name="textInput" type="text" class="form-control" placeholder="">
-                                </div>
-                            </div><br />
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p>Class</p>
-                                    <input type="text" class="form-control" id="transFuncOutClass" name="textInput" placeholder="">
-                                </div>
-                                <div class="col-md-6">
-                                    <p>Scope (optional)</p>
-                                    <input type="text" class="form-control" id="transFuncOutScope" name="valueInput" value="value">
-                                </div>
-                            </div><br />
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Transform Functions</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <select id="transFuncSel" multiple size="8" class="form-control" name="multiSel" onclick="popEditFunc(this.value)"></select>
-                                </div>
-                            </div>
-                            <br />
-                            <div class="col-md-4">
-                                <button id="transFuncAdd" type="button" onclick="transFuncItems('add')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
-                            </div>
-                            <div class="col-md-4">
-                                <button id="transFuncDel" type="button" onclick="transFuncItems('del')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
-                            </div>
-                            <div class="col-md-2">
-                                <button id="transFuncUp" type="button" onclick="transFuncItems('up')" onfocus="blur()" class="btn btn-default btn-block">&#9650;</button>
-                            </div>
-                            <div class="col-md-2">
-                                <button id="transFuncDown" type="button" onclick="transFuncItems('down')" onfocus="blur()" class="btn btn-default btn-block">&#9660;</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-10">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Edit Functions</h4></div>
-                        <div class="panel-body">
-                            <div class="row">
-                                <div class="col-md-3">
-                                    <p>Select Function</p>
-                                    <div class="col-md-9">
-                                        <div class="btn-group btn-group-justified">
-                                            <button type="button" id="transFuncFuncSel" name="startWith" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                Start&nbsp;&nbsp;&nbsp;<span class="caret" />
-                                            </button>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Start')">Start</a></li>
-                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Add')">Add</a></li>
-                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Subtract')">Subtract</a></li>
-                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Multiply')">Multiply</a></li>
-                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Divide')">Divide</a></li>
-                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Min')">Min</a></li>
-                                                <li><a class="pointer" onclick="pressBut('transFuncFuncSel', 'Max')">Max</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <br /><br /><br />
-                                    <p>Set Value or Channel</p>
-                                    <div class="radio-inline">
-                                        <label><input type="radio" name="transFuncRadio1" id="transFuncRadioValue" value="value" onclick="selTransformRadio(this.id)" checked>Value</label>
-                                    </div>
-                                    <fieldset id="valueFieldset" disabled>
-                                        <input id="transFuncValue" name="textInput" type="text" class="form-control" placeholder="">
-                                    </fieldset>
-                                </div>
-                                <div class="col-md-5">
-                                    <div class="radio-inline">
-                                        <label><input type="radio" name="transFuncRadio1" id="transFuncRadioChannel" value="channel" onclick="selTransformRadio(this.id)" checked>Channel</label>
-                                    </div>
-                                    <fieldset id="channelFieldset">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p>Category</p>
-                                                <div class="btn-group btn-group-justified">
-                                                    <button id="transFuncChCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                        &nbsp;&nbsp;<span class="caret" />
-                                                    </button>
-                                                    <ul id="transFuncChCategoryList" class="dropdown-menu" role="menu"></ul>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p>Channel</p>
-                                                <input type="text" class="form-control" id="transFuncChInstance" name="textInput" placeholder="">
-                                            </div>
-                                        </div>
-                                        <br />
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p>Class</p>
-                                                <input type="text" class="form-control" id="transFuncChClass" name="textInput" placeholder="">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p>Scope (optional)</p>
-                                                <input type="text" class="form-control" id="transFuncChScope" name="valueInput" placeholder="" value="value">
-                                            </div>
-                                        </div>
-                                    </fieldset>
-                                </div>
-                                <div class="col-md-4">
-                                    <fieldset id="transFuncFieldset">
-                                        <div class="row">
-                                            <div class="col-md-5">
-                                                <div class="btn-group btn-group-justified">
-                                                    <button type="button" id="transFuncHistSel" name="history" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                        Current&nbsp;&nbsp;<span class="caret" />
-                                                    </button>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Current')">Current</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Average')">Average</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Count')">Count</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Sum')">Sum</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Max')">Max</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Min')">Min</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTimeOldest')">MaxTimeOldest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTimeNewest')">MaxTimeNewest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTimeOldest')">MinTimeOldest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTimeNewest')">MinTimeNewest</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <fieldset id="transFuncRadioFieldset" disabled>
-                                                <div class="radio-inline">
-                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioElapsed" onclick="selSetRadio(this.id)" value="elapsed" checked>Elapsed</label>
-                                                </div>
-                                                <div class="radio-inline">
-                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioSince" onclick="selSetRadio(this.id)" value="since">Since</label>
-                                                </div>
-                                            </fieldset>
-                                        </div>
-                                        <div class="row">
-                                            <br />
-                                            <fieldset id="transFuncElapsedFieldset" disabled>
-                                                <div class="col-md-7">
-                                                    <div class="input-group">
-                                                        <input id="transFuncTimeValue" name="oneInput" type="text" class="form-control" value="1">
-                                                        <div class="input-group-btn">
-                                                            <button id="transFuncTimeDrop" name="transFuncTimeInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Minutes <span class="caret" /></button>
-                                                            <ul class="dropdown-menu pull-right">
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Minutes')">Minutes</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Hours')">Hours</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Days')">Days</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Weeks')">Weeks</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Months')">Months</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Years')">Years</a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </fieldset>
-                                        </div>
-                                        <br />
-                                        <fieldset id="transFuncSinceFieldset" disabled>
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <div class="input-group date" id="dtpToTime">
-                                                        <input id="transFuncFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
-                                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <br />
-                                            <div class="row">
-                                                <div class="col-md-12">
-                                                    <div class="input-group date" id="dtpToDate">
-                                                        <input id="transFuncFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
-                                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </fieldset>
-                                    </fieldset>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-<!-- #endregion -->
-
-        </div>
+    </div>
     <!--<script src="//maxcdn.bootstrapcdn.com/bootlint/0.2.0/bootlint.min.js"></script>-->
 
     <script src="js/jquery-2.1.1.min.js"></script>
@@ -942,7 +913,7 @@
 
         var pcTicks = 10000;
         var unixEpoc = 621355968000000000; // epoch start in .NET time
-        var nullDate = 0;      // 1-1-0001 in .NET
+        var nullDate = 0;      // 1-1-0001 in .NET 
         var condStr = ["equals", "greater", "less", "not", "contains", "change"];
         var toolboxCB;          // global for callback routine from toolbox load calls
 
@@ -953,8 +924,7 @@
                 addButtonEntry("trigStateCategoryList", parent.categories[category].Cat, "trigStateCategory")
                 addButtonEntry("trigChgCategoryList", parent.categories[category].Cat, "trigChgCategory")
                 addButtonEntry("actionCategoryList", parent.categories[category].Cat, "actionCategory")
-                addButtonEntry("transFuncChCategoryList", parent.categories[category].Cat, "transFuncChCategory")
-                addButtonEntry("transFuncOutCategoryList", parent.categories[category].Cat, "transFuncOutCategory")
+                addButtonEntry("queryCategoryList", parent.categories[category].Cat, "queryCategory")
             }
 
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {                 // Tab Navigation call relevant entry and exit functions
@@ -965,7 +935,7 @@
                 if (typeof window[nameToTab + "ScreenEnter"] == "function") window[nameToTab + "ScreenEnter"]();
             })
 
-            singleQueryEnter();                                                       // Starting tab
+            QueryEnter();                                                       // Starting tab
         }
 //#endregion
 
@@ -1147,12 +1117,24 @@
         }
 
 //#region ---------------------------------------- Single Query screen functions
-        function singleQueryEnter() {
-            loadWidget(0);
+        function QueryEnter() {
+            //loadWidget(0);
         }
 
-        function singleButRun() {
-            sendServer("GET", "VALUE", "XXX", "WEATHER/TRANSFORM/HIGHEST DAY MIN/VALUE")
+        function queryButRun() {
+            var queryFunc = "";
+            switch (document.getElementById("queryTypeQuestionSel").innerText.trim()) {
+                case "What":
+                    queryFunc = "INSTANCE";
+                    break;
+                case "When":
+                    queryFunc = "TIME";
+                    break;
+                case "Value":
+                    queryFunc = "VALUE";
+                    break;
+            }
+            sendServer("GET", "VALUE", "QueryRet", document.getElementById("queryCategory").innerText.trim() + "/" + document.getElementById("queryInstanceInp").innerText.trim() + "/" + document.getElementById("queryInstanceInp").innerText.trim())
         }
 
 //#endregion

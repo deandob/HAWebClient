@@ -32,31 +32,37 @@
             background-color: #c09853;
             color: #c09853;
         }
+
         .white {
             border-color: #ffffff !important;
             background-color: #ffffff;
             color: #ffffff;
         }
+
         .grey {
             border-color: #acacac !important;
             background-color: #acacac;
             color: #acacac;
         }
+
         .black {
             border-color: #4c4c4c !important;
             background-color: #4c4c4c;
             color: #4c4c4c;
         }
+
         .blue {
             border-color: #3a87ad !important;
             background-color: #3a87ad;
             color: #3a87ad;
         }
+
         .red {
             border-color: #b94a48 !important;
             background-color: #b94a48;
             color: #b94a48;
         }
+
         .green {
             border-color: #468847 !important;
             background-color: #468847;
@@ -65,54 +71,44 @@
     </style>
 
     <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
-    <span id="TBtooltip" data-default="<TOOLTIP TEXT GOES HERE>" />
+    <span id="TBtooltip" data-default="Intercom" />
 
-    <div id="group" style="height: 40px; width: 210px; overflow: hidden;">
-<!--        <div id="widget" contenteditable="false" draggable="false"><i><b>Lorem Ipsum</b></i></div> -->
-        <svg id="widget" width="100" height="80" style="position: absolute; left: 0px; top: 0px; z-index:4">
-            <style type="text/css">
-                text {
-                    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-                    font-weight: normal;
-                    font-style: normal;
-                    font-size: 20px;
-                    text-align: center;
-                    pointer-events: none;
-                }
-            </style>
-
-            <g id="svgGroup" style="position: absolute; left: 0px; top: 0px;">
-                <g id="noScale">
-                </g>
-                <g id="scale">
-                    <path id="seg1" fill="none" stroke="rgb(0, 134, 0)" d="M13.46,66.27 A40,40,0,0,1,10.1,52.79" stroke-width="20" />
-                    <path id="seg2" fill="none" stroke="rgb(50, 134, 0)" d="M10.01,50.7 A40,40,0,0,1,12.18,36.98" stroke-width="20" />
-                    <path id="seg3" fill="none" stroke="rgb(100, 134, 0)" d="M12.91,35.02 A40,40,0,0,1,20.27,23.23" stroke-width="20" />
-                    <path id="seg4" fill="none" stroke="rgb(150, 134, 0)" d="M21.72,21.72 A40,40,0,0,1,33.1,13.75" stroke-width="20" />
-                    <path id="seg5" fill="none" stroke="rgb(200, 134, 0)" d="M35.02,12.91 A40,40,0,0,1,48.6,10.02" stroke-width="20" />
-                    <path id="seg6" fill="none" stroke="rgb(255, 134, 0)" d="M50.7,10.01 A40,40,0,0,1,64.33,12.66" stroke-width="20" />
-                    <path id="seg7" fill="none" stroke="rgb(255, 100, 0)" d="M66.27,13.46 A40,40,0,0,1,77.79,21.23" stroke-width="20" />
-                    <path id="seg8" fill="none" stroke="rgb(255, 70, 0)" d="M79.25,22.72 A40,40,0,0,1,86.82,34.37" stroke-width="20" />
-                    <path id="seg9" fill="none" stroke="rgb(255, 35, 0)" d="M87.59,36.32 A40,40,0,0,1,90,50" stroke-width="20" />
-                    <path id="seg10" fill="none" stroke="rgb(255, 0, 0)" d="M89.95,52.09 A40,40,0,0,1,86.82,65.63" stroke-width="20" />
-                    <polyline id="avg" points="44,0 56,0 50,8 44,0" fill="rgb(20, 20, 230)" stroke-width="0" style="display: none" transform="rotate(-112, 50, 50)"><title id="avgtool">Average: 0</title></polyline>
-                    <path id="TBNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
-                    <text id="TBNumVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
-                </g>
-            </g>
-        </svg>
-        <svg id="text" style="position: absolute; left: 0px; top: 0px; z-index: 3">
-            <text id="numVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
-        </svg>
+    <div id="group" style="height: 640px; width: 480px; overflow: hidden;">
+        <div id="widget" contenteditable="false" draggable="false">
+            <video id="video1" width="640" height="480" autoplay muted></video>
+            <video id="video2" width="160" height="120" autoplay></video><br>
+            <div id="div"></div>
+        </div>
     </div>
 
     <script src="../widgetFramework.js" type="text/javascript"></script>
+    <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script>
 
         // Widget specific variables
         var myVariable;
 
         function widgetStart(mode) {                            // widget specific startup. Return true if successful, or return false to abort loading
+ /*           var pc1 = new RTCPeerConnection(), pc2 = new RTCPeerConnection();
+
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+              .then(stream => pc1.addStream(video1.srcObject = stream))
+              .catch(log);
+
+            var add = (pc, can) => can && pc.addIceCandidate(can).catch(log);
+            pc1.onicecandidate = e => add(pc2, e.candidate);
+            pc2.onicecandidate = e => add(pc1, e.candidate);
+
+            pc2.onaddstream = e => video2.srcObject = e.stream;
+            pc1.oniceconnectionstatechange = e => log(pc1.iceConnectionState);
+            pc1.onnegotiationneeded = e =>
+                pc1.createOffer().then(d => pc1.setLocalDescription(d))
+                .then(() => pc2.setRemoteDescription(pc1.localDescription))
+                .then(() => pc2.createAnswer()).then(d => pc2.setLocalDescription(d))
+                .then(() => pc1.setRemoteDescription(pc2.localDescription))
+                .catch(log);
+
+            var log = msg => div.innerHTML += "<br>" + msg; */
             return true;
         }
 
@@ -151,6 +147,6 @@
                     break;
             }
         }
-</script>
+    </script>
 </body>
 </html>

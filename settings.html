@@ -1,12 +1,12 @@
 ﻿<!doctype html>
 <html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Home Automation Client</title>
     <meta name="description" content="">
     <meta id="version" content="0.75">
-    <meta name="viewport" content="width=device-width">
     <meta name="author" content="">
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -721,22 +721,6 @@
                                 <div class="row">
                                     <div class="col-md-5">
                                         <p>Value</p>
-                                        <div class="btn-group btn-group-justified">
-                                            <button type="button" id="actionCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                equals&nbsp;&nbsp;<span class="caret" />
-                                            </button>
-                                            <ul class="dropdown-menu" role="menu">
-                                                <li><a class="pointer" onclick="pressBut('actionCond', 'equals')">equals</a></li>
-                                                <li><a class="pointer" onclick="pressBut('actionCond', 'greater')">greater</a></li>
-                                                <li><a class="pointer" onclick="pressBut('actionCond', 'less')">less</a></li>
-                                                <li><a class="pointer" onclick="pressBut('actionCond', 'not')">not</a></li>
-                                                <li><a class="pointer" onclick="pressBut('actionCond', 'contains')">contains</a></li>
-                                                <li><a class="pointer" onclick="pressBut('actionCond', 'change')">change</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-7">
-                                        <p>&nbsp;</p>
                                         <input type="text" class="form-control" id="actionData" name="textInput" placeholder="">
                                     </div>
                                 </div>
@@ -1304,7 +1288,9 @@
     <script src="js/active-line.js"></script>
 
     <script>
-//#region ---------------------------------------- Initialise screen functions
+        //#region ---------------------------------------- Initialise screen functions
+        //TODO: Time of Day in triggers reverts to a different time when manually typing in the time without timepicker
+
         // datetime picker https://github.com/Eonasdan/bootstrap-datetimepicker
         //One off time & date = EventFrom date + time + one off
         //One off anything = event
@@ -2382,7 +2368,7 @@
                                 $('#actionInstance').val(myAction[0].ActionInstance);
                                 $('#actionScope').val(myAction[0].ActionScope);
                                 $('#actionData').val(myAction[0].ActionData);
-                                $('#actionChkRnd').prop('checked', myAction[0].ActionChkRnd);
+                                $('#actionChkRnd').prop('checked', myAction[0].ActionRandom);
                                 $('#actionDelay').val(myAction[0].ActionDelay);
                                 break;
                             case "GET:TRIGGERS":
