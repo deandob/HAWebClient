@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" href="css/codemirror.css">
     <link rel="stylesheet" href="css/icons.css">
+    <link rel="stylesheet" href="css/bootstrap-table.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body id="mainbody" draggable="false" style="overflow-x: hidden">
@@ -115,7 +116,7 @@
                                 <div class="col-md-10">
                                     <p>Category</p>
                                     <div class="btn-group btn-group-justified">
-                                        <button id="queryCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <button id="queryCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">ALL
                                             &nbsp;&nbsp;<span class="caret" />
                                         </button>
                                         <ul id="queryCategoryList" class="dropdown-menu" role="menu"></ul>
@@ -139,12 +140,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-8">
+                <div class="col-md-4">
                     <div class="panel panel-info">
                         <div class="panel-heading"><h4 class="panel-title">Conditions</h4></div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-md-2">
+                                <div class="col-md-4">
                                     <p>Value</p>
                                     <div class="btn-group btn-group-justified">
                                         <button type="button" id="trigChgCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -160,14 +161,14 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
+                                <div class="col-md-8">
                                     <p>&nbsp;</p>
                                     <input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All">
                                 </div>
                             </div>
                             <div class="row">
                                 <br />
-                                <div class="col-md-4">
+                                <div class="col-md-12">
                                     <p>Timeframe</p>
                                     <fieldset id="transFuncFieldset">
                                         <div class="row">
@@ -178,15 +179,12 @@
                                                     </button>
                                                     <ul class="dropdown-menu" role="menu">
                                                         <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Current')">Current</a></li>
+                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'History')">History</a></li>
                                                         <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Average')">Average</a></li>
                                                         <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Count')">Count</a></li>
                                                         <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Sum')">Sum</a></li>
                                                         <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Max')">Max</a></li>
                                                         <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Min')">Min</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTimeOldest')">MaxTimeOldest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTimeNewest')">MaxTimeNewest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTimeOldest')">MinTimeOldest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTimeNewest')">MinTimeNewest</a></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -197,12 +195,15 @@
                                                 <div class="radio-inline">
                                                     <label><input type="radio" name="transFuncRadio2" id="transFuncRadioSince" onclick="selSetRadio(this.id)" value="since">Since</label>
                                                 </div>
+                                                <div class="radio-inline">
+                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioBetween" onclick="selSetRadio(this.id)" value="between" checked>Between</label>
+                                                </div>
                                             </fieldset>
                                         </div>
                                         <div class="row">
                                             <br />
                                             <fieldset id="transFuncElapsedFieldset" disabled>
-                                                <div class="col-md-7">
+                                                <div class="col-md-6">
                                                     <div class="input-group">
                                                         <input id="transFuncTimeValue" name="oneInput" type="text" class="form-control" value="1">
                                                         <div class="input-group-btn">
@@ -223,18 +224,32 @@
                                         <br />
                                         <fieldset id="transFuncSinceFieldset" disabled>
                                             <div class="row">
-                                                <div class="col-md-12">
-                                                    <div class="input-group date" id="dtpToTime">
+                                                <div class="col-md-6">
+                                                    <p>From</p>
+                                                    <div class="input-group date" id="dtpFromTime">
                                                         <input id="transFuncFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p>To</p>
+                                                    <div class="input-group date" id="dtpToTime">
+                                                        <input id="transFuncToTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
                                                         <span class="input-group-addon pointer"><span class="icon-time"></span></span>
                                                     </div>
                                                 </div>
                                             </div>
                                             <br />
                                             <div class="row">
-                                                <div class="col-md-12">
-                                                    <div class="input-group date" id="dtpToDate">
+                                                <div class="col-md-6">
+                                                    <div class="input-group date" id="dtpFromDate">
                                                         <input id="transFuncFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="input-group date" id="dtpToDate">
+                                                        <input id="transFuncToDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
                                                         <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
                                                     </div>
                                                 </div>
@@ -252,34 +267,40 @@
                     <div class="panel panel-info">
                         <div class="panel-heading"><h4 class="panel-title">Results</h4></div>
                         <div class="panel-body">
-                            <table class="table table-hover">
+                            <table id="queryTable"
+                                   data-query-params="queryParams"
+                                   data-classes="table table-condensed table-striped"
+                                   data-pagination="true"
+                                   data-filter-control="true"
+                                   data-height="500">
                                 <thead>
                                     <tr>
-                                        <th>#</th>
-                                        <th>First Name</th>
-                                        <th>Last Name</th>
-                                        <th>Username</th>
+                                        <th data-field="Time" data-filter-control="select" data-sortable="true" data-width="140">
+                                            <div class="col-md-3">Time</div>
+                                            <div class="col-md-9"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        </th>
+                                        <th data-field="Category" data-filter-control="select" data-sortable="true" data-width="40">
+                                            <div class="col-md-4">Category</div>
+                                            <div class="col-md-8"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        </th>
+                                        <th data-field="Class" data-filter-control="select" data-sortable="true" data-width="50">
+                                            <div class="col-md-3">Class</div>
+                                            <div class="col-md-9"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        </th>
+                                        <th data-field="Instance" data-filter-control="select" data-sortable="true" data-width="50">
+                                            <div class="col-md-4">Channel</div>
+                                            <div class="col-md-8"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        </th>
+                                        <th data-field="Scope" data-filter-control="select" data-sortable="true" data-width="50">
+                                            <div class="col-md-3">Type</div>
+                                            <div class="col-md-9"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        </th>
+                                        <th data-field="Data" data-filter-control="select" data-sortable="true" data-width="180">
+                                            <div class="col-md-2">Value</div>
+                                            <div class="col-md-9"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        </th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">1</th>
-                                        <td>Mark</td>
-                                        <td>Otto</td>
-                                        <td>@mdo</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">2</th>
-                                        <td>Jacob</td>
-                                        <td>Thornton</td>
-                                        <td>@fat</td>
-                                    </tr>
-                                    <tr>
-                                        <th scope="row">3</th>
-                                        <td colspan="2">Larry the Bird</td>
-                                        <td>@twitter</td>
-                                    </tr>
-                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -736,7 +757,7 @@
                             </div>
                             <br />
                             <div class="col-md-6">
-                                <button id="eventActionAdd" type="button" onclick="popToolbox('ACTIONS', 'eventActionSel', 'eventLB')" onfocus="    blur()" class="btn btn-default btn-block">Add</button>
+                                <button id="eventActionAdd" type="button" onclick="popToolbox('ACTIONS', 'eventActionSel', 'eventLB')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
                             </div>
                             <div class="col-md-6">
                                 <button id="eventActionDel" type="button" onclick="delEventItem('eventActionSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
@@ -904,7 +925,7 @@
     <script src="js/jquery-2.1.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-datetimepicker.min.js"></script>
-
+    <script src="js/bootstrap-table.min.js"></script>
     <script>
 //#region ---------------------------------------- Initialise screen functions
         // datetime picker https://github.com/Eonasdan/bootstrap-datetimepicker
@@ -916,6 +937,39 @@
         var nullDate = 0;      // 1-1-0001 in .NET 
         var condStr = ["equals", "greater", "less", "not", "contains", "change"];
         var toolboxCB;          // global for callback routine from toolbox load calls
+
+        var queryData = [
+    {
+        "name": "bootstrap-table",
+        "stargazers_count": "526",
+        "forks_count": "122",
+        "description": "An extended Bootstrap table with radio, checkbox, sort, pagination, and other added features. (supports twitter bootstrap v2 and v3) "
+    },
+    {
+        "name": "multiple-select",
+        "stargazers_count": "288",
+        "forks_count": "150",
+        "description": "A jQuery plugin to select multiple elements with checkboxes :)"
+    },
+    {
+        "name": "bootstrap-show-password",
+        "stargazers_count": "32",
+        "forks_count": "11",
+        "description": "Show/hide password plugin for twitter bootstrap."
+    },
+    {
+        "name": "blog",
+        "stargazers_count": "13",
+        "forks_count": "4",
+        "description": "my blog"
+    },
+    {
+        "name": "scutech-redmine",
+        "stargazers_count": "6",
+        "forks_count": "3",
+        "description": "Redmine notification tools for chrome extension."
+    }
+        ];
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {
@@ -1134,7 +1188,10 @@
                     queryFunc = "VALUE";
                     break;
             }
-            sendServer("GET", "VALUE", "QueryRet", document.getElementById("queryCategory").innerText.trim() + "/" + document.getElementById("queryInstanceInp").innerText.trim() + "/" + document.getElementById("queryInstanceInp").innerText.trim())
+            //////sendServer("GET", "VALUE", "QueryRet", document.getElementById("queryCategory").innerText.trim() + "/" + document.getElementById("queryInstanceInp").innerText.trim() + "/" + document.getElementById("queryInstanceInp").innerText.trim())
+            $('#queryTable').bootstrapTable({
+                data: queryData
+            });
         }
 
 //#endregion
@@ -1172,12 +1229,14 @@
         function setValid(butID, butVal) {
             pressBut(butID, butVal)
             if (butVal !== "Current") {
-                $("#transFuncRadioFieldset").removeAttr("disabled")
+                $("#transFuncRadioFieldset").removeAttr("disabled");
                 if ($("#transFuncRadioElapsed").prop("checked") === true) selSetRadio("transFuncRadioElapsed")
                 if ($("#transFuncRadioSince").prop("checked") === true) selSetRadio("transFuncRadioSince")
+                if ($("#transFuncRadioBetween").prop("checked") === true) selSetRadio("transFuncRadioBetween")
             } else {
                 $("#transFuncElapsedFieldset").attr("disabled", "true")
                 $("#transFuncSinceFieldset").attr("disabled", "true")
+                $("#transFuncBetweenFieldset").attr("disabled", "true")
                 $("#transFuncRadioFieldset").attr("disabled", "true")
             }
         }
@@ -2003,6 +2062,10 @@
 
         function sendServer(action, func, name, data) {
             parent.send("SETTINGS", action + ":" + func + "(" + name + ")", data)             //Build the command string to send to the server in format GET:<Function>(Pop<Function>CB) where Function is Actions, triggers etc., PopActionsCD is the callback routing
+        }
+
+        function queryServer(queryFunc) {
+            parent.send("QUERY", queryFunc)
         }
 
         // Process messages received from the host

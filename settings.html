@@ -273,7 +273,7 @@
                             </div>
                             <br />
                             <div class="col-md-6">
-                                <button id="eventActionAdd" type="button" onclick="popToolbox('ACTIONS', 'eventActionSel', 'eventLB')" onfocus="    blur()" class="btn btn-default btn-block">Add</button>
+                                <button id="eventActionAdd" type="button" onclick="popToolbox('ACTIONS', 'eventActionSel', 'eventLB')" onfocus="blur()" class="btn btn-default btn-block">Add</button>
                             </div>
                             <div class="col-md-6">
                                 <button id="eventActionDel" type="button" onclick="delEventItem('eventActionSel')" onfocus="blur()" class="btn btn-default btn-block">Delete</button>
@@ -1290,6 +1290,7 @@
     <script>
         //#region ---------------------------------------- Initialise screen functions
         //TODO: Time of Day in triggers reverts to a different time when manually typing in the time without timepicker
+        //TODO: WHen selecting a channel in a trigger/action and using the filter, when pressing the filter button the screen aborts
 
         // datetime picker https://github.com/Eonasdan/bootstrap-datetimepicker
         //One off time & date = EventFrom date + time + one off

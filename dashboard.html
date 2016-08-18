@@ -903,11 +903,11 @@
                                 screens = JSON.parse(msg.Data);
                                 parent.send("WIDGETS", "LOAD", parent.device.toUpperCase()) // retrieve the widgets after screens have loaded
                                 loadScreens()
-                                parent.send("WIDGETS", "CHANNELS", "")
                             } else {
-                                if (!parent.showFirstStart) parent.modalDialog("text", "First use", "Welcome to the home automation client. <br><br>To get started, press the 'Design' button in the top navigation bar and create your first screen then add widgets. <br><br>Press the 'Help' button in the navigation bar and select 'Starting' for more instructions.")
+                                if (!parent.showFirstStart) parent.modalDialog("text", "First use", "Welcome to the home automation client. <br><br>To get started, press the 'Design' button in the top navigation bar and using the Design Options icons on the bottom left corner add your first screen then add widgets and save. <br><br>Press the 'Help' button in the navigation bar and select 'Starting' for more instructions.")
                                 parent.showFirstStart = true;
                             }
+                            parent.send("WIDGETS", "CHANNELS", "")
                             break;
                         default:
                     }
