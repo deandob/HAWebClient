@@ -72,8 +72,10 @@
         }
 
         function scale(scaleX, scaleY) {
-            svgAvg.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
             svgNeedle.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
+            needleID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
+            avgID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
+            svgAvg.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
         }
 
         function endEdit(param0) {                  // called when editing finishes
@@ -105,8 +107,9 @@
         function setAvg(ordinal) {
             var avgVal = getAngle(ordinal);
             document.getElementById("avgTool").textContent = "Average: " + ordinal
-            avgID.style.setProperty('transition', 'transform ' + Math.abs(avgVal - oldAvg) / 100 + 's cubic-bezier(0.680, -0.550, 0.265, 1.550)')
-            avgID.style.setProperty('transform', 'rotate(' + avgVal + 'deg)')
+            avgID.style.setProperty('transition', 'transform ' + Math.abs(avgVal - oldAvg) / 50 + 's cubic-bezier(.53,-0.08,.55,1.15)');
+            avgID.style.setProperty('transform', 'rotate(' + avgVal + 'deg)');
+            oldAvg = avgVal;
         }
 
         function getAngle(ordinal) {

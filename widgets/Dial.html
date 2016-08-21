@@ -43,7 +43,6 @@
                     <path id="seg8" fill="none" stroke="rgb(255, 70, 0)" d="M79.25,22.72 A40,40,0,0,1,86.82,34.37" stroke-width="20" />
                     <path id="seg9" fill="none" stroke="rgb(255, 35, 0)" d="M87.59,36.32 A40,40,0,0,1,90,50" stroke-width="20" />
                     <path id="seg10" fill="none" stroke="rgb(255, 0, 0)" d="M89.95,52.09 A40,40,0,0,1,86.82,65.63" stroke-width="20" />
-                    <polyline id="avg" points="44,0 56,0 50,8 44,0" fill="rgb(20, 20, 230)" stroke-width="0" style="display: none" transform="rotate(-112, 50, 50)"><title id="avgtool">Average: 0</title></polyline>
                     <path id="TBNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
                     <text id="TBNumVal" x="45" y="58" fill="rgb(255, 255, 255)">0</text>
                 </g>
@@ -55,6 +54,9 @@
         <svg id="text" style="position: absolute; left: 0px; top: 0px; z-index: 3">
             <text id="numVal" x="46" y="57" fill="rgb(255, 255, 255)">-</text>
         </svg>
+        <svg id="avg" style="display: none; position: absolute; left: 0px; top: 0px; z-index: 3; transform: rotate(-112deg)">
+            <polyline id="svgAvg" points="44,0 56,0 50,8 44,0" fill="rgb(20, 20, 230)" stroke-width="0" ><title id="avgtool">Average: 0</title></polyline>
+        </svg>
     </div>
 
     <script src="../widgetFramework.js"></script>
@@ -64,7 +66,9 @@
         var numID = document.getElementById("numVal");		        // id text field
         var svgText = document.getElementById("text");		        // id of text SVG
         var avgID = document.getElementById("avg");                 // id average marker
+        var svgAvg = document.getElementById("svgAvg");                 // id average marker
         var oldVal = 0;
+        var oldAvg = 0;
 
         // Called from framework when widget starts
         function widgetStart(param) {                               // widget specific startup
@@ -96,7 +100,8 @@
             svgText.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
             svgNeedle.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
             needleID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
-            needleID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
+            avgID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
+            svgAvg.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
         }
 
         // Called from framework for incoming channel events
@@ -118,7 +123,9 @@
             if (avgVal > range * 1.05) avgVal = range * 1.05;                       // allow a little overrun
             if (avgVal < range * -0.05) avgVal = range * -0.05;                     // allow a little underrun
             var angle = parseInt(avgVal * 227 / range - 114);
-            avgID.setAttribute('transform', 'rotate(' + angle.toString() + ' 50 50)');
+            avgID.style.setProperty('transition', 'transform ' + Math.abs(avgVal - oldAvg) * 5 / range + 's cubic-bezier(.53,-0.08,.55,1.15)');
+            avgID.style.setProperty('transform', 'rotate(' + angle + 'deg)');
+            oldAvg = avgVal;
         }
 
         // Rotate dial between old and new
