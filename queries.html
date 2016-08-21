@@ -1087,9 +1087,9 @@
                         break;
                     case "display":                                       // display or hide widget
                         if (param0 === true) {
-                            document.getElementById(widgetName).style.setAttribute("display", "inline");
+                            document.getElementById(widgetName).style.setProperty("display", "inline");
                         } else {
-                            document.getElementById(widgetName).style.setAttribute("display", "none");
+                            document.getElementById(widgetName).style.setProperty("display", "none");
                         }
                         return
                         break;

@@ -55,8 +55,9 @@ function _fw_loaded(start) {
         _toolbox = true;
         _widgetID.setAttribute("draggable", "true")                                         // Allow dragging in the toolbox
         _widgetID.style.setProperty("cursor", "move")
-        _iniHeight = parseInt(_widgetID.getAttribute("height") || _widgetID.style.getAttribute("height"))
-        _iniWidth = parseInt(_widgetID.getAttribute("width") || _widgetID.style.getAttribute("width"))
+        _iniHeight = parseInt(_widgetID.getAttribute("height")) || parseInt(_widgetID.style.getPropertyValue("height"))
+        _iniWidth = parseInt(_widgetID.getAttribute("width")) || parseInt(_widgetID.style.getPropertyValue("height"))
+
         if (typeof toolboxStart === "function") return toolboxStart(start);
     } else {
         _toolbox = false;

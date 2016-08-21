@@ -153,7 +153,7 @@
         var oldChVal;
 
         function toolboxStart() {           // called when loaded in toolbox
-            _widgetID.style.setAttribute("text-align", "center");
+            _widgetID.style.setProperty("text-align", "center");
         }
 
         function startEdit() {              // called when editing started
@@ -227,8 +227,8 @@
         //// Widget specific functions
         function widgetStart(mode) {            // widget specific startup
             _widgetID.innerHTML = _attribs[0].value;
-            _widgetID.style.setProperty("font-size", _attribs[2].value + "px");
-            _widgetID.style.setAttribute("text-align", _attribs[3].value);
+           _widgetID.style.setProperty("font-size", _attribs[2].value + "px");
+           _widgetID.style.setProperty("text-align", _attribs[3].value);
             return true;
         }
 

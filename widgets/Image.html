@@ -30,8 +30,8 @@
 
         var imageLoc = "../images/"
         var img = new Image()
-        img.style.setAttribute("width", "100%")
-        img.style.setAttribute("height", "100%")
+        img.style.setProperty("width", "100%")
+        img.style.setProperty("height", "100%")
 
         img.onload = function () {
             imgHeight = this.naturalHeight                                              // Image aspect ratio and native dimensions

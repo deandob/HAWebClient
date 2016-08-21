@@ -49,9 +49,10 @@
                 </g>
             </g>
         </svg>
-        <svg id="needle" style="position: absolute; left: 0px; top: 0px; transform-Origin: 50% 62.5%; z-index:2">
-            <path id="svgNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
-        </svg>
+        <svg id="needle" style="position: absolute; left: 0px; top: 0px; z-index:2">
+            <!-- <svg id="needle" style="position: absolute; left: 0px; top: 0px; transform-Origin: 50% 62.5%; z-index:2">-->
+                <path id="svgNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
+            </svg>
         <svg id="text" style="position: absolute; left: 0px; top: 0px; z-index: 3">
             <text id="numVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
         </svg>
@@ -95,6 +96,7 @@
             numID.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
             svgText.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
             svgNeedle.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
+            needleID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
         }
 
         // Called from framework for incoming channel events
@@ -130,7 +132,7 @@
             } else {
                 numID.textContent = Math.round(textVal * 10) / 10;
             }
-            numID.setAttribute("x", (document.getElementById("widget").clientWidth / 2 - numID.getBBox().width / 2));       // Adjust number to be center
+            numID.setAttributeNS("http://www.w3.org/2000/svg", "x", (document.getElementById("widget").clientWidth / 2 - numID.getBBox().width / 2));       // Adjust number to be center
             needleID.style.setProperty('transition', 'transform ' + Math.abs(newVal - oldVal) * 2 / range + 's cubic-bezier(0.680, -0.550, 0.265, 1.550)');
             needleID.style.setProperty('transform', 'rotate(' + newVal * 223 / range + 'deg)');
             oldVal = newVal;

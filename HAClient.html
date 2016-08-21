@@ -72,7 +72,7 @@
         </div>
     </div>
 
-    <iframe id="iFrame" style="border:none" width="100%" height="100%"></iframe>
+    <iframe id="iFrame" name="iframe" style="border:none" width="100%" height="100%"></iframe>
 
     <footer class="navbar navbar-fixed-bottom">
         <div style="position: absolute; padding:8px 5px 15px 15px; height: 38px; border:1px solid #bce8f1; background-color:#d9edf7; color: #3a87ad; border-radius:4px; bottom: 10px; right: 10px; left: 10px">
@@ -161,7 +161,7 @@
                 document.getElementById("connType").setAttribute("class", "tip icon-home-4 icon-large pull-right")
                 document.getElementById("connType").setAttribute("data-original-title","local access") 
         }
-        
+
         var netName = ""
         var iFrame = document.getElementById("iFrame");
         window.addEventListener("resize", function (event) {
