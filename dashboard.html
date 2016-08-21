@@ -101,6 +101,9 @@
     <script src="js/bootstrap.min.js"></script>
     <script>
         "use strict";
+
+        //TODO: Chrome widgets INI not setting correctly for dial
+        //TODO: Chrome not hiding the initial screen -5000 so messy rendering
         //TODO: Consider a sliding div inside the widget toolbox to categorise the widgets, so you select the category and the div slides down to show widgets in that category, use span to tag in widget
         var screens = [];
         var myScreen = function (name, icon, device) {
@@ -321,19 +324,19 @@
                 parent.status("Changes to widget '" + widgets[editData.widgetNum].type + "' saved.")
                 document.getElementById("objWidget" + editData.widgetNum).contentDocument.defaultView._fw_menuUpdate()      // call menu update routine in widget
             }
-            if (option === "cancel") parent.status("Changes to widget '" + widgets[editData.widgetNum].type + "' cancelled.")
-            if (option === "save") resetEdit("objWidget" + editData.widgetNum)
-            if (option === "deleted") document.getElementById("widgetOptionMenu").style.setProperty("display", "none"); // hide option menu
+            if (option === "cancel") parent.status("Changes to widget '" + widgets[editData.widgetNum].type + "' cancelled.");
+            if (option === "save") resetEdit("objWidget" + editData.widgetNum);
+            document.getElementById("widgetOptionMenu").style.setProperty("display", "none"); // hide option menu
         }
 
         // Save widget attribute data based on the values set in the widget option menu
         function walkList(node) {
             var children = node.childNodes;
             for (var i = 0; i < children.length; i++) walkList(children[i]);      // recursive find lowest sibling
-            if (node.attributes !== null) {
-                var attrib = node.getAttribute("data-type")
-                if (attrib !== null) {
-                    switch (attrib) {     // build the widget property menu based on attributes for the widget
+            if (node.attributes != null) {
+                var attrib = node.attributes["data-type"];
+                if (attrib != null) {
+                    switch (attrib.nodeValue) {     // build the widget property menu based on attributes for the widget
                         case "zorder":
                             if (node.checked) { widgets[editData.widgetNum].zOrder = 100 } else { widgets[editData.widgetNum].zOrder = 10 }
                             document.getElementById("objWidget" + editData.widgetNum).style.setProperty("z-index", widgets[editData.widgetNum].zOrder)
@@ -759,7 +762,7 @@
                                 objDoc.getElementById("widget").setAttribute("data-widgetName", TBWidgetName);
                                 $("#" + TBWidgetName).tooltip({ title: objDoc.getElementById("TBtooltip").getAttribute("data-default"), delay: { show: 2000 } });
                             } catch (err) {
-                                alert("ERROR - widget " + widgetTemplates[widgetNum] + " is corrupt and won't be usable. Error: " + err.message + " " + err.stack)
+                                alert("WARNING - widget " + widgetTemplates[widgetNum] + " is corrupt and won't be usable.")
                                 return -1;
                             }
                         }, false);

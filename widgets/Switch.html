@@ -132,7 +132,7 @@
         function scale(scaleX, scaleY) {    // manage scaling
             _widgetID.style.setProperty("width", (_iniWidth * scaleX - 6) + "px");             // compensate for border
             _widgetID.style.setProperty("height", (_iniHeight * scaleY) - 6 + "px");
-            slider.style.setProperty("width", parseInt(_widgetID.style.getAttribute("width")) / 2 - 8 + "px")   // adjust for width changes
+            slider.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) / 2 - 8 + "px")   // adjust for width changes
         }
 
         function clicked(event) {                   // left Button pressed

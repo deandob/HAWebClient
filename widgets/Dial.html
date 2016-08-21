@@ -45,16 +45,15 @@
                     <path id="seg10" fill="none" stroke="rgb(255, 0, 0)" d="M89.95,52.09 A40,40,0,0,1,86.82,65.63" stroke-width="20" />
                     <polyline id="avg" points="44,0 56,0 50,8 44,0" fill="rgb(20, 20, 230)" stroke-width="0" style="display: none" transform="rotate(-112, 50, 50)"><title id="avgtool">Average: 0</title></polyline>
                     <path id="TBNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
-                    <text id="TBNumVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
+                    <text id="TBNumVal" x="45" y="58" fill="rgb(255, 255, 255)">0</text>
                 </g>
             </g>
         </svg>
         <svg id="needle" style="position: absolute; left: 0px; top: 0px; z-index:2">
-            <!-- <svg id="needle" style="position: absolute; left: 0px; top: 0px; transform-Origin: 50% 62.5%; z-index:2">-->
                 <path id="svgNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
             </svg>
         <svg id="text" style="position: absolute; left: 0px; top: 0px; z-index: 3">
-            <text id="numVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
+            <text id="numVal" x="46" y="57" fill="rgb(255, 255, 255)">-</text>
         </svg>
     </div>
 
@@ -97,6 +96,7 @@
             svgText.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
             svgNeedle.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
             needleID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
+            needleID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
         }
 
         // Called from framework for incoming channel events
@@ -109,7 +109,7 @@
 
         // Called from framework for initial channel status
         function ini(channel, scope, data) {
-            return feed(channel, scope, data);
+           return feed(channel, scope, data);
         }
 
         // Set the average indicator
@@ -132,7 +132,7 @@
             } else {
                 numID.textContent = Math.round(textVal * 10) / 10;
             }
-            numID.setAttributeNS("http://www.w3.org/2000/svg", "x", (document.getElementById("widget").clientWidth / 2 - numID.getBBox().width / 2));       // Adjust number to be center
+            svgText.style.setProperty("left", 4 - numID.getBBox().width / 2 + 'px');       // Adjust number to be center
             needleID.style.setProperty('transition', 'transform ' + Math.abs(newVal - oldVal) * 2 / range + 's cubic-bezier(0.680, -0.550, 0.265, 1.550)');
             needleID.style.setProperty('transform', 'rotate(' + newVal * 223 / range + 'deg)');
             oldVal = newVal;
