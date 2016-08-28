@@ -161,11 +161,17 @@
 
             setMyLocation();
 
-            background = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".background.png";
-            waterways = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".waterways.png";
-            legend = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR.legend.0.png";
-            locations = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".locations.png";
-            range = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".range.png";
+            //background = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".background.png";
+            //http://ws.cdn.bom.gov.au/products/radar_transparencies/IDR664.background.png
+            background = "http://ws.cdn.bom.gov.au/products/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".background.png";
+            //waterways = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".waterways.png";
+            waterways = "http://ws.cdn.bom.gov.au/products/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".waterways.png";
+            //legend = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR.legend.0.png";
+            legend = "http://ws.cdn.bom.gov.au/products/radar_transparencies/IDR.legend.0.png";
+            //locations = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".locations.png";
+            locations = "http://ws.cdn.bom.gov.au/products/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".locations.png";
+            //range = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".range.png";
+            range = "http://ws.cdn.bom.gov.au/products/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".range.png";
             rain = "ftp://ftp.bom.gov.au/anon/gen/radar/";
             rain1 = "http://wac.72dd.edgecastcdn.net/8072DD/radimg/radar/"
             //rain1 = "http://ws.cdn.bom.gov.au/radar/"

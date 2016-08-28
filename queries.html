@@ -55,8 +55,8 @@
 
     <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
 
-<!-- #region Transforms --------------------------------------------------------------->
-        <div class="tab-pane fade in active" id="transforms">
+<!-- #region Queries --------------------------------------------------------------->
+        <div class="tab-pane fade in active" id="queries">
             <h4>Queries</h4>
             <br />
             <div class="row">
@@ -148,43 +148,43 @@
                                 <div class="col-md-4">
                                     <p>Value</p>
                                     <div class="btn-group btn-group-justified">
-                                        <button type="button" id="trigChgCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <button type="button" id="queryValueSel" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                             equals&nbsp;&nbsp;<span class="caret" />
                                         </button>
                                         <ul class="dropdown-menu" role="menu">
-                                            <li><a class="pointer" onclick="pressBut('trigChgCond','equals')">equals</a></li>
-                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'greater')">greater</a></li>
-                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'less')">less</a></li>
-                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'not')">not</a></li>
-                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'contains')">contains</a></li>
-                                            <li><a class="pointer" onclick="pressBut('trigChgCond', 'change')">change</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'equals')">equals</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'greater')">greater</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'less')">less</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'not')">not</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'contains')">contains</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'change')">change</a></li>
                                         </ul>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
                                     <p>&nbsp;</p>
-                                    <input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All">
+                                    <input type="text" class="form-control" id="queryValueInp" name="textInput" placeholder="All">
                                 </div>
                             </div>
                             <div class="row">
                                 <br />
                                 <div class="col-md-12">
                                     <p>Timeframe</p>
-                                    <fieldset id="transFuncFieldset">
+                                    <fieldset id="queryFieldset">
                                         <div class="row">
                                             <div class="col-md-5">
                                                 <div class="btn-group btn-group-justified">
-                                                    <button type="button" id="transFuncHistSel" name="history" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                    <button type="button" id="queryTimeframeSel" name="history" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                                                         Current&nbsp;&nbsp;<span class="caret" />
                                                     </button>
                                                     <ul class="dropdown-menu" role="menu">
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Current')">Current</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'History')">History</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Average')">Average</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Count')">Count</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Sum')">Sum</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Max')">Max</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Min')">Min</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Current')">Current</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'History')">History</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Average')">Average</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Count')">Count</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Sum')">Sum</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Max')">Max</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Min')">Min</a></li>
                                                     </ul>
                                                 </div>
                                             </div>
@@ -263,44 +263,54 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
+                <div class="col-md-10">
                     <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Results</h4></div>
+                        <div class="panel-heading"><h4 class="panel-title" id="queryPanelTitle">Results</h4></div>
                         <div class="panel-body">
-                            <table id="queryTable"
-                                   data-query-params="queryParams"
-                                   data-classes="table table-condensed table-striped"
-                                   data-pagination="true"
-                                   data-filter-control="true"
-                                   data-height="500">
+                            <table id="queryVueTable" class="table table-condensed table-striped">
                                 <thead>
                                     <tr>
-                                        <th data-field="Time" data-filter-control="select" data-sortable="true" data-width="140">
+                                        <th class="col-md-3">
                                             <div class="col-md-3">Time</div>
-                                            <div class="col-md-9"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColTime" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                         </th>
-                                        <th data-field="Category" data-filter-control="select" data-sortable="true" data-width="40">
-                                            <div class="col-md-4">Category</div>
-                                            <div class="col-md-8"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        <th class="col-md-1">
+                                            <div class="col-md-3">Category</div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColCategory" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                         </th>
-                                        <th data-field="Class" data-filter-control="select" data-sortable="true" data-width="50">
+                                        <th class="col-md-1">
                                             <div class="col-md-3">Class</div>
-                                            <div class="col-md-9"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColClass" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                         </th>
-                                        <th data-field="Instance" data-filter-control="select" data-sortable="true" data-width="50">
-                                            <div class="col-md-4">Channel</div>
-                                            <div class="col-md-8"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        <th class="col-md-1">
+                                            <div class="col-md-5"><div class="col-md-3">Channel</div><div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div></div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColChannel" name="textInput" placeholder="All"></div>
                                         </th>
-                                        <th data-field="Scope" data-filter-control="select" data-sortable="true" data-width="50">
+                                        <th class="col-md-1">
                                             <div class="col-md-3">Type</div>
-                                            <div class="col-md-9"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColType" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                         </th>
-                                        <th data-field="Data" data-filter-control="select" data-sortable="true" data-width="180">
-                                            <div class="col-md-2">Value</div>
-                                            <div class="col-md-9"><input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="All"></div>
+                                        <th class="col-md-3">
+                                            <div class="col-md-3">Value</div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColValue" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                         </th>
                                     </tr>
                                 </thead>
+                                <tbody>
+                                    <tr v-for="(record, index) in items">
+                                        <td>{{ record.timeDate }}</td>
+                                        <td>{{ record.category }}</td>
+                                        <td>{{ record.class }}</td>
+                                        <td>{{ record.channel }}</td>
+                                        <td>{{ record.type }}</td>
+                                        <td>{{ record.value }}</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
@@ -310,7 +320,7 @@
 <!-- #endregion -->
 
 <!-- #region Single --------------------------------------------------------------->
-        <div class="tab-pane fade" id="single">
+        <div class="tab-pane fade col-md-12" id="single">
             <h4>Single Query</h4>
             <br />
             <div class="row">
@@ -922,6 +932,8 @@
     </div>
     <!--<script src="//maxcdn.bootstrapcdn.com/bootlint/0.2.0/bootlint.min.js"></script>-->
 
+    <script src="js/vue.2.0.RC.js"></script>
+
     <script src="js/jquery-2.1.1.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-datetimepicker.min.js"></script>
@@ -932,44 +944,138 @@
 
         "use strict";
 
+        var queryResults = [];
+        var queryResult = function (time, timeDate, category, className, channel, type, value) {
+            this.time = time;
+            this.timeDate = timeDate;
+            this.category = category;
+            this.class = className;
+            this.channel = channel;
+            this.type = type;
+            this.value = value;
+        }
+
+        var queryResultVM = new Vue({
+            el: '#queryVueTable',
+            data: {
+                items: []
+            },
+            computed: {
+                displayDate: function (index) {
+                    // `this` points to the vm instance
+                    var tt = index
+                    return this.items[0].time + ' ' + this.items[0].time
+            }
+        }
+        });
+
+        queryResults.push(new queryResult('12354',"22nd September 2016 12:54:22 AM",'LIGHTING','CBUS','MasterBed','level','100%'))
+        queryResults.push(new queryResult('23456', "22nd September 2016 2:34:29 AM", 'POWER', 'SOLAR', 'TOTAL', 'WATTS', '3341'))
+
+        var unsortedArray = queryResults.slice(); // make copy from unsorted array first
+        //queryResultVM.items = resultSet
+
+        function keyFilter(me) {
+            var colName = me.parentNode.parentNode.innerText.trim();
+            queryResultVM.items = filterBy(resultSet, colName, document.getElementById("queryCol" + colName).value)
+        }
+
+        // manage the sort icons and sort the table data
+        function clickSort(me) {
+            var colName = me.parentNode.parentNode.innerText.trim();
+            switch (me.className) {
+                case "icon-sort":
+                    me.className = "icon-sort-down";
+                    sortBy(colName, -1);
+                    break;
+                case "icon-sort-down":
+                    me.className = "icon-sort-up";
+                    sortBy(colName, 1);
+                    break;
+                case "icon-sort-up":
+                    me.className = "icon-sort";
+                    sortBy(colName, 0);
+                    break;
+            }
+        }
+
+        function filterBy(array, column, filter) {
+            var columnLC = column.toLowerCase();
+            return array.filter(function(item) {
+                return item[columnLC].indexOf(filter) > -1
+            })
+        }
+
+        // Sort by column name with either alpha sort or numerical sort depending on column contents
+        function sortBy(column, sort) {
+            var columnLC = column.toLowerCase();
+            switch (sort) {
+                case 1:
+                    if (!isNaN(+queryResultVM.items[0][columnLC])) {
+                        queryResultVM.items.sort(function (a, b) { return a[columnLC] - b[columnLC] });
+                    } else {
+                        queryResultVM.items.sort();
+                    }
+                    break;
+                case -1:
+                    if (!isNaN(+queryResultVM.items[0][columnLC])) {
+                        queryResultVM.items.sort(function (a, b) { return b[columnLC] - a[columnLC] });
+                    } else {
+                        queryResultVM.items.sort().reverse();
+                    }
+                    break;
+                case 0:
+                    queryResultVM.items = unsortedArray;
+                    break;
+
+            }
+        }
+
+        function processResults(data) {
+            if (data != "") {
+                var retResults = JSON.parse(data);
+                var queryResults = [];
+                for (var ind in retResults) {
+                    var d = new Date(retResults[ind].Time)
+                    queryResults.push(new queryResult(d.valueOf, d.toLocaleString(), retResults[ind].Category, retResults[ind].ClassName, retResults[ind].Instance, retResults[ind].Scope, retResults[ind].Data))
+                }
+                queryResultVM.items = queryResults;
+                $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...")
+            } else {
+                parent.modalDialog("query", "Problem with query", "Query didn't process correctly.")
+            }
+        }
+
+
+        function queryButRun() {
+            var queryFunc = "";
+            switch (document.getElementById("queryTypeQuestionSel").innerText.trim()) {
+                case "What":
+                    queryFunc = "INSTANCE";
+                    break;
+                case "When":
+                    queryFunc = "TIME";
+                    break;
+                case "Value":
+                    queryFunc = "VALUE";
+                    break;
+            }
+            var cond = document.getElementById("queryTimeframeSel").innerText.trim() + "[1,1]"
+            var data = document.getElementById("queryValueSel").innerText.trim() + "|" + document.getElementById("queryValueInp").value;
+
+            // type:category/class/instance(TIMEFRAME[start,finish])
+            queryServer(queryFunc, document.getElementById("queryCategory").innerText.trim(), document.getElementById("queryClassInp").value, document.getElementById("queryInstanceInp").value, cond, data);
+
+        }
+
+
+        ///////////////////////////
+
         var pcTicks = 10000;
         var unixEpoc = 621355968000000000; // epoch start in .NET time
         var nullDate = 0;      // 1-1-0001 in .NET 
         var condStr = ["equals", "greater", "less", "not", "contains", "change"];
         var toolboxCB;          // global for callback routine from toolbox load calls
-
-        var queryData = [
-    {
-        "name": "bootstrap-table",
-        "stargazers_count": "526",
-        "forks_count": "122",
-        "description": "An extended Bootstrap table with radio, checkbox, sort, pagination, and other added features. (supports twitter bootstrap v2 and v3) "
-    },
-    {
-        "name": "multiple-select",
-        "stargazers_count": "288",
-        "forks_count": "150",
-        "description": "A jQuery plugin to select multiple elements with checkboxes :)"
-    },
-    {
-        "name": "bootstrap-show-password",
-        "stargazers_count": "32",
-        "forks_count": "11",
-        "description": "Show/hide password plugin for twitter bootstrap."
-    },
-    {
-        "name": "blog",
-        "stargazers_count": "13",
-        "forks_count": "4",
-        "description": "my blog"
-    },
-    {
-        "name": "scutech-redmine",
-        "stargazers_count": "6",
-        "forks_count": "3",
-        "description": "Redmine notification tools for chrome extension."
-    }
-        ];
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {
@@ -1175,24 +1281,6 @@
             //loadWidget(0);
         }
 
-        function queryButRun() {
-            var queryFunc = "";
-            switch (document.getElementById("queryTypeQuestionSel").innerText.trim()) {
-                case "What":
-                    queryFunc = "INSTANCE";
-                    break;
-                case "When":
-                    queryFunc = "TIME";
-                    break;
-                case "Value":
-                    queryFunc = "VALUE";
-                    break;
-            }
-            //////sendServer("GET", "VALUE", "QueryRet", document.getElementById("queryCategory").innerText.trim() + "/" + document.getElementById("queryInstanceInp").innerText.trim() + "/" + document.getElementById("queryInstanceInp").innerText.trim())
-            $('#queryTable').bootstrapTable({
-                data: queryData
-            });
-        }
 
 //#endregion
 
@@ -2064,8 +2152,8 @@
             parent.send("SETTINGS", action + ":" + func + "(" + name + ")", data)             //Build the command string to send to the server in format GET:<Function>(Pop<Function>CB) where Function is Actions, triggers etc., PopActionsCD is the callback routing
         }
 
-        function queryServer(queryFunc) {
-            parent.send("QUERY", queryFunc)
+        function queryServer(type, cat, className, channel, conditions, data) {
+            parent.send("QUERY", type +":" + cat + "/" + className + "/" + channel + "(" + conditions + ")", data)
         }
 
         // Process messages received from the host
@@ -2077,6 +2165,9 @@
                             updateLogs(msg.Data);
                             break;
                     }
+                    break;
+                case "QUERY":
+                    processResults(msg.Data);
                     break;
                 case "AUTOMATION":
                     if (msg.Data != "") {
