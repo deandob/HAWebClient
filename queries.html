@@ -188,33 +188,33 @@
                                                     </ul>
                                                 </div>
                                             </div>
-                                            <fieldset id="transFuncRadioFieldset" disabled>
+                                            <fieldset id="queryRadioFieldset" disabled>
                                                 <div class="radio-inline">
-                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioElapsed" onclick="selSetRadio(this.id)" value="elapsed" checked>Elapsed</label>
+                                                    <label><input type="radio" name="queryRadio2" id="queryRadioElapsed" onclick="selSetRadio(this.id)" value="elapsed" checked>Elapsed</label>
                                                 </div>
                                                 <div class="radio-inline">
-                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioSince" onclick="selSetRadio(this.id)" value="since">Since</label>
+                                                    <label><input type="radio" name="queryRadio2" id="queryRadioSince" onclick="selSetRadio(this.id)" value="since">Since</label>
                                                 </div>
                                                 <div class="radio-inline">
-                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioBetween" onclick="selSetRadio(this.id)" value="between" checked>Between</label>
+                                                    <label><input type="radio" name="queryRadio2" id="queryRadioBetween" onclick="selSetRadio(this.id)" value="between" checked>Between</label>
                                                 </div>
                                             </fieldset>
                                         </div>
                                         <div class="row">
                                             <br />
-                                            <fieldset id="transFuncElapsedFieldset" disabled>
+                                            <fieldset id="queryElapsedFieldset" disabled>
                                                 <div class="col-md-6">
                                                     <div class="input-group">
-                                                        <input id="transFuncTimeValue" name="oneInput" type="text" class="form-control" value="1">
+                                                        <input id="queryTimeValue" name="oneInput" type="text" class="form-control" value="1">
                                                         <div class="input-group-btn">
-                                                            <button id="transFuncTimeDrop" name="transFuncTimeInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Minutes <span class="caret" /></button>
+                                                            <button id="queryTimeDrop" name="queryTimeInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Minutes <span class="caret" /></button>
                                                             <ul class="dropdown-menu pull-right">
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Minutes')">Minutes</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Hours')">Hours</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Days')">Days</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Weeks')">Weeks</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Months')">Months</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('transFuncTimeDrop', 'Years')">Years</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Minutes')">Minutes</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Hours')">Hours</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Days')">Days</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Weeks')">Weeks</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Months')">Months</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Years')">Years</a></li>
                                                             </ul>
                                                         </div>
                                                     </div>
@@ -222,19 +222,19 @@
                                             </fieldset>
                                         </div>
                                         <br />
-                                        <fieldset id="transFuncSinceFieldset" disabled>
+                                        <fieldset id="querySinceFieldset" disabled>
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <p>From</p>
-                                                    <div class="input-group date" id="dtpFromTime">
-                                                        <input id="transFuncFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                                    <div class="input-group date" id="dtpQueryFromTime">
+                                                        <input id="queryFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
                                                         <span class="input-group-addon pointer"><span class="icon-time"></span></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
                                                     <p>To</p>
-                                                    <div class="input-group date" id="dtpToTime">
-                                                        <input id="transFuncToTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                                    <div class="input-group date" id="dtpQueryToTime">
+                                                        <input id="queryToTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
                                                         <span class="input-group-addon pointer"><span class="icon-time"></span></span>
                                                     </div>
                                                 </div>
@@ -242,14 +242,14 @@
                                             <br />
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    <div class="input-group date" id="dtpFromDate">
-                                                        <input id="transFuncFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                                    <div class="input-group date" id="dtpQueryFromDate">
+                                                        <input id="queryFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
                                                         <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
-                                                    <div class="input-group date" id="dtpToDate">
-                                                        <input id="transFuncToDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                                    <div class="input-group date" id="dtpQueryToDate">
+                                                        <input id="queryToDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
                                                         <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
                                                     </div>
                                                 </div>
@@ -1046,26 +1046,46 @@
             }
         }
 
+        function setQueryTimeFields(button, value) {
+            pressBut(button, value);
+        }
+
 
         function queryButRun() {
-            var queryFunc = "";
-            switch (document.getElementById("queryTypeQuestionSel").innerText.trim()) {
-                case "What":
-                    queryFunc = "INSTANCE";
+
+            
+            var fromDateTime = addDateAndTime("dtpQueryFromDate", "dtpQueryFromTime");
+            var toDateTime = addDateAndTime("dtpQueryToDate", "dtpQueryToTime");
+
+            switch ($("#queryTimeframeSel").prop("textContent").trim().toUpperCase()) {
+                case "CURRENT":
                     break;
-                case "When":
-                    queryFunc = "TIME";
-                    break;
-                case "Value":
-                    queryFunc = "VALUE";
+                default:
+                    if (isNaN(toDateTime)) {
+                        alert("Invalid 'To' Time and/or Date. Re-enter.");
+                        return;
+                    }
+                    if (isNaN(fromDateTime)) {
+                        alert("Invalid 'From' Time and/or Date. Re-enter.");
+                        return;
+                    }
                     break;
             }
-            var cond = document.getElementById("queryTimeframeSel").innerText.trim() + "[1,1]"
-            var data = document.getElementById("queryValueSel").innerText.trim() + "|" + document.getElementById("queryValueInp").value;
 
             // type:category/class/instance(TIMEFRAME[start,finish])
-            queryServer(queryFunc, document.getElementById("queryCategory").innerText.trim(), document.getElementById("queryClassInp").value, document.getElementById("queryInstanceInp").value, cond, data);
-
+            //queryServer(queryFunc, document.getElementById("queryCategory").innerText.trim(), document.getElementById("queryClassInp").value, document.getElementById("queryInstanceInp").value, cond, data);
+            parent.send("QUERY", $("#queryTypeQuestionSel").prop("textContent").trim(), JSON.stringify({
+                Func: $("#queryTypeQuestionSel").prop("textContent").trim(),
+                StartDateTime: getNetDateTime(fromDateTime, "datetime"),
+                EndDateTime: getNetDateTime(toDateTime, "datetime"),
+                TimeFrame: $("#queryTimeframeSel").prop("textContent").trim(),
+                ValCond: $("#queryValueSel").prop("textContent").trim(),
+                Data: $("#queryValueInp").val(),
+                Cat: $("#queryCategory").prop("textContent").trim(),
+                ClassName: $("#queryClassInp").val(),
+                Instance: $("#queryInstanceInp").val(),
+                Scope: ""
+            }));
         }
 
 
@@ -1314,7 +1334,7 @@
         // Multipy Average [SECURITY/CLASS] scope(instance) since(time date)    Multipl Average of channel back to the exact time/date
 
         // Enable or disable the function range entries depending if a range function is selected
-        function setValid(butID, butVal) {
+        function setValidTransRadio(butID, butVal) {
             pressBut(butID, butVal)
             if (butVal !== "Current") {
                 $("#transFuncRadioFieldset").removeAttr("disabled");
@@ -1732,9 +1752,14 @@
             }
         }
 
+        // Create single DateTime value from Date and Time inputs (return NaN if invalid)
+        function addDateAndTime(dateField, timeField) {
+            return new Date($("#" + dateField).val().trim() + " " + $("#" + timeField).val().trim())
+        }
+
         // Convert from JS date format to dotnet UTC ticks
         function getNetDateTime(JSDateTime, dateTime) {
-            if (JSDateTime == "" || JSDateTime == undefined) return nullDate;
+            if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
             var convStr = JSDateTime.replace(/\u200E/g, "");       // remove hidden unicode left-to-right mark
             switch (dateTime) {                 // convert date to UTC strings
                 case "date":
@@ -2152,9 +2177,14 @@
             parent.send("SETTINGS", action + ":" + func + "(" + name + ")", data)             //Build the command string to send to the server in format GET:<Function>(Pop<Function>CB) where Function is Actions, triggers etc., PopActionsCD is the callback routing
         }
 
+        // OLD - DELETE
         function queryServer(type, cat, className, channel, conditions, data) {
             parent.send("QUERY", type +":" + cat + "/" + className + "/" + channel + "(" + conditions + ")", data)
         }
+        function queryServer1(queryJSON) {
+            parent.send("QUERY", "JSON", queryJSON)
+        }
+
 
         // Process messages received from the host
         function recvHost(msg) {

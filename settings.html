@@ -21,9 +21,10 @@
             <h4>&nbsp;&nbsp;&nbsp;Settings</h4>
             <br />
             <ul id="sidebarList" class="nav nav-tabs">
-                <li id="tabConsole" class="active"><a class="pointer" data-target="#console" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Console</span></a></li>
+                <li id="tabConsole" class="active"><a class="pointer" data-target="#console" data-toggle="tab"><i class="icon-file icon-large"></i> <span>Console</span></a></li>
                 <li id="tabGeneral"><a class="pointer" data-target="#general" data-toggle="tab"><i class="icon-settings icon-large"></i> <span>General</span></a></li>
-                <li id="tabEvents"><a class="pointer" data-target="#events" data-toggle="tab"><i class="icon-diary icon-large"></i> <span>Events</span></a></li>
+                <li id="tabQueries"><a class="pointer" data-target="#queries" data-toggle="tab"><i class="icon-table icon-large"></i> <span>Queries</span></a></li>
+                <li id="tabEvents"><a class="pointer" data-target="#events" data-toggle="tab"><i class="icon-cogs-2 icon-large"></i> <span>Events</span></a></li>
                 <li id="tabTriggers"><a class="pointer" data-target="#triggers" data-toggle="tab" id="tab-triggers"><i class="icon-lightning icon-large"></i> <span>Triggers</span></a></li>
                 <li id="tabActions"><a class="pointer" data-target="#actions" data-toggle="tab" id="tab-actions"><i class="icon-hammer icon-large"></i> <span>Actions</span></a></li>
                 <li id="tabTransforms"><a class="pointer" data-target="#transforms" data-toggle="tab" id="tab-transforms"><i class="icon-wand icon-large"></i> <span>Transforms</span></a></li>
@@ -163,6 +164,277 @@
                                     <input id="genGridSize" name="textInput" type="text" class="form-control" value="5">
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- #endregion -->
+             
+<!-- #region Queries --------------------------------------------------------------->
+        <div class="tab-pane fade" id="queries">
+            <h4>Queries</h4>
+            <br />
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="alert-success">
+                        <p><br />&nbsp;&nbsp;Enter or select queries based on value and/or time<br /><br /></p>
+                    </div>
+                </div>
+            </div><br />
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="col-md-12">
+                        <p>Name</p>
+                        <div class="input-group">
+                            <input type="text" class="tip form-control" id="queryName" name="textInput" data-original-title="Query Name" data-placement="top" placeholder="New or Select query">
+                            <div class="input-group-btn">
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                                <ul id="queryNameList" class="dropdown-menu pull-right">
+                                    <li><a class="pointer"><i>No saved Queries</i></a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <p>Description</p>
+                    <input type="text" class="form-control" id="transformDesc" name="textInput" placeholder="Enter new Query description">
+                </div>
+                <div class="col-md-6">
+                    <p>&nbsp;</p>
+                    <button type="button" id="queryButRun" onclick="queryButRun()" class="btn btn-primary tip pointer nofocus" data-original-title="Press to execute query">Run Query</button>&nbsp;&nbsp;&nbsp;
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Question</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-10">
+                                    <p>Type</p>
+                                    <div class="btn-group btn-group-justified">
+                                        <button type="button" id="queryTypeQuestionSel" name="dropEmpty" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            What&nbsp;&nbsp;&nbsp;<span class="caret" />
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a class="pointer" onclick="pressBut('queryTypeQuestionSel', 'What')">What</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryTypeQuestionSel', 'When')">When</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryTypeQuestionSel', 'Value')">Value</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <div class="col-md-10">
+                                    <p>Category</p>
+                                    <div class="btn-group btn-group-justified">
+                                        <button id="queryCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            ALL
+                                            &nbsp;&nbsp;<span class="caret" />
+                                        </button>
+                                        <ul id="queryCategoryList" class="dropdown-menu" role="menu"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <div class="col-md-10">
+                                    <p>Class</p>
+                                    <input type="text" class="form-control" id="queryClassInp" name="textInput" placeholder="All">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <div class="col-md-10">
+                                    <p>Channel (Instance)</p>
+                                    <input type="text" class="form-control" id="queryInstanceInp" name="textInput" placeholder="All">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Conditions</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <p>Value</p>
+                                    <div class="btn-group btn-group-justified">
+                                        <button type="button" id="queryValueSel" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                            equals&nbsp;&nbsp;<span class="caret" />
+                                        </button>
+                                        <ul class="dropdown-menu" role="menu">
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'equals')">equals</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'greater')">greater</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'less')">less</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'not')">not</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'contains')">contains</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'change')">change</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <p>&nbsp;</p>
+                                    <input type="text" class="form-control" id="queryValueInp" name="textInput" placeholder="All">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <br />
+                                <div class="col-md-12">
+                                    <p>Timeframe</p>
+                                    <fieldset id="queryFieldset">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="btn-group btn-group-justified">
+                                                    <button type="button" id="queryTimeframeSel" name="history" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                        Current&nbsp;&nbsp;<span class="caret" />
+                                                    </button>
+                                                    <ul class="dropdown-menu" role="menu">
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Current')">Current</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'History')">History</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Average')">Average</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Count')">Count</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Sum')">Sum</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Max')">Max</a></li>
+                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Min')">Min</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <fieldset id="queryRadioFieldset" disabled>
+                                                <div class="radio-inline">
+                                                    <label><input type="radio" name="queryRadio2" id="queryRadioElapsed" onclick="selSetQueryRadio(this.id)" value="elapsed" checked>Elapsed</label>
+                                                </div>
+                                                <div class="radio-inline">
+                                                    <label><input type="radio" name="queryRadio2" id="queryRadioSince" onclick="selSetQueryRadio(this.id)" value="since">Since</label>
+                                                </div>
+                                                <div class="radio-inline">
+                                                    <label><input type="radio" name="queryRadio2" id="queryRadioBetween" onclick="selSetQueryRadio(this.id)" value="between" checked>Between</label>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                        <div class="row">
+                                            <br />
+                                            <fieldset id="queryElapsedFieldset" disabled>
+                                                <div class="col-md-6">
+                                                    <div class="input-group">
+                                                        <input id="queryTimeValue" name="oneInput" type="text" class="form-control" value="1">
+                                                        <div class="input-group-btn">
+                                                            <button id="queryTimeDrop" name="queryTimeInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Minutes <span class="caret" /></button>
+                                                            <ul class="dropdown-menu pull-right">
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Minutes')">Minutes</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Hours')">Hours</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Days')">Days</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Weeks')">Weeks</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Months')">Months</a></li>
+                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Years')">Years</a></li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </fieldset>
+                                        </div>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p>From</p>
+                                                <fieldset id="queryFromTimeFieldset" disabled>
+                                                    <div class="input-group date" id="dtpQueryFromTime">
+                                                        <input id="queryFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p>To</p>
+                                                <fieldset id="queryToTimeFieldset" disabled>
+                                                    <div class="input-group date" id="dtpQueryToTime">
+                                                        <input id="queryToTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                        <br />
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <fieldset id="queryFromDateFieldset" disabled>
+                                                    <div class="input-group date" id="dtpQueryFromDate">
+                                                        <input id="queryFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <fieldset id="queryToDateFieldset" disabled>
+                                                    <div class="input-group date" id="dtpQueryToDate">
+                                                        <input id="queryToDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                                    </div>
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title" id="queryPanelTitle">Results</h4></div>
+                        <div class="panel-body">
+                            <table id="queryVueTable" class="table table-condensed table-striped">
+                                <thead>
+                                    <tr>
+                                        <th class="col-md-3">
+                                            <div class="col-md-3">Time</div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColTime" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                        </th>
+                                        <th class="col-md-1">
+                                            <div class="col-md-3">Category</div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColCategory" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                        </th>
+                                        <th class="col-md-1">
+                                            <div class="col-md-3">Class</div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColClass" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                        </th>
+                                        <th class="col-md-1">
+                                            <div class="col-md-5"><div class="col-md-3">Channel</div><div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div></div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColChannel" name="textInput" placeholder="All"></div>
+                                        </th>
+                                        <th class="col-md-1">
+                                            <div class="col-md-3">Type</div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColType" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                        </th>
+                                        <th class="col-md-3">
+                                            <div class="col-md-3">Value</div>
+                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColValue" name="textInput" placeholder="All"></div>
+                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr v-for="(record, index) in items">
+                                        <td>{{ record.timeDate }}</td>
+                                        <td>{{ record.category }}</td>
+                                        <td>{{ record.class }}</td>
+                                        <td>{{ record.channel }}</td>
+                                        <td>{{ record.type }}</td>
+                                        <td>{{ record.value }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -953,25 +1225,25 @@
                                                         Current&nbsp;&nbsp;<span class="caret" />
                                                     </button>
                                                     <ul class="dropdown-menu" role="menu">
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Current')">Current</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Average')">Average</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Count')">Count</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Sum')">Sum</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Max')">Max</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'Min')">Min</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTimeOldest')">MaxTimeOldest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MaxTimeNewest')">MaxTimeNewest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTimeOldest')">MinTimeOldest</a></li>
-                                                        <li><a class="pointer" onclick="setValid('transFuncHistSel', 'MinTimeNewest')">MinTimeNewest</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'Current')">Current</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'Average')">Average</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'Count')">Count</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'Sum')">Sum</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'Max')">Max</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'Min')">Min</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'MaxTimeOldest')">MaxTimeOldest</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'MaxTimeNewest')">MaxTimeNewest</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'MinTimeOldest')">MinTimeOldest</a></li>
+                                                        <li><a class="pointer" onclick="setValidTransRadio('transFuncHistSel', 'MinTimeNewest')">MinTimeNewest</a></li>
                                                     </ul>
                                                 </div>
                                             </div>
                                             <fieldset id="transFuncRadioFieldset" disabled>
                                                 <div class="radio-inline">
-                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioElapsed" onclick="selSetRadio(this.id)" value="elapsed" checked>Elapsed</label>
+                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioElapsed" onclick="selSetTransRadio(this.id)" value="elapsed" checked>Elapsed</label>
                                                 </div>
                                                 <div class="radio-inline">
-                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioSince" onclick="selSetRadio(this.id)" value="since">Since</label>
+                                                    <label><input type="radio" name="transFuncRadio2" id="transFuncRadioSince" onclick="selSetTransRadio(this.id)" value="since">Since</label>
                                                 </div>
                                             </fieldset>
                                         </div>
@@ -1279,18 +1551,22 @@
     </div>
     <!--<script src="//maxcdn.bootstrapcdn.com/bootlint/0.2.0/bootlint.min.js"></script>-->
 
-    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/jquery-3.1.0.slim.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/bootstrap-datetimepicker.min.js"></script>
+    <script src="js/vue.2.0.RC.js"></script>
     <!--CodeMirror-->
     <script src="js/codemirror.js"></script>
     <script src="js/javascript.js"></script>
     <script src="js/active-line.js"></script>
 
     <script>
-        //#region ---------------------------------------- Initialise screen functions
+//#region ---------------------------------------- Initialise screen functions
         //TODO: Time of Day in triggers reverts to a different time when manually typing in the time without timepicker
         //TODO: WHen selecting a channel in a trigger/action and using the filter, when pressing the filter button the screen aborts
+        //TODO: When automation database is empty, triggers and actions give an error message when selecting the tab. Need to test the install state and adjust so it doesnt error with a fresh DB
+        //TODO: Replace javascript with jquery
+        //TODO: If you edit a setting then move off the screen without saving it should ask you if you want to move or not.
 
         // datetime picker https://github.com/Eonasdan/bootstrap-datetimepicker
         //One off time & date = EventFrom date + time + one off
@@ -1315,12 +1591,13 @@
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {
             enableTooltip()
-            for (var category in parent.categories) {
-                addButtonEntry("trigStateCategoryList", parent.categories[category].Cat, "trigStateCategory")
-                addButtonEntry("trigChgCategoryList", parent.categories[category].Cat, "trigChgCategory")
-                addButtonEntry("actionCategoryList", parent.categories[category].Cat, "actionCategory")
-                addButtonEntry("transFuncChCategoryList", parent.categories[category].Cat, "transFuncChCategory")
-                addButtonEntry("transFuncOutCategoryList", parent.categories[category].Cat, "transFuncOutCategory")
+            for (var category in parent.categories) {                               // Load up category dropdowns
+                addButtonEntry("trigStateCategoryList", parent.categories[category].Cat, "trigStateCategory");
+                addButtonEntry("trigChgCategoryList", parent.categories[category].Cat, "trigChgCategory");
+                addButtonEntry("actionCategoryList", parent.categories[category].Cat, "actionCategory");
+                addButtonEntry("transFuncChCategoryList", parent.categories[category].Cat, "transFuncChCategory");
+                addButtonEntry("transFuncOutCategoryList", parent.categories[category].Cat, "transFuncOutCategory");
+                addButtonEntry("queryCategoryList", parent.categories[category].Cat, "queryCategory");
             }
 
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {                 // Tab Navigation call relevant entry and exit functions
@@ -1390,6 +1667,193 @@
         }
 //#endregion
 
+//#region ---------------------------------------- Queries settings screen functions
+        function queriesScreenEnter() {
+            loadNames("QUERIES");
+            pressBut("queryTypeQuestionSel", "What");
+            pressBut("queryCategory", "ALL");
+            setQueryTimeFields("queryTimeframeSel", "Current");
+            document.getElementById("editOptions").style.display = "inline";
+        }
+
+        var queryResults = [];
+        var queryResult = function (time, timeDate, category, className, channel, type, value) {
+            this.time = time;
+            this.timeDate = timeDate;
+            this.category = category;
+            this.class = className;
+            this.channel = channel;
+            this.type = type;
+            this.value = value;
+        }
+
+        var queryResultVM = new Vue({
+            el: '#queryVueTable',
+            data: {
+                items: []
+            },
+            computed: {
+                displayDate: function (index) {
+                    // `this` points to the vm instance
+                    var tt = index
+                    return this.items[0].time + ' ' + this.items[0].time
+                }
+            }
+        });
+
+        queryResults.push(new queryResult('12354', "22nd September 2016 12:54:22 AM", 'LIGHTING', 'CBUS', 'MasterBed', 'level', '100%'))
+        queryResults.push(new queryResult('23456', "22nd September 2016 2:34:29 AM", 'POWER', 'SOLAR', 'TOTAL', 'WATTS', '3341'))
+
+        var unsortedArray = queryResults.slice(); // make copy from unsorted array first
+        //queryResultVM.items = resultSet
+
+        function keyFilter(me) {
+            var colName = me.parentNode.parentNode.innerText.trim();
+            queryResultVM.items = filterBy(resultSet, colName, document.getElementById("queryCol" + colName).value)
+        }
+
+        // manage the sort icons and sort the table data
+        function clickSort(me) {
+            var colName = me.parentNode.parentNode.innerText.trim();
+            switch (me.className) {
+                case "icon-sort":
+                    me.className = "icon-sort-down";
+                    sortBy(colName, -1);
+                    break;
+                case "icon-sort-down":
+                    me.className = "icon-sort-up";
+                    sortBy(colName, 1);
+                    break;
+                case "icon-sort-up":
+                    me.className = "icon-sort";
+                    sortBy(colName, 0);
+                    break;
+            }
+        }
+
+        function filterBy(array, column, filter) {
+            var columnLC = column.toLowerCase();
+            return array.filter(function (item) {
+                return item[columnLC].indexOf(filter) > -1
+            })
+        }
+
+        // Sort by column name with either alpha sort or numerical sort depending on column contents
+        function sortBy(column, sort) {
+            var columnLC = column.toLowerCase();
+            switch (sort) {
+                case 1:
+                    if (!isNaN(+queryResultVM.items[0][columnLC])) {
+                        queryResultVM.items.sort(function (a, b) { return a[columnLC] - b[columnLC] });
+                    } else {
+                        queryResultVM.items.sort();
+                    }
+                    break;
+                case -1:
+                    if (!isNaN(+queryResultVM.items[0][columnLC])) {
+                        queryResultVM.items.sort(function (a, b) { return b[columnLC] - a[columnLC] });
+                    } else {
+                        queryResultVM.items.sort().reverse();
+                    }
+                    break;
+                case 0:
+                    queryResultVM.items = unsortedArray;
+                    break;
+
+            }
+        }
+
+        function processQueryResults(data) {
+            if (data != "") {
+                var retResults = JSON.parse(data);
+                var queryResults = [];
+                for (var ind in retResults) {
+                    var d = new Date(retResults[ind].Time)
+                    queryResults.push(new queryResult(d.valueOf, d.toLocaleString(), retResults[ind].Category, retResults[ind].ClassName, retResults[ind].Instance, retResults[ind].Scope, retResults[ind].Data))
+                }
+                queryResultVM.items = queryResults;
+                $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...")
+            } else {
+                parent.modalDialog("Query", "Problem with query", "Query didn't process correctly.")
+            }
+        }
+
+        function setQueryTimeFields(button, value) {
+            pressBut(button, value);
+            if (value.toUpperCase() == "CURRENT") {
+                $("#queryElapsedFieldset").prop('disabled', true);
+                $("#queryRadioFieldset").prop('disabled', true);
+                $("#queryElapsedFieldset").prop('disabled', true);
+                $("#queryFromDateFieldset").prop('disabled', true);
+                $("#queryToDateFieldset").prop('disabled', true);
+                $("#queryFromTimeFieldset").prop('disabled', true);
+                $("#queryToTimeFieldset").prop('disabled', true);
+            } else {
+                $("#queryRadioFieldset").prop('disabled', false)
+                selSetQueryRadio();
+            }
+        }
+
+        function selSetQueryRadio() {
+            if ($("#queryRadioElapsed").prop("checked") === true) {
+                $("#queryElapsedFieldset").prop('disabled', false);
+                $("#queryFromDateFieldset").prop('disabled', true);
+                $("#queryToDateFieldset").prop('disabled', true);
+                $("#queryFromTimeFieldset").prop('disabled', true);
+                $("#queryToTimeFieldset").prop('disabled', true);
+            }
+            if ($("#queryRadioBetween").prop("checked") === true) {
+                $("#queryElapsedFieldset").prop('disabled', true);
+                $("#queryFromDateFieldset").prop('disabled', false);
+                $("#queryToDateFieldset").prop('disabled', false);
+                $("#queryFromTimeFieldset").prop('disabled', false);
+                $("#queryToTimeFieldset").prop('disabled', false);
+            }
+            if ($("#queryRadioSince").prop("checked") === true) {
+                $("#queryElapsedFieldset").prop('disabled', true);
+                $("#queryFromDateFieldset").prop('disabled', false);
+                $("#queryToDateFieldset").prop('disabled', true);
+                $("#queryFromTimeFieldset").prop('disabled', false);
+                $("#queryToTimeFieldset").prop('disabled', true);
+            }
+        }
+
+
+        function queryButRun() {
+            var fromDateTime = addDateAndTime("dtpQueryFromDate", "dtpQueryFromTime");
+            var toDateTime = addDateAndTime("dtpQueryToDate", "dtpQueryToTime");
+
+            switch ($("#queryTimeframeSel").prop("textContent").trim().toUpperCase()) {
+                case "CURRENT":
+                    break;
+                default:
+                    if (isNaN(toDateTime)) {
+                        alert("Invalid 'To' Time and/or Date. Re-enter.");
+                        return;
+                    }
+                    if (isNaN(fromDateTime)) {
+                        alert("Invalid 'From' Time and/or Date. Re-enter.");
+                        return;
+                    }
+                    break;
+            }
+
+            parent.send("QUERY", $("#queryTypeQuestionSel").prop("textContent").trim(), JSON.stringify({
+                Func: $("#queryTypeQuestionSel").prop("textContent").trim(),
+                StartDateTime: getNetDateTime(fromDateTime, "datetime"),
+                EndDateTime: getNetDateTime(toDateTime, "datetime"),
+                TimeFrame: $("#queryTimeframeSel").prop("textContent").trim(),
+                ValCond: $("#queryValueSel").prop("textContent").trim(),
+                Data: $("#queryValueInp").val(),
+                Cat: $("#queryCategory").prop("textContent").trim(),
+                ClassName: $("#queryClassInp").val(),
+                Instance: $("#queryInstanceInp").val(),
+                Scope: ""
+            }));
+        }
+
+//#endregion
+
 //#region ---------------------------------------- Triggers settings screen functions
         function triggersScreenEnter() {
             loadNames("TRIGGERS")
@@ -1424,12 +1888,12 @@
         // Multipy Average [SECURITY/CLASS] scope(instance) since(time date)    Multipl Average of channel back to the exact time/date
 
         // Enable or disable the function range entries depending if a range function is selected
-        function setValid(butID, butVal) {
+        function setValidTransRadio(butID, butVal) {
             pressBut(butID, butVal)
             if (butVal !== "Current") {
                 $("#transFuncRadioFieldset").removeAttr("disabled")
-                if ($("#transFuncRadioElapsed").prop("checked") === true) selSetRadio("transFuncRadioElapsed")
-                if ($("#transFuncRadioSince").prop("checked") === true) selSetRadio("transFuncRadioSince")
+                if ($("#transFuncRadioElapsed").prop("checked") === true) selSetTransRadio("transFuncRadioElapsed")
+                if ($("#transFuncRadioSince").prop("checked") === true) selSetTransRadio("transFuncRadioSince")
             } else {
                 $("#transFuncElapsedFieldset").attr("disabled", "true")
                 $("#transFuncSinceFieldset").attr("disabled", "true")
@@ -1450,7 +1914,7 @@
             }
         }
 
-        function selSetRadio(me) {
+        function selSetTransRadio(me) {
             if (me === "transFuncRadioElapsed") {
                 $("#transFuncSinceFieldset").attr("disabled", "true")
                 $("#transFuncElapsedFieldset").removeAttr("disabled")
@@ -1487,13 +1951,13 @@
                     if (splitTime.length > 0) {
                         if (splitTime[1].split("(")[0].toLowerCase().trim() === "elapsed") {
                             $("#transFuncRadioElapsed").prop("checked", true)
-                            selSetRadio("transFuncRadioElapsed")
+                            selSetTransRadio("transFuncRadioElapsed")
                             $("#transFuncTimeDrop").html(splitFunc[5].split(")")[0].trim() + "&nbsp;&nbsp;<span class='caret'></span></button>")
                             $("#transFuncTimeValue").val(splitFunc[4].split("(")[1].trim())
                         }
                         if (splitTime[1].split("(")[0].toLowerCase().trim() === "since") {
                             $("#transFuncRadioSince").prop("checked", true)
-                            selSetRadio("transFuncRadioSince")
+                            selSetTransRadio("transFuncRadioSince")
                         }
                     }
                 }
@@ -1532,10 +1996,11 @@
                     if (!$("#transFuncFieldset").attr("disabled") && $("#transFuncHistSel").prop("textContent").trim() !== "Current") {        // Add range if valid to
                         var selRadio = $("input[name=transFuncRadio2]:checked")[0].id.replace("transFuncRadio", "").toLowerCase()      // get all input tags with name transFuncRadio2 that are checked and strip unique radio name
                         if (selRadio === "since") {
-                            if (isNaN(new Date($("#transFuncFromDate").val().trim() + " " + $("#transFuncFromTime").val().trim())) === true) {
+                            if (isNaN(addDateAndTime("transFuncFromDate", "transFuncFromTime")) === true) {
                                 alert("Date and/or Time isn't valid. Re-enter.")
                                 return
                             }
+                            //TODO: Convert to single timedate with addDateAndTime function......
                             cmdStr = cmdStr + " " + selRadio + "(" + $("#transFuncFromDate").val().trim() + " " + $("#transFuncFromTime").val().trim() + ")"
                         } else {
                             cmdStr = cmdStr + " " + selRadio + "(" + $("#transFuncTimeValue").val().trim() + " " + $("#transFuncTimeDrop").text().trim() + ")"
@@ -1840,9 +2305,14 @@
             }
         }
 
+        // Create single DateTime value from Date and Time inputs (return NaN if invalid)
+        function addDateAndTime(dateField, timeField) {
+            return new Date($("#" + dateField).val().trim() + " " + $("#" + timeField).val().trim())
+        }
+
         // Convert from JS date format to dotnet UTC ticks
         function getNetDateTime(JSDateTime, dateTime) {
-            if (JSDateTime == "" || JSDateTime == undefined) return nullDate;
+            if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
             var convStr = JSDateTime.replace(/\u200E/g, "");       // remove hidden unicode left-to-right mark
             switch (dateTime) {                 // convert date to UTC strings
                 case "date":
@@ -2269,6 +2739,9 @@
                             updateLogs(msg.Data);
                             break;
                     }
+                    break;
+                case "QUERY":
+                    processQueryResults(msg.Data);
                     break;
                 case "AUTOMATION":
                     if (msg.Data != "") {

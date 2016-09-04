@@ -53,17 +53,18 @@ function _fw_loaded(start) {
     _usePtr = _widgetID.style.getPropertyValue("cursor")                                    // Reset pointer to default when in design mode
     if (start === "toolbox") {
         _toolbox = true;
-        _widgetID.setAttribute("draggable", "true")                                         // Allow dragging in the toolbox
+        document.getElementById("body").setAttribute("draggable", "true")                                         // Allow dragging in the toolbox
         _widgetID.style.setProperty("cursor", "move")
         _iniHeight = parseInt(_widgetID.getAttribute("height")) || parseInt(_widgetID.style.getPropertyValue("height"))
         _iniWidth = parseInt(_widgetID.getAttribute("width")) || parseInt(_widgetID.style.getPropertyValue("height"))
-
         if (typeof toolboxStart === "function") return toolboxStart(start);
     } else {
         _toolbox = false;
         _iniHeight = parent.widgets[_widgetNum].iniHeight
         _iniWidth = parent.widgets[_widgetNum].iniWidth
         _attribs = parent.widgets[_widgetNum].attribs;
+        _widgetID.setAttribute("height", _iniHeight * _scaleX);
+        _widgetID.setAttribute("width", _iniWidth * _scaleY);
         if (typeof widgetStart === "function") return widgetStart(start);                   // widget plugin startup routine (if present)
     }
     return false;
@@ -113,7 +114,8 @@ function _fw_endSession(param) {
 
 // manage scaling only for the scale DOM group
 function _fw_scale(scaleX, scaleY) {
-    if (_gScale !== null) _gScale.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
+    
+    if (_gScale !== null && +scaleX != 1 && +scaleY != 1) _gScale.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
     _scaleX = scaleX;
     _scaleY = scaleY;
     if (typeof scale === "function") return scale(scaleX, scaleY);

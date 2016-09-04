@@ -97,7 +97,7 @@
         </div>
     </div>
 
-    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/jquery-3.1.0.slim.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script>
         "use strict";
@@ -758,7 +758,15 @@
                             try {
                                 objID.width = Math.min(TBWidth, parseInt(objDoc.getElementById("widget").getAttribute("width")) || parseInt(objDoc.getElementById("widget").style.getPropertyValue("width")))
                                 objID.height = Math.min(TBWidth, parseInt(objDoc.getElementById("widget").getAttribute("height")) || parseInt(objDoc.getElementById("widget").style.getPropertyValue("height")))
-                                //alert(ev.target.data + " w:" + objID.width + " " + objID.height)
+                                var objDiv = document.createElement("div");
+                                objDiv.style.setProperty("height", TBWidth + "px");
+                                objDiv.style.setProperty("width", TBWidth + "px");
+                                objDiv.style.setProperty("background", "#4679BD");
+                                //objDiv.style.setProperty("position", "absolute");
+                                //objDiv.style.setProperty("top", "0");
+                                //objDiv.style.setProperty("left", "0");
+                                //objDiv.style.setProperty("z-index", "999");
+                                objDoc.getElementById("body").appendChild(objDiv);
                                 objDoc.getElementById("widget").setAttribute("data-widgetName", TBWidgetName);
                                 $("#" + TBWidgetName).tooltip({ title: objDoc.getElementById("TBtooltip").getAttribute("data-default"), delay: { show: 2000 } });
                             } catch (err) {
@@ -824,7 +832,7 @@
                 loadDoc.defaultView.addEventListener('mousedown', mouseDown, false);
                 loadDoc.defaultView.addEventListener("dblclick", widgetDblClick, false);
                 if (+lastLoaded === +loadNum) {
-                    document.getElementById("widgetContainer").style.setProperty("left", "0px");                    // make visible after rendering whole page
+                    setTimeout(function() {document.getElementById("widgetContainer").style.setProperty("left", "0px")}, 1);                    // make visible after rendering whole page
                     parent.status("Ready");
                     allLoaded = true;               // Used for switching devices in design mode when reloading screens
                 }
@@ -1278,7 +1286,6 @@
                     var widgetDoc = widgetObj.contentDocument;
                     if (editData.dragID !== "dragY") {
                         var newWidth = Math.round((editData.initialWidth + event.screenX - editData.startX) / designGrid) * designGrid;     // only allow grid gap increments
-                        //var newWidth = editData.initialWidth + event.screenX - editData.startX;     // only allow grid gap increments
                         widgetObj.width = newWidth;
                         sizeChange = "Width: " + parseInt(newWidth * 100 / editData.initialWidth) + "%"
                         widgets[editData.widgetNum].scaleX = newWidth / editData.initialWidth;
@@ -1289,7 +1296,6 @@
                     }
                     if (editData.dragID !== "dragX") {
                         var newHeight = Math.round((editData.initialHeight + event.screenY - editData.startY) / designGrid) * designGrid;
-                        //var newHeight = editData.initialHeight + event.screenY - editData.startY;
                         sizeChange = "Height: " + parseInt(newHeight * 100 / editData.initialHeight) + "%"
                         if (editData.dragID === "dragXY") {
                             newHeight = widgets[editData.widgetNum].scaleX * editData.initialHeight         // For XY drag, only scale with X to preserve widget proportions

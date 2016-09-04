@@ -8,7 +8,7 @@
     <title>Home Automation Client</title>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <meta name="description" content="">
-    <meta id="version" content="0.91">
+    <meta id="version" content="0.92">
     <meta name="author" content="">
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -127,7 +127,7 @@
         </div>
     </div>
 
-    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/jquery-3.1.0.slim.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script>
         "use strict";
@@ -528,11 +528,13 @@
                 ws.onclose = function (evt) {
                     if (netState == "starting") {
                         status("Cannot connect to the server. Please check server availability. Retrying...");
+                        dashboardFrame();                               // If re-establishing a broken connection, reset to dashboard.
                         startNet();     // Try again
                     } else {
                         status("Server connection closed");
                         netState = "closed"
-                        setTimeout(startNet, 50);
+                        dashboardFrame();                               // If re-establishing a broken connection, reset to dashboard.
+                        setTimeout(startNet, 500);
                     }
                 }
             } catch (exception) {
