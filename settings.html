@@ -1617,7 +1617,7 @@
             var logArea = document.getElementById("logs");
             document.getElementById("editOptions").style.display = "none";
             logArea.innerHTML = "Receiving logs (verbose mode: OFF)";
-            parent.send("CONSOLE", "", "START");             
+            parent.send("CONSOLE", "", "START");
         }
 
         function updateLogs(data) {
@@ -1764,7 +1764,8 @@
         }
 
         function processQueryResults(data) {
-            if (data != "") {
+            parent.status("");
+            if (data != "[]") {
                 var retResults = JSON.parse(data);
                 var queryResults = [];
                 for (var ind in retResults) {
@@ -1774,12 +1775,11 @@
                 queryResultVM.items = queryResults;
                 $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...")
             } else {
-                parent.modalDialog("Query", "Problem with query", "Query didn't process correctly.")
+                parent.modalDialog("Query", "No results", "Query didn't return any records.")
             }
         }
 
         function setQueryTimeFields(button, value) {
-            pressBut(button, value);
             if (value.toUpperCase() == "CURRENT") {
                 $("#queryElapsedFieldset").prop('disabled', true);
                 $("#queryRadioFieldset").prop('disabled', true);
@@ -1789,11 +1789,17 @@
                 $("#queryFromTimeFieldset").prop('disabled', true);
                 $("#queryToTimeFieldset").prop('disabled', true);
             } else {
+                if ($("#queryCategory").prop("textContent").trim() == "ALL") {
+                    alert("Please select a category to query any historical data");
+                    return;
+                }
                 $("#queryRadioFieldset").prop('disabled', false)
                 selSetQueryRadio();
             }
+            pressBut(button, value);
         }
 
+        // Enable / disable the relevant time inputs based on radio buttons selected
         function selSetQueryRadio() {
             if ($("#queryRadioElapsed").prop("checked") === true) {
                 $("#queryElapsedFieldset").prop('disabled', false);
@@ -1818,30 +1824,67 @@
             }
         }
 
-
         function queryButRun() {
-            var fromDateTime = addDateAndTime("dtpQueryFromDate", "dtpQueryFromTime");
-            var toDateTime = addDateAndTime("dtpQueryToDate", "dtpQueryToTime");
-
-            switch ($("#queryTimeframeSel").prop("textContent").trim().toUpperCase()) {
-                case "CURRENT":
-                    break;
-                default:
-                    if (isNaN(toDateTime)) {
-                        alert("Invalid 'To' Time and/or Date. Re-enter.");
+            var toDateTime = new Date();
+            var fromDateTime = new Date();
+            if ($("#queryTimeframeSel").prop("textContent").trim().toUpperCase() !== "CURRENT") {               // format all the history options
+                if ($("#queryRadioElapsed").prop("checked") === true) {
+                    var timespan = $("#queryTimeValue").val().trim();
+                    switch ($("#queryTimeDrop").prop("textContent").trim().toUpperCase()) {
+                        case "MINUTES":
+                            timespan = timespan * 60000;
+                            break;
+                        case "HOURS":
+                            timespan = timespan * 3600000;
+                            break;
+                        case "DAYS":
+                            timespan = timespan * 86400000;
+                            break;
+                        case "WEEKS":
+                            timespan = timespan * 604800000;
+                            break;
+                        case "MONTHS":
+                            timespan = timespan * 2620800000;
+                            break;
+                        case "YEARS":
+                            timespan = timespan * 31449600000;
+                            break;
+                    }
+                    fromDateTime = new Date(new Date().valueOf() - timespan);
+                } else {
+                    var fromDate = $("#queryFromDate").val().trim();
+                    var fromTime = $("#queryFromTime").val().trim();
+                    var toDate = $("#queryToDate").val().trim();
+                    var toTime = $("#queryToTime").val().trim();
+                    if (fromDate == "" && fromTime == "") {
+                        alert("Enter a 'From' date and/or time before submitting query.")
                         return;
                     }
-                    if (isNaN(fromDateTime)) {
-                        alert("Invalid 'From' Time and/or Date. Re-enter.");
-                        return;
-                    }
-                    break;
+                    if (fromDate == "") fromDate = new Date().toLocaleDateString()
+                    if (fromTime == "") fromTime = "12:00 AM"
+                    if (toDate == "") toDate = new Date().toLocaleDateString()
+                    if (toTime == "") toTime = new Date().toLocaleTimeString().split("GMT")[0].trim();
+                    fromDateTime = formatDateTime(fromDate + " " + fromTime, "datetime");
+                    toDateTime = formatDateTime(toDate + " " + toTime, "datetime");
+                }
+                if (isNaN(fromDateTime)) {
+                    alert("Invalid 'From' Time and/or Date. Re-enter.");
+                    return;
+                }
+                if (isNaN(toDateTime)) {
+                    alert("Invalid 'To' Time and/or Date. Re-enter.");
+                    return;
+                }
+                if (fromDateTime.valueOf() >= toDateTime.valueOf()) {
+                    alert("'From' Date / Time should be before 'To' Date / Time. Re-enter.");
+                    return;
+                }
             }
 
             parent.send("QUERY", $("#queryTypeQuestionSel").prop("textContent").trim(), JSON.stringify({
                 Func: $("#queryTypeQuestionSel").prop("textContent").trim(),
-                StartDateTime: getNetDateTime(fromDateTime, "datetime"),
-                EndDateTime: getNetDateTime(toDateTime, "datetime"),
+                StartDateTime: fromDateTime.toISOString(),          // send in ISO8601 format
+                EndDateTime: toDateTime.toISOString(),
                 TimeFrame: $("#queryTimeframeSel").prop("textContent").trim(),
                 ValCond: $("#queryValueSel").prop("textContent").trim(),
                 Data: $("#queryValueInp").val(),
@@ -1850,6 +1893,8 @@
                 Instance: $("#queryInstanceInp").val(),
                 Scope: ""
             }));
+            parent.status("Processing query...");
+            //TODO: Clear table
         }
 
 //#endregion
@@ -2306,37 +2351,54 @@
         }
 
         // Create single DateTime value from Date and Time inputs (return NaN if invalid)
-        function addDateAndTime(dateField, timeField) {
-            return new Date($("#" + dateField).val().trim() + " " + $("#" + timeField).val().trim())
-        }
+        //function addDateAndTime(dateField, timeField) {
+        //    return new Date($("#" + dateField).val().trim() + " " + $("#" + timeField).val().trim())
+        //}
 
-        // Convert from JS date format to dotnet UTC ticks
-        function getNetDateTime(JSDateTime, dateTime) {
+        //TODO: OTHER DATETIME IN SETTINGS NOW WRONG WITH DOTNETTIME
+
+        // Convert from general string date format to JS date object in local time. Format 'DD/MM/YY HH:MM:SS PM' with US dates and / or - date delimiters
+        function formatDateTime(JSDateTime, dateTime) {
             if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
-            var convStr = JSDateTime.replace(/\u200E/g, "");       // remove hidden unicode left-to-right mark
-            switch (dateTime) {                 // convert date to UTC strings
-                case "date":
-                    var myDate = new Date(convStr);
-                    myDate.setHours(0)
-                    myDate.setMinutes(0)
-                    myDate.setSeconds(0)
-                    myDate.setMilliseconds(0)
+            var convStr = JSDateTime.replace(/\u200E/g, "").trim();       // remove hidden unicode left-to-right mark
+            switch (dateTime.toUpperCase()) {                 
+                case "DATE":                                // assumes midnight
+                    var splitDate = convStr.trim().split("/")
+                    if (splitDate.length == 1) splitDate = convStr.trim().split("-");
+                    if (navigator.language == "en-US") {
+                        var myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], 0, 0, 0, 0)
+                    } else {
+                        var myDate = new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0], 0, 0, 0, 0)
+                    }
                     break;
-                case "time":
-                    var myDate = new Date();
-                    var splitDate = convStr.split(":");
-                    if (splitDate.length < 2) return nullDate;
-                    if (convStr.trim().split(" ")[1] === "PM")
-                        myDate.setHours(+splitDate[0] + 12, +splitDate[1].split(" ")[0]);
-                    else myDate.setHours(+splitDate[0], +splitDate[1].split(" ")[0]);
+                case "TIME":                                // assumes epoc date so we can add
+                    var splitTime = convStr.split(":");
+                    if (splitTime.length < 2) return nullDate;
+                    var myDate = new Date(0, 0, 0, convStr.trim().split(" ")[1].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1].split(" ")[0], 0, 0);
                     break;
-                case "datetime":
-                    var myDate = new Date(convStr)
+                case "DATETIME":
+                    var splitTD = convStr.split(" ");
+                    if (splitTD.length < 2) return nullDate;
+                    var splitTime = splitTD[1].trim().split(":");
+                    var splitDate = splitTD[0].trim().split("/")
+                    if (splitDate.length == 1) splitDate = splitTD[0].trim().split("-");
+                    if (splitTime.length < 2 || splitDate.length < 2) return nullDate;
+                    if (navigator.language == "en-US") {
+                        var myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], splitTD[2].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1], 0, 0)
+                    } else {
+                        var myDate = new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0], splitTD[2].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1], 0, 0)
+                    }
                     break;
                 default:
             }
+            return (myDate)
+            //return (myDate.valueOf + now.getTimezoneOffset() * 60000);                  // UTC time
+        }
+
+        function DotNetDateTime(myDate) {
             return (myDate.valueOf() * pcTicks + unixEpoc).toString();                  // send back date as UTC
         }
+
 
         // Convert from PC date format ticks to Javascript date from UTC to local time
         function getJSDateTime(ticks, dateortime) {
@@ -2355,6 +2417,27 @@
 
         // setup datetime pickers
         $(function () {
+            $('#dtpQueryFromTime').datetimepicker({
+                language: 'en',
+                pickDate: false,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpQueryToTime').datetimepicker({
+                language: 'en',
+                pickDate: false,
+                pick12HourFormat: true,
+                pickSeconds: false
+            });
+            $('#dtpQueryFromDate').datetimepicker({
+                language: 'en',
+                pickTime: false
+            });
+            $('#dtpQueryToDate').datetimepicker({
+                language: 'en',
+                pickTime: false
+            });
+
             $('#dtpFromDate').datetimepicker({
                 language: 'en',
                 pickTime: false
@@ -2602,9 +2685,9 @@
                 "eventDesc": $('#eventDesc').val().trim(),
                 "eventChkEnabled": $('#eventChkEnabled').prop('checked').toString(),
                 "eventChkOneOff": $('#eventChkOneOff').prop('checked').toString(),
-                "eventFromDateTime": getNetDateTime($('#eventFromDate').val(), "datetime"),
-                "eventToDateTime": getNetDateTime($('#eventToDate').val(), "datetime"),
-                "eventLastFired": getNetDateTime($('#eventLastFired').val(), "datetime"),
+                "eventFromDateTime": formatDateTimeUTC($('#eventFromDate').val(), "datetime"),
+                "eventToDateTime": formatDateTimeUTC($('#eventToDate').val(), "datetime"),
+                "eventLastFired": formatDateTimeUTC($('#eventLastFired').val(), "datetime"),
                 "eventNumRecur": $('#eventTimesRun').val(),
                 "eventTrigs": trigSels,
                 "eventActions": actionSels
@@ -2655,11 +2738,11 @@
                 "trigChgScope": $('#trigChgScope').val().trim(),
                 "trigChgCond": condIndex('trigChgCond'),
                 "trigChgData": $('#trigChgData').val().trim(),
-                "trigFromDate": getNetDateTime($('#trigFromDate').val().trim(), "date"),
-                "trigFromTime": getNetDateTime($('#trigFromTime').val().trim(), "time"),
-                "trigToDate": getNetDateTime($('#trigToDate').val().trim(), "date"),
-                "trigToTime": getNetDateTime($('#trigToTime').val().trim(), "time"),
-                "trigTimeofDay": getNetDateTime($('#trigTimeofDay').val().trim(), "time"),
+                "trigFromDate": formatDateTimeUTC($('#trigFromDate').val().trim(), "date"),
+                "trigFromTime": formatDateTimeUTC($('#trigFromTime').val().trim(), "time"),
+                "trigToDate": formatDateTimeUTC($('#trigToDate').val().trim(), "date"),
+                "trigToTime": formatDateTimeUTC($('#trigToTime').val().trim(), "time"),
+                "trigTimeofDay": formatDateTimeUTC($('#trigTimeofDay').val().trim(), "time"),
                 "trigChkFortnight": $('#trigChkFortnight').prop('checked').toString().trim(),
                 "trigChkMonth": $('#trigChkMonth').prop('checked').toString().trim(),
                 "trigChkYear": $('#trigChkYear').prop('checked').toString().trim(),

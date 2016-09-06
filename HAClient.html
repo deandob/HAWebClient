@@ -143,6 +143,7 @@
         var categories;
         var tooltipDelay = 1500;                            // Delay before showing tooltip when hovering
         var connection = "local";
+        var locale;
 
         switch (document.URL.toLowerCase().split("?")[1]) {         // command line options after URL '?'
             case "remote":
@@ -453,6 +454,9 @@
                                                 default:
                                             }
                                             break;
+//                                        case "QUERY":
+
+  //                                          break;
                                         case "NETWORK":
                                             switch (msg.Instance.toUpperCase()) {
                                                 case "SERVER":
@@ -462,6 +466,7 @@
                                                             clientName = connData.ClientName
                                                             if (localStorage.getItem("clientName") != clientName) localStorage.setItem("clientName", clientName);       // save clientName from server (local javascript can't get client name) 
                                                             netName = connData.ServerName;
+                                                            locale = connData.Locale;
                                                             document.getElementById("headerTitle").innerHTML = "&nbsp;" + netName
                                                             netState = "localsession"
                                                             iFrame.setAttribute("src", "dashboard.html" + debugURL);
