@@ -274,6 +274,7 @@
                                             <li><a class="pointer" onclick="pressBut('queryValueSel', 'less')">less</a></li>
                                             <li><a class="pointer" onclick="pressBut('queryValueSel', 'not')">not</a></li>
                                             <li><a class="pointer" onclick="pressBut('queryValueSel', 'contains')">contains</a></li>
+                                            <li><a class="pointer" onclick="pressBut('queryValueSel', 'like')">like</a></li>
                                             <li><a class="pointer" onclick="pressBut('queryValueSel', 'change')">change</a></li>
                                         </ul>
                                     </div>
@@ -386,55 +387,70 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <div class="panel panel-info">
                         <div class="panel-heading"><h4 class="panel-title" id="queryPanelTitle">Results</h4></div>
                         <div class="panel-body">
-                            <table id="queryVueTable" class="table table-condensed table-striped">
-                                <thead>
-                                    <tr>
-                                        <th class="col-md-3">
-                                            <div class="col-md-3">Time</div>
-                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColTime" name="textInput" placeholder="All"></div>
-                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
-                                        </th>
-                                        <th class="col-md-1">
-                                            <div class="col-md-3">Category</div>
-                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColCategory" name="textInput" placeholder="All"></div>
-                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
-                                        </th>
-                                        <th class="col-md-1">
-                                            <div class="col-md-3">Class</div>
-                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColClass" name="textInput" placeholder="All"></div>
-                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
-                                        </th>
-                                        <th class="col-md-1">
-                                            <div class="col-md-5"><div class="col-md-3">Channel</div><div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div></div>
-                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColChannel" name="textInput" placeholder="All"></div>
-                                        </th>
-                                        <th class="col-md-1">
-                                            <div class="col-md-3">Type</div>
-                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColType" name="textInput" placeholder="All"></div>
-                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
-                                        </th>
-                                        <th class="col-md-3">
-                                            <div class="col-md-3">Value</div>
-                                            <div class="col-md-5"><input type="text" class="form-control" onkeyup="keyFilter(this)" id="queryColValue" name="textInput" placeholder="All"></div>
-                                            <div class="col-md-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(record, index) in items">
-                                        <td>{{ record.timeDate }}</td>
-                                        <td>{{ record.category }}</td>
-                                        <td>{{ record.class }}</td>
-                                        <td>{{ record.channel }}</td>
-                                        <td>{{ record.type }}</td>
-                                        <td>{{ record.value }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <form class="form-horizontal">
+                                <table id="queryVueTable" class="table table-condensed table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="col-md-2">
+                                                <div class="form-group">
+                                                    <div class="col-xs-3">Time</div>
+                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColTime" name="textInput" placeholder="All"></div>
+                                                </div>
+                                            </th>
+                                            <th class="col-md-2">
+                                                <div class="form-group">
+                                                    <div class="col-xs-5">Category</div>
+                                                    <div class="col-xs-1"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColCategory" name="textInput" placeholder="All"></div>
+                                                </div>
+                                            </th>
+                                            <th class="col-xs-2">
+                                                <div class="form-group">
+                                                    <div class="col-xs-3">Class</div>
+                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColClass" name="textInput" placeholder="All"></div>
+                                                </div>
+                                            </th>
+                                            <th class="col-xs-2">
+                                                <div class="form-group">
+                                                    <div class="col-xs-5">Channel</div>
+                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColChannel" name="textInput" placeholder="All"></div>
+                                                </div>
+                                            </th>
+                                            <th class="col-xs-2">
+                                                <div class="form-group">
+                                                    <div class="col-xs-3">Type</div>
+                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColType" name="textInput" placeholder="All"></div>
+                                                </div>
+                                            </th>
+                                            <th class="col-xs-2">
+                                                <div class="form-group">
+                                                    <div class="col-xs-3">Value</div>
+                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColValue" name="textInput" placeholder="All"></div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="(record, index) in items">
+                                            <td>{{ record.timeDate }}</td>
+                                            <td>{{ record.category }}</td>
+                                            <td>{{ record.class }}</td>
+                                            <td>{{ record.channel }}</td>
+                                            <td>{{ record.type }}</td>
+                                            <td>{{ record.value }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                             </form>
                         </div>
                     </div>
                 </div>
@@ -1765,16 +1781,22 @@
 
         function processQueryResults(data) {
             parent.status("");
+            //var tzOffset = new Date;
+            //tzOffset = tzOffset.getTimezoneOffset() * 60000;            // compensate as there is no control over JSON time conversion from server
             if (data != "[]") {
                 var retResults = JSON.parse(data);
                 var queryResults = [];
                 for (var ind in retResults) {
-                    var d = new Date(retResults[ind].Time)
-                    queryResults.push(new queryResult(d.valueOf, d.toLocaleString(), retResults[ind].Category, retResults[ind].ClassName, retResults[ind].Instance, retResults[ind].Scope, retResults[ind].Data))
+                    //var a = new Date(retResults[ind].Time).valueOf() - tzOffset;
+                    //var d = new Date(a);
+                    var d = new Date(retResults[ind].Time);
+                    queryResults.push(new queryResult(d.valueOf(), d.toLocaleString(), retResults[ind].Category, retResults[ind].ClassName, retResults[ind].Instance, retResults[ind].Scope, retResults[ind].Data))
                 }
                 queryResultVM.items = queryResults;
                 $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...")
             } else {
+                queryResultVM.items = null;
+                $("#queryPanelTitle").text("Results");
                 parent.modalDialog("Query", "No results", "Query didn't return any records.")
             }
         }
@@ -1893,8 +1915,7 @@
                 Instance: $("#queryInstanceInp").val(),
                 Scope: ""
             }));
-            parent.status("Processing query...");
-            //TODO: Clear table
+            parent.status("Please wait - processing query...");
         }
 
 //#endregion
