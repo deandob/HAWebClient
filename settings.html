@@ -1692,6 +1692,7 @@
             document.getElementById("editOptions").style.display = "inline";
         }
 
+        var unsortedArray;
         var queryResults = [];
         var queryResult = function (time, timeDate, category, className, channel, type, value) {
             this.time = time;
@@ -1717,15 +1718,9 @@
             }
         });
 
-        queryResults.push(new queryResult('12354', "22nd September 2016 12:54:22 AM", 'LIGHTING', 'CBUS', 'MasterBed', 'level', '100%'))
-        queryResults.push(new queryResult('23456', "22nd September 2016 2:34:29 AM", 'POWER', 'SOLAR', 'TOTAL', 'WATTS', '3341'))
-
-        var unsortedArray = queryResults.slice(); // make copy from unsorted array first
-        //queryResultVM.items = resultSet
-
         function keyFilter(me) {
             var colName = me.parentNode.parentNode.innerText.trim();
-            queryResultVM.items = filterBy(resultSet, colName, document.getElementById("queryCol" + colName).value)
+            queryResultVM.items = filterBy(queryResults, colName, document.getElementById("queryCol" + colName).value.toUpperCase());
         }
 
         // manage the sort icons and sort the table data
@@ -1773,31 +1768,9 @@
                     }
                     break;
                 case 0:
-                    queryResultVM.items = unsortedArray;
+                    queryResultVM.items = unsortedArray.slice();
                     break;
 
-            }
-        }
-
-        function processQueryResults(data) {
-            parent.status("");
-            //var tzOffset = new Date;
-            //tzOffset = tzOffset.getTimezoneOffset() * 60000;            // compensate as there is no control over JSON time conversion from server
-            if (data != "[]") {
-                var retResults = JSON.parse(data);
-                var queryResults = [];
-                for (var ind in retResults) {
-                    //var a = new Date(retResults[ind].Time).valueOf() - tzOffset;
-                    //var d = new Date(a);
-                    var d = new Date(retResults[ind].Time);
-                    queryResults.push(new queryResult(d.valueOf(), d.toLocaleString(), retResults[ind].Category, retResults[ind].ClassName, retResults[ind].Instance, retResults[ind].Scope, retResults[ind].Data))
-                }
-                queryResultVM.items = queryResults;
-                $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...")
-            } else {
-                queryResultVM.items = null;
-                $("#queryPanelTitle").text("Results");
-                parent.modalDialog("Query", "No results", "Query didn't return any records.")
             }
         }
 
@@ -1917,6 +1890,27 @@
             }));
             parent.status("Please wait - processing query...");
         }
+
+        function processQueryResults(data) {
+            parent.status("");
+            queryResults = [];
+            if (data != "[]") {
+                var retResults = JSON.parse(data);
+                for (var ind in retResults) {
+                    //var a = new Date(retResults[ind].Time).valueOf() - tzOffset;
+                    //var d = new Date(a);
+                    var d = new Date(retResults[ind].Time);
+                    queryResults.push(new queryResult(d.valueOf(), d.toLocaleString(), retResults[ind].Category, retResults[ind].ClassName, retResults[ind].Instance, retResults[ind].Scope, retResults[ind].Data))
+                }
+                queryResultVM.items = queryResults;
+            } else {
+                queryResultVM.items = null;
+                parent.modalDialog("Query", "No results", "Query didn't return any records.")
+            }
+            $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...")
+            unsortedArray = queryResults.slice(); // make copy from unsorted array to restore sort
+        }
+
 
 //#endregion
 
