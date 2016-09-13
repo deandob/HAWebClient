@@ -208,12 +208,12 @@
             </div>
             <br />
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <div class="panel panel-info">
                         <div class="panel-heading"><h4 class="panel-title">Question</h4></div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-md-10">
+                                <div class="col-md-6">
                                     <p>Type</p>
                                     <div class="btn-group btn-group-justified">
                                         <button type="button" id="queryTypeQuestionSel" name="dropEmpty" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -226,10 +226,7 @@
                                         </ul>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <br />
-                                <div class="col-md-10">
+                                <div class="col-md-6">
                                     <p>Category</p>
                                     <div class="btn-group btn-group-justified">
                                         <button id="queryCategory" name="dropEmpty" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -242,14 +239,11 @@
                             </div>
                             <div class="row">
                                 <br />
-                                <div class="col-md-10">
+                                <div class="col-md-6">
                                     <p>Class</p>
                                     <input type="text" class="form-control" id="queryClassInp" name="textInput" placeholder="All">
                                 </div>
-                            </div>
-                            <div class="row">
-                                <br />
-                                <div class="col-md-10">
+                                <div class="col-md-6">
                                     <p>Channel (Instance)</p>
                                     <input type="text" class="form-control" id="queryInstanceInp" name="textInput" placeholder="All">
                                 </div>
@@ -257,12 +251,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-5">
                     <div class="panel panel-info">
                         <div class="panel-heading"><h4 class="panel-title">Conditions</h4></div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <p>Value</p>
                                     <div class="btn-group btn-group-justified">
                                         <button type="button" id="queryValueSel" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -279,105 +273,91 @@
                                         </ul>
                                     </div>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-md-3">
                                     <p>&nbsp;</p>
                                     <input type="text" class="form-control" id="queryValueInp" name="textInput" placeholder="All">
                                 </div>
+                                <div class="col-md-3">
+                                    <p>From</p>
+                                    <fieldset id="queryFromTimeFieldset" disabled>
+                                        <div class="input-group date" id="dtpQueryFromTime">
+                                            <input id="queryFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                            <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-3">
+                                    <p>To</p>
+                                    <fieldset id="queryToTimeFieldset" disabled>
+                                        <div class="input-group date" id="dtpQueryToTime">
+                                            <input id="queryToTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
+                                            <span class="input-group-addon pointer"><span class="icon-time"></span></span>
+                                        </div>
+                                    </fieldset>
+                                </div>
                             </div>
+                            <br />
+                            <fieldset id="queryRadioFieldset" disabled>
+                                <div class="radio-inline">
+                                    <label><input type="radio" name="queryRadio2" id="queryRadioElapsed" onclick="selSetQueryRadio(this.id)" value="elapsed" checked>Elapsed</label>
+                                </div>
+                                <div class="radio-inline">
+                                    <label><input type="radio" name="queryRadio2" id="queryRadioSince" onclick="selSetQueryRadio(this.id)" value="since">Since</label>
+                                </div>
+                                <div class="radio-inline">
+                                    <label><input type="radio" name="queryRadio2" id="queryRadioBetween" onclick="selSetQueryRadio(this.id)" value="between" checked>Between</label>
+                                </div>
+                            </fieldset>
                             <div class="row">
-                                <br />
-                                <div class="col-md-12">
-                                    <p>Timeframe</p>
+                                <div class="col-md-3">
                                     <fieldset id="queryFieldset">
-                                        <div class="row">
-                                            <div class="col-md-5">
-                                                <div class="btn-group btn-group-justified">
-                                                    <button type="button" id="queryTimeframeSel" name="history" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                                        Current&nbsp;&nbsp;<span class="caret" />
-                                                    </button>
-                                                    <ul class="dropdown-menu" role="menu">
-                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Current')">Current</a></li>
-                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'History')">History</a></li>
-                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Average')">Average</a></li>
-                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Count')">Count</a></li>
-                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Sum')">Sum</a></li>
-                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Max')">Max</a></li>
-                                                        <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Min')">Min</a></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                            <fieldset id="queryRadioFieldset" disabled>
-                                                <div class="radio-inline">
-                                                    <label><input type="radio" name="queryRadio2" id="queryRadioElapsed" onclick="selSetQueryRadio(this.id)" value="elapsed" checked>Elapsed</label>
-                                                </div>
-                                                <div class="radio-inline">
-                                                    <label><input type="radio" name="queryRadio2" id="queryRadioSince" onclick="selSetQueryRadio(this.id)" value="since">Since</label>
-                                                </div>
-                                                <div class="radio-inline">
-                                                    <label><input type="radio" name="queryRadio2" id="queryRadioBetween" onclick="selSetQueryRadio(this.id)" value="between" checked>Between</label>
-                                                </div>
-                                            </fieldset>
+                                        <div class="btn-group btn-group-justified">
+                                            <button type="button" id="queryTimeframeSel" name="history" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                                Current&nbsp;&nbsp;<span class="caret" />
+                                            </button>
+                                            <ul class="dropdown-menu" role="menu">
+                                                <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Current')">Current</a></li>
+                                                <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'History')">History</a></li>
+                                                <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Average')">Average</a></li>
+                                                <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Count')">Count</a></li>
+                                                <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Sum')">Sum</a></li>
+                                                <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Max')">Max</a></li>
+                                                <li><a class="pointer" onclick="setQueryTimeFields('queryTimeframeSel', 'Min')">Min</a></li>
+                                            </ul>
                                         </div>
-                                        <div class="row">
-                                            <br />
-                                            <fieldset id="queryElapsedFieldset" disabled>
-                                                <div class="col-md-6">
-                                                    <div class="input-group">
-                                                        <input id="queryTimeValue" name="oneInput" type="text" class="form-control" value="1">
-                                                        <div class="input-group-btn">
-                                                            <button id="queryTimeDrop" name="queryTimeInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Minutes <span class="caret" /></button>
-                                                            <ul class="dropdown-menu pull-right">
-                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Minutes')">Minutes</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Hours')">Hours</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Days')">Days</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Weeks')">Weeks</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Months')">Months</a></li>
-                                                                <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Years')">Years</a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </fieldset>
-                                        </div>
-                                        <br />
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <p>From</p>
-                                                <fieldset id="queryFromTimeFieldset" disabled>
-                                                    <div class="input-group date" id="dtpQueryFromTime">
-                                                        <input id="queryFromTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
-                                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
-                                                    </div>
-                                                </fieldset>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <p>To</p>
-                                                <fieldset id="queryToTimeFieldset" disabled>
-                                                    <div class="input-group date" id="dtpQueryToTime">
-                                                        <input id="queryToTime" name="textInput" data-format="HH:mm PP" type="text" class="form-control" />
-                                                        <span class="input-group-addon pointer"><span class="icon-time"></span></span>
-                                                    </div>
-                                                </fieldset>
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-3">
+                                    <fieldset id="queryElapsedFieldset" disabled>
+                                        <div class="input-group">
+                                            <input id="queryTimeValue" name="oneInput" type="text" class="form-control" value="1">
+                                            <div class="input-group-btn">
+                                                <button id="queryTimeDrop" name="queryTimeInput" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Minutes <span class="caret" /></button>
+                                                <ul class="dropdown-menu pull-right">
+                                                    <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Minutes')">Minutes</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Hours')">Hours</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Days')">Days</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Weeks')">Weeks</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Months')">Months</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('queryTimeDrop', 'Years')">Years</a></li>
+                                                </ul>
                                             </div>
                                         </div>
-                                        <br />
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <fieldset id="queryFromDateFieldset" disabled>
-                                                    <div class="input-group date" id="dtpQueryFromDate">
-                                                        <input id="queryFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
-                                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
-                                                    </div>
-                                                </fieldset>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <fieldset id="queryToDateFieldset" disabled>
-                                                    <div class="input-group date" id="dtpQueryToDate">
-                                                        <input id="queryToDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
-                                                        <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
-                                                    </div>
-                                                </fieldset>
-                                            </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-3">
+                                    <fieldset id="queryFromDateFieldset" disabled>
+                                        <div class="input-group date" id="dtpQueryFromDate">
+                                            <input id="queryFromDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                            <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
+                                        </div>
+                                    </fieldset>
+                                </div>
+                                <div class="col-md-3">
+                                    <fieldset id="queryToDateFieldset" disabled>
+                                        <div class="input-group date" id="dtpQueryToDate">
+                                            <input id="queryToDate" name="textInput" data-format="dd-MM-yyyy" type="text" class="form-control" />
+                                            <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
                                         </div>
                                     </fieldset>
                                 </div>
@@ -398,42 +378,42 @@
                                             <th class="col-md-2">
                                                 <div class="form-group">
                                                     <div class="col-xs-3">Time</div>
-                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-2"><span class="icon-sort" name="sortIcon" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                                     <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColTime" name="textInput" placeholder="All"></div>
                                                 </div>
                                             </th>
                                             <th class="col-md-2">
                                                 <div class="form-group">
                                                     <div class="col-xs-5">Category</div>
-                                                    <div class="col-xs-1"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-1"><span class="icon-sort" name="sortIcon" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                                     <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColCategory" name="textInput" placeholder="All"></div>
                                                 </div>
                                             </th>
                                             <th class="col-xs-2">
                                                 <div class="form-group">
                                                     <div class="col-xs-3">Class</div>
-                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-2"><span class="icon-sort" name="sortIcon" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                                     <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColClass" name="textInput" placeholder="All"></div>
                                                 </div>
                                             </th>
                                             <th class="col-xs-2">
                                                 <div class="form-group">
                                                     <div class="col-xs-5">Channel</div>
-                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-2"><span class="icon-sort" name="sortIcon" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                                     <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColChannel" name="textInput" placeholder="All"></div>
                                                 </div>
                                             </th>
                                             <th class="col-xs-2">
                                                 <div class="form-group">
                                                     <div class="col-xs-3">Type</div>
-                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-2"><span class="icon-sort" name="sortIcon" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                                     <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColType" name="textInput" placeholder="All"></div>
                                                 </div>
                                             </th>
                                             <th class="col-xs-2">
                                                 <div class="form-group">
                                                     <div class="col-xs-3">Value</div>
-                                                    <div class="col-xs-2"><span class="icon-sort" style="cursor:pointer" onclick="clickSort(this)"></span></div>
+                                                    <div class="col-xs-2"><span class="icon-sort" name="sortIcon" style="cursor:pointer" onclick="clickSort(this)"></span></div>
                                                     <div class="col-xs-12"><input type="text" class="form-control input-sm" onkeyup="keyFilter(this)" id="queryColValue" name="textInput" placeholder="All"></div>
                                                 </div>
                                             </th>
@@ -450,7 +430,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
-                             </form>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -1690,6 +1670,7 @@
             pressBut("queryCategory", "ALL");
             setQueryTimeFields("queryTimeframeSel", "Current");
             document.getElementById("editOptions").style.display = "inline";
+            clearClass("sortIcon", "icon-sort");
         }
 
         var unsortedArray;
@@ -1755,22 +1736,21 @@
             switch (sort) {
                 case 1:
                     if (!isNaN(+queryResultVM.items[0][columnLC])) {
-                        queryResultVM.items.sort(function (a, b) { return a[columnLC] - b[columnLC] });
+                        queryResultVM.items.sort(function (a, b) { return a[columnLC] - b[columnLC] });     // numbers
                     } else {
-                        queryResultVM.items.sort();
+                        queryResultVM.items.sort(function (a, b) { return a[columnLC].localeCompare(b[columnLC])});
                     }
                     break;
                 case -1:
                     if (!isNaN(+queryResultVM.items[0][columnLC])) {
                         queryResultVM.items.sort(function (a, b) { return b[columnLC] - a[columnLC] });
                     } else {
-                        queryResultVM.items.sort().reverse();
+                        queryResultVM.items.sort(function (a, b) { return b[columnLC].localeCompare(a[columnLC]) });
                     }
                     break;
                 case 0:
                     queryResultVM.items = unsortedArray.slice();
                     break;
-
             }
         }
 
@@ -1833,7 +1813,7 @@
                             timespan = timespan * 3600000;
                             break;
                         case "DAYS":
-                            timespan = timespan * 86400000;
+                            timespan = timespan * 86400000;            
                             break;
                         case "WEEKS":
                             timespan = timespan * 604800000;
@@ -1889,6 +1869,7 @@
                 Scope: ""
             }));
             parent.status("Please wait - processing query...");
+            $("#mainBody").css("cursor", "wait");
         }
 
         function processQueryResults(data) {
@@ -1907,8 +1888,10 @@
                 queryResultVM.items = null;
                 parent.modalDialog("Query", "No results", "Query didn't return any records.")
             }
-            $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...")
+            $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...");
+            clearClass("sortIcon", "icon-sort");
             unsortedArray = queryResults.slice(); // make copy from unsorted array to restore sort
+            $("#mainBody").css("cursor", "normal");
         }
 
 
@@ -2370,8 +2353,6 @@
         //    return new Date($("#" + dateField).val().trim() + " " + $("#" + timeField).val().trim())
         //}
 
-        //TODO: OTHER DATETIME IN SETTINGS NOW WRONG WITH DOTNETTIME
-
         // Convert from general string date format to JS date object in local time. Format 'DD/MM/YY HH:MM:SS PM' with US dates and / or - date delimiters
         function formatDateTime(JSDateTime, dateTime) {
             if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
@@ -2510,25 +2491,32 @@
             clearRecPressBut("equalsInput", "equals");
             clearRecPressBut("noneInput", "None");
             clearRecHTML("multiSel", "");
+            clearClass("sortIcon", "icon-sort");
+        }
+
+        function clearClass(fieldName, val) {
+            name = "sortIcon"
+            var elements = document.getElementsByName(fieldName);
+            for (var i = 0; i < elements.length; i++) elements[i].className = val;
         }
 
         function clearRecVal(fieldName, val) {
-            var elements = document.getElementsByName(fieldName)
+            var elements = document.getElementsByName(fieldName);
             for (var i = 0; i < elements.length; i++) elements[i].value = val;
         }
 
         function clearRecChecked(fieldName, val) {
-            var elements = document.getElementsByName(fieldName)
+            var elements = document.getElementsByName(fieldName);
             for (var i = 0; i < elements.length; i++) elements[i].checked = val;
         }
 
         function clearRecPressBut(fieldName, val) {
-            var elements = document.getElementsByName(fieldName)
+            var elements = document.getElementsByName(fieldName);
             for (var i = 0; i < elements.length; i++) pressBut(elements[i].id, val);
         }
 
         function clearRecHTML(fieldName, val) {
-            var elements = document.getElementsByName(fieldName)
+            var elements = document.getElementsByName(fieldName);
             for (var i = 0; i < elements.length; i++) elements[i].innerHTML = val;
         }
 
@@ -2700,9 +2688,9 @@
                 "eventDesc": $('#eventDesc').val().trim(),
                 "eventChkEnabled": $('#eventChkEnabled').prop('checked').toString(),
                 "eventChkOneOff": $('#eventChkOneOff').prop('checked').toString(),
-                "eventFromDateTime": formatDateTimeUTC($('#eventFromDate').val(), "datetime"),
-                "eventToDateTime": formatDateTimeUTC($('#eventToDate').val(), "datetime"),
-                "eventLastFired": formatDateTimeUTC($('#eventLastFired').val(), "datetime"),
+                "eventFromDateTime": formatDateTime($('#eventFromDate').val(), "datetime").toISOString(),
+                "eventToDateTime": formatDateTime($('#eventToDate').val(), "datetime").toISOString(),
+                "eventLastFired": formatDateTime($('#eventLastFired').val(), "datetime").toISOString(),
                 "eventNumRecur": $('#eventTimesRun').val(),
                 "eventTrigs": trigSels,
                 "eventActions": actionSels
@@ -2753,11 +2741,11 @@
                 "trigChgScope": $('#trigChgScope').val().trim(),
                 "trigChgCond": condIndex('trigChgCond'),
                 "trigChgData": $('#trigChgData').val().trim(),
-                "trigFromDate": formatDateTimeUTC($('#trigFromDate').val().trim(), "date"),
-                "trigFromTime": formatDateTimeUTC($('#trigFromTime').val().trim(), "time"),
-                "trigToDate": formatDateTimeUTC($('#trigToDate').val().trim(), "date"),
-                "trigToTime": formatDateTimeUTC($('#trigToTime').val().trim(), "time"),
-                "trigTimeofDay": formatDateTimeUTC($('#trigTimeofDay').val().trim(), "time"),
+                "trigFromDate": formatDateTime($('#trigFromDate').val().trim(), "date").toISOString(),
+                "trigFromTime": formatDateTime($('#trigFromTime').val().trim(), "time").toISOString(),
+                "trigToDate": formatDateTime($('#trigToDate').val().trim(), "date").toISOString(),
+                "trigToTime": formatDateTime($('#trigToTime').val().trim(), "time").toISOString(),
+                "trigTimeofDay": formatDateTime($('#trigTimeofDay').val().trim(), "time"),
                 "trigChkFortnight": $('#trigChkFortnight').prop('checked').toString().trim(),
                 "trigChkMonth": $('#trigChkMonth').prop('checked').toString().trim(),
                 "trigChkYear": $('#trigChkYear').prop('checked').toString().trim(),

@@ -18,7 +18,7 @@
 <body id="navFrame" class="navframe" draggable="false" oncontextmenu="return false;">
     <div class="navbar navbar-default navbar-fixed-top" role="navigation">
         <div class="container-fluid">
-            <div class="navbar-header" style="height: 50px">
+            <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navCollapse">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
@@ -51,8 +51,8 @@
                     <form class="navbar-form navbar-left" role="listbox">
                         <div class="form-group">
                             <div class="input-group-btn col-md-1">
-                                <input type="text" class="form-control" id="screenDevice" value="desktop" disabled>
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret"></span></button>
+                                <input type="text" class="form-control input-sm" id="screenDevice" value="desktop" disabled>
+                                <button type="button" class="btn btn-default dropdown-toggle input-sm" data-toggle="dropdown"><span class="caret"></span></button>
                                 <ul id="deviceList" class="dropdown-menu pull-left">
                                     <li class="pointer"><a onclick="selectDevice('desktop')">desktop</a></li>
                                     <li class="pointer"><a onclick="selectDevice('tablet')">tablet</a></li>
@@ -67,12 +67,12 @@
                     <li><a id="logonButton" style="visibility: hidden" onclick="login()" class="tip icon pointer" data-original-title="Enter Username" data-placement="bottom"><i class="icon-user icon-large"></i> Login</a></li>
                     <li id="helpButton" class="pointer"><a onclick="helpFrame()" class="tip" data-original-title="Press for more information" data-placement="bottom"><i class="icon-question-sign icon-large"></i> Help</a></li>
                 </ul>
-                <p id="displayUser" class="navbar-text pull-right"></p>
+                <p id="displayUser" class="nav navbar-text navbar-right"></p>
             </div>
         </div>
     </div>
 
-    <iframe id="iFrame" name="iframe" style="border:none" width="100%" height="100%"></iframe>
+    <iframe id="iFrame" style="border:none;" width=100%"; height="100%"></iframe>
 
     <footer class="navbar navbar-fixed-bottom">
         <div style="position: absolute; padding:8px 5px 15px 15px; height: 38px; border:1px solid #bce8f1; background-color:#d9edf7; color: #3a87ad; border-radius:4px; bottom: 10px; right: 10px; left: 10px">
@@ -179,7 +179,7 @@
 
         //if (deviceWidth < 1200) device = "tablet";
         if (deviceWidth < 1025) device = "phone";
-        iFrame.height = window.innerHeight - 114;               // compensate for bootstrap navbar
+        iFrame.height = window.innerHeight - 134;               // compensate for bootstrap navbar
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {

@@ -25,8 +25,18 @@ body {
 .navframe
 {
     padding: 10px;
-    padding-top: 60px;
+    padding-top: 50px;
     padding-bottom: 40px;
+}
+
+.navbar-nav > li > a, .navbar-brand {
+    padding-top:10px !important; padding-bottom:10px !important;
+    height: 40px !important;
+}
+.navbar {min-height:40px !important;}
+.navbar-text {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .CodeMirror {
@@ -160,7 +170,7 @@ a.nounderline
 
 /*Changed margin-right from -1px to -2px as IE has a bug that shows a line through the active tab if -1px*/
 .tabs-left > .nav-tabs > li > a {
-  margin-right: -2px;
+  margin-right: -1px;
   -webkit-border-radius: 4px 0 0 4px;
      -moz-border-radius: 4px 0 0 4px;
           border-radius: 4px 0 0 4px;
