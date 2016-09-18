@@ -28,7 +28,7 @@ function _nameLoaded() {
                 parent.widgetRequest(_widgetName, "display", true);
             } else {                                                                                // Toolbox widget
                 _fw_loaded("toolbox");
-                if (parent.TBWidth / parseInt(_iniWidth) <= 1) _fw_scale(parent.TBWidth / parseInt(_iniWidth), parent.TBWidth / parseInt(_iniWidth));   // keep aspect ratio when scaling for toolbox
+                if (parent.TBWidth / parseInt(_iniWidth) < 1) _fw_scale(parent.TBWidth / parseInt(_iniWidth), parent.TBWidth / parseInt(_iniWidth));   // keep aspect ratio when scaling for toolbox
                 else _fw_scale(1, 1);                                                               // don't scale if the widget is smaller that the toolbox width
             }
         } else {
@@ -56,7 +56,7 @@ function _fw_loaded(start) {
         document.getElementById("body").setAttribute("draggable", "true")                                         // Allow dragging in the toolbox
         _widgetID.style.setProperty("cursor", "move")
         _iniHeight = parseInt(_widgetID.getAttribute("height")) || parseInt(_widgetID.style.getPropertyValue("height"))
-        _iniWidth = parseInt(_widgetID.getAttribute("width")) || parseInt(_widgetID.style.getPropertyValue("height"))
+        _iniWidth = parseInt(_widgetID.getAttribute("width")) || parseInt(_widgetID.style.getPropertyValue("width"))
         if (typeof toolboxStart === "function") return toolboxStart(start);
     } else {
         _toolbox = false;

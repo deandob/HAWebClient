@@ -91,7 +91,7 @@
                     <li><a tabindex="-1" onclick="closeWidgetMenu('save')">Close</a></li>
                 </ul>
             </div>
-            <div id="widgetContainer" style="position: absolute; left:-5000px; z-index: 0; height: 100%; width: 100%" draggable="false" onclick="canvasClick()">
+            <div id="widgetContainer" style="position: absolute; left:0px; z-index: 0; height: 100%; width: 100%" draggable="false" onclick="canvasClick()">
                 <canvas id="cvsDesign" style="display:none; z-index: 1; height: inherit; width: inherit"></canvas>
             </div>
         </div>
@@ -195,10 +195,10 @@
         //TODO: Chrome working
 
         //TODO: Light sensor for kids timing of light off
-        //TODO: Fix raining whatsapp
+
+        //TODO: Remove eidget device attribute - screensize of the clientname is enough - use the devicewidth instead.
 
         //BUG: When on a screen that isn't the first screen, and hit the browser refresh, the widgetFW code loads the widget from the first page but tries to apply it to the old page.
-        //BUG: In IE, when moving between tabs too much, removenode goes very slowly due to garbage collection
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {
@@ -398,8 +398,7 @@
             if (parent.netState.indexOf("session") != -1) {
                 if (!design && mode === "on") {
                     if (loadedTB === false) {        // Initialise for the design environment (only run once)
-                        initializeDesign(parent.deviceWidth);
-                        //document.getElementById("welcome").style.display = "none"
+                        initializeDesign(parent.deviceWidth, parent.deviceHeight);
                         loadedTB = true;
                     }
                     design = true;
@@ -445,16 +444,14 @@
             }
         }
 
-        function initializeDesign(width) {
+        function initializeDesign(width, height) {
             parent.document.body.style.setProperty("cursor", "progress")
             document.body.style.setProperty("cursor", "progress")
-            //setTimeout(function () {                                    // wait a cycle for the CSS properties to be active before continuing
-                parent.send("WIDGETS", "TOOLBOX", "");                  // retrieve the available toolbox widget names from server
-                drawgrid(width)
-                loadIcons()
-                parent.document.body.style.removeProperty("cursor")
-                document.body.style.removeProperty("cursor")
-            //}, 1);
+            parent.send("WIDGETS", "TOOLBOX", "");                  // retrieve the available toolbox widget names from server
+            drawgrid(width, height);
+            loadIcons();
+            parent.document.body.style.removeProperty("cursor");
+            document.body.style.removeProperty("cursor");
         }
 
         function filterWidgets() {
@@ -492,8 +489,8 @@
             document.getElementById("iconToolboxScroll").appendChild(docFrag);
         }
 
-        function drawgrid(width) {
-            var cvs = document.getElementById("cvsDesign")
+        function drawgrid(width, height) {
+            var cvs = document.getElementById("cvsDesign");
             var canvas_ctx = cvs.getContext("2d");
             canvas_ctx.clearRect(0, 0, cvs.width, cvs.height);
             var maxWidth = parseInt($("#cvsDesign").css("width"));
@@ -501,6 +498,7 @@
             cvs.width = maxWidth;
             cvs.height = maxHeight;
             if (width !== undefined) maxWidth = width;          // if width defined for phone
+            if (height !== undefined) maxHeight = height;
             canvas_ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
             canvas_ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
             for (var x = 1; x < maxWidth; x = x + designGrid) {
@@ -528,7 +526,7 @@
             var bar = document.getElementById(barList)
             while (bar.childElementCount > 0) bar.removeChild(bar.lastChild);       // clear sidebar
             for (var item in screens) {
-                if (screens[item].device === parent.device) createTab(item, false)      // load the screen tabs appropriate for the current device (desktop, tablet, phone)
+                if (screens[item].device === parent.device) createTab(item, false)      // TODO: Is this needed (for azure web / mobile use)? load the screen tabs appropriate for the current device (desktop, tablet, phone)
             }
         }
 
@@ -554,11 +552,16 @@
         // create a new screen tab
         function newScreen() {
             screens.push(new myScreen("New Screen", "icon-exclamation-sign", parent.device));
-            createTab(screens.length - 1, true);
+            var liNum = createTab(screens.length - 1, true);
             selScreenNum = screens.length - 1;
-            selectedTab(selScreenNum);
-            populateScreenWidgets();
-            parent.status("New screen created")
+            selectedTab(liNum);
+            var range = document.createRange();                                     // set edit cursor to new tab
+            var sel = window.getSelection();
+            range.setStart(document.getElementById("screenTab-" + liNum).childNodes[1], 0);
+            range.collapse(true);
+            sel.removeAllRanges();
+            sel.addRange(range);
+            parent.status("New screen created");
         }
 
         // create a tab screen
@@ -569,13 +572,14 @@
             iconElement.id = "ScreenLi-" + num;
             iconElement.innerHTML = "<a tag='screenTab' data-toggle='tab' onclick='screenTabClick(this)' id='screenTab-" + num + "' style='cursor: pointer'><i onclick='tabIconClick(this)' class='" + icon + " icon-large'></i><span onblur='saveScreenText(this)' contenteditable='" + edit + "'>" + title + "</span></a>"
             document.getElementById(barList).appendChild(iconElement);
+            return num;
         }
 
         var lastLoaded = null;                     // flag for when the last widget has finished loading.
         function populateScreenWidgets() {
             if (editData.widgetNum !== null) resetEdit("objWidget" + editData.widgetNum);        // turn off editing for any widget being edited
             var el = document.getElementById("widgetContainer");
-            el.style.setProperty("left", "-5000px");                                // move offscreen to make for clean rendering
+            if (!design) el.style.setProperty("left", "-5000px");                                // move offscreen to make for clean rendering
             while (el.lastChild.id != "cvsDesign") {                                // Remove existing widgets
                 if (el.lastChild.className === "widget") {
                     el.lastChild.contentDocument.defaultView._fw_endSession()          // perform any widget shutdown needed
@@ -786,15 +790,11 @@
                                 objDiv.style.setProperty("height", TBWidth + "px");
                                 objDiv.style.setProperty("width", TBWidth + "px");
                                 objDiv.style.setProperty("background", "#4679BD");
-                                //objDiv.style.setProperty("position", "absolute");
-                                //objDiv.style.setProperty("top", "0");
-                                //objDiv.style.setProperty("left", "0");
-                                //objDiv.style.setProperty("z-index", "999");
-                                objDoc.getElementById("body").appendChild(objDiv);
+                                //objDoc.getElementById("body").appendChild(objDiv);
                                 objDoc.getElementById("widget").setAttribute("data-widgetName", TBWidgetName);
                                 $("#" + TBWidgetName).tooltip({ title: objDoc.getElementById("TBtooltip").getAttribute("data-default"), delay: { show: 2000 } });
                             } catch (err) {
-                                alert("WARNING - widget " + widgetTemplates[widgetNum] + " is corrupt and won't be usable.")
+                                alert("WARNING - widget " + widgetTemplates[widgetNum] + " is corrupt and won't be usable. " + err.toString())
                                 return -1;
                             }
                         }, false);
@@ -938,8 +938,7 @@
                                 parent.send("WIDGETS", "LOAD", parent.device.toUpperCase()) // retrieve the widgets after screens have loaded
                                 loadScreens()
                             } else {
-                                if (!parent.showFirstStart) parent.modalDialog("text", "First use", "Welcome to the home automation client. <br><br>To get started, press the 'Design' button in the top navigation bar and using the Design Options icons on the bottom left corner add your first screen then add widgets and save. <br><br>Press the 'Help' button in the navigation bar and select 'Starting' for more instructions.")
-                                parent.showFirstStart = true;
+                                parent.modalDialog("text", "First use", "Welcome to the home automation client. <br><br>To get started, rename the 'New Screen' and use the Design Options icons on the bottom left corner to create or delete screens, save or use the widget toolbox to drag and add widgets. <br><br>Press the 'Help' button in the navigation bar and select 'Starting' for more instructions.", "Continue", "newUser")
                             }
                             parent.send("WIDGETS", "CHANNELS", "")
                             break;
@@ -988,7 +987,7 @@
                             break;
                         case "CHANNELS":
                             plugins = JSON.parse(msg.Data);
-                            loadChannels("", true)
+                            loadChannels("", true);
                             break;
                         case "IMAGE":           // TODO: Consider making this more generic rather than hard coded for the image widget
                             widgetAction("objWidget" + msg.Data, "load")
@@ -1156,9 +1155,8 @@
 
         function drag_start(event) {
             if (design) {
-                var objID = event.target.getAttribute("data-widgetName") || event.target.parentNode.getAttribute("data-widgetName");
+                var objID = event.target.getAttribute("data-widgetName") || event.target.parentNode.getAttribute("data-widgetName") || event.target.ownerDocument.getElementById("widget").getAttribute("data-widgetName");
                 
-                //if (objID === null) objID = event.target.parentNode.getAttribute("data-widgetName");       // parent must be widget
                 if (objID === null) {
                     alert("ERROR - Widget HTML incorrectly setup, can't drag widget");       // parent must be widget
                     return;
@@ -1366,6 +1364,11 @@
 
         function modalCallback(modalFunction, param1, param2, param3, param4) {
             if (window[modalFunction] !== undefined) window[modalFunction](param1, param2, param3, param4)
+        }
+
+        function newUser() {
+            parent.design();
+            newScreen();
         }
 
         function spinner() {

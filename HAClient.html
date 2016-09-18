@@ -37,7 +37,7 @@
                     <li class="divider-vertical"></li>
                     <li id="designButton" class="pointer" style="display:none"><a onclick="design()" class="tip" data-original-title="Manage home automation widgets" data-placement="bottom"><i class="icon-pencil icon-large"></i> Design</a></li>
                     <li class="divider-vertical"></li>
-                    <li id="queryButton" class="pointer" style="display:none"><a onclick="queriesFrame()" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>
+<!--                    <li id="queryButton" class="pointer" style="display:none"><a onclick="queriesFrame()" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>-->
                     <li id="toolboxDropdown" class="dropdown pointer" style="display:none">
                         <a class="dropdown-toggle tip" data-toggle="dropdown" data-original-title="Select toolbox from dropdown" data-placement="right"><i class="icon-edit icon-large"></i> Toolbox <b class="caret"></b></a>
                         <ul class="dropdown-menu" role="menu">
@@ -72,7 +72,7 @@
         </div>
     </div>
 
-    <iframe id="iFrame" style="border:none;" width=100%"; height="100%"></iframe>
+    <iframe id="iFrame" style="border:none;" width="100%"></iframe>
 
     <footer class="navbar navbar-fixed-bottom">
         <div style="position: absolute; padding:8px 5px 15px 15px; height: 38px; border:1px solid #bce8f1; background-color:#d9edf7; color: #3a87ad; border-radius:4px; bottom: 10px; right: 10px; left: 10px">
@@ -137,15 +137,18 @@
         var user = "";
         var device = "desktop";                           // TODO: detect device used to load appropriate screens
         var deviceWidth = screen.availWidth;
+        var deviceHeight = screen.availHeight;
         var debugURL = "";
-        var wsPort;
+        var wsPort = 1066;
         var serverName = document.domain;
         var categories;
         var tooltipDelay = 1500;                            // Delay before showing tooltip when hovering
         var connection = "local";
         var locale;
 
-        switch (document.URL.toLowerCase().split("?")[1]) {         // command line options after URL '?'
+        var params = document.URL.split("?");
+        if (params.length > 1) params = params[1].split("=");
+        switch (params[0].toLowerCase()) {         // command line options after URL '?'
             case "remote":
 //                serverName = "haproxy.azurewebsites.net";
                 wsPort = 80;
@@ -153,20 +156,34 @@
                 document.getElementById("connType").setAttribute("data-original-title", "remote access");
                 connection = "remote"
                 break;
+            case "clear":
+                if (localStorage.getItem("reloading") !== "true") {
+                    localStorage.setItem("clientName", "");
+                    clearCache();
+                    localStorage.setItem("reloading", "true")
+                } else {
+                    localStorage.setItem("reloading", "false")
+                }
+            case "clientname":
+                clientName = params[1].toUpperCase();
+                serverName = localStorage.getItem("serverName");
+                deviceHeight = +localStorage.getItem("impHeight");
+                deviceWidth = +localStorage.getItem("impWidth");
+                break;
             case "debug":
-                debugURL = "?" + Math.random()          // pass any parameter in the URL line to turn on debugging (force cache reloading)
-                serverName = "HOMESERVER";
+                debugURL = "?" + Math.random()          // pass any parameter in the URL line to turn on debugging (force cache reloading) and specify remote websockets server
+                if (params.length == 2) serverName = params[1].toUpperCase();
             case "local":
             default:
-                wsPort = 1066;
                 document.getElementById("connType").setAttribute("class", "tip icon-home-4 icon-large pull-right")
                 document.getElementById("connType").setAttribute("data-original-title","local access") 
         }
+        localStorage.setItem("serverName", serverName);
 
         var netName = ""
         var iFrame = document.getElementById("iFrame");
         window.addEventListener("resize", function (event) {
-            iFrame.height = window.innerHeight
+            iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
             deviceWidth = screen.availWidth;
         });
 
@@ -178,8 +195,8 @@
         //TODO: Field for general settings web files location so that widgets can be retrieved
 
         //if (deviceWidth < 1200) device = "tablet";
-        if (deviceWidth < 1025) device = "phone";
-        iFrame.height = window.innerHeight - 134;               // compensate for bootstrap navbar
+        //if (deviceWidth < 1025) device = "phone";               // TODO: Might not be needed anymore
+        iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {
@@ -195,7 +212,7 @@
                 document.getElementById("dashButton").className = "pointer";
                 document.getElementById("settingsButton").className = "active";
                 document.getElementById("designButton").className = "pointer";
-                document.getElementById("queryButton").className = "pointer";
+                //document.getElementById("queryButton").className = "pointer";
                 document.getElementById("toolboxDropdown").style.setProperty("display", "none")
                 document.getElementById("selDevice").style.setProperty("display", "none")
                 document.getElementById("helpButton").className = "pointer";
@@ -235,7 +252,7 @@
                 document.getElementById("dashButton").className = "active";
                 document.getElementById("settingsButton").className = "pointer";
                 document.getElementById("designButton").className = "pointer";
-                document.getElementById("queryButton").className = "pointer";
+                //document.getElementById("queryButton").className = "pointer";
                 document.getElementById("toolboxDropdown").style.setProperty("display", "none")
                 document.getElementById("selDevice").style.setProperty("display", "none")
                 document.getElementById("helpButton").className = "pointer";
@@ -324,12 +341,12 @@
             modalFunction = { type: type, func: callback, param: param }
             document.getElementById("modalTitle").innerHTML = title;
             document.getElementById("modalText").innerHTML = text;
-            if (button != null) {           // only show cancel button if OK button text is specified
-                document.getElementById("cancelButton").style.setProperty("display", "inline");
+            document.getElementById("cancelButton").style.setProperty("display", "none");
+            if (button != null) {           // only show cancel button if no button text is specified (OK by default). If text = continue then don't show cancel
                 document.getElementById("modalButton").innerHTML = button;
+                if (button.toLowerCase() != "continue") document.getElementById("cancelButton").style.setProperty("display", "inline");
             } else {
                 document.getElementById("modalButton").innerHTML = "OK";
-                document.getElementById("cancelButton").style.setProperty("display", "none");
             }
             $("#myModal").modal()
         }
@@ -344,22 +361,26 @@
             $("#myModal").modal("hide");
             var param = document.getElementById("modalInput").value;
             if (param === "") param = modalFunction.param;
-            if (modalFunction.type == "logon") {
-                user = "local_machine"
-                var password = "xx"
-                //send("NETWORK", "LOGIN", password)        // Establish a user session
-                user = "";
-            } else {
-                if (window[modalFunction.func] === undefined) {
-                    iFrame.contentWindow.modalCallback(modalFunction.func, param);       // pass to iframe modal callback
-                } else {
-                    window[modalFunction.func](param);
-                }
+            switch (modalFunction.type) {
+                case "logon":
+                    user = "local_machine"
+                    var password = "xx"
+                    //send("NETWORK", "LOGIN", password)        // Establish a user session
+                    user = "";
+                    break;
+                default:
+                    if (window[modalFunction.func] === undefined) {
+                        iFrame.contentWindow.modalCallback(modalFunction.func, param);       // pass to iframe modal callback
+                    } else {
+                        window[modalFunction.func](param);
+                    }
+                    break;
+
             }
             document.getElementById("modalInput").value = "";
         }
 
-        function setDeviceWidth(width) {
+        function setDeviceWidth(width) {                    // TODO: Is this still needed?
             deviceWidth = +width;
             iFrame.addEventListener("load", waitForWidgets);     // wait for widgets to load
             iFrame.src = iFrame.src;            // reload
@@ -380,6 +401,16 @@
         // enable bootstrap tooltips
         function enableTooltip() {
             $(".tip").tooltip({ delay: { show: tooltipDelay } });
+        }
+
+        // clear cache (called by uwpbrowser exe)
+        function clearCache() {
+            location.reload(true);
+            status("Cache reloaded.")
+        }
+
+        function reload(newClient) {
+            window.location.href = "haclient.html?clientname=" + newClient
         }
 
         /////////////////////////////////////// Network
@@ -422,7 +453,7 @@
                     status("Connected to Server. Establishing session...")
                     user = "local_machine"
                     send("NETWORK", "CONNECT", "")          // Establish initial generic machine session
-                    setTimeout(checkSession, 5000);      // If HA Server isn't responding, restart 
+                    setTimeout(checkSession, 10000);      // If HA Server isn't responding, restart 
                 }
 
                 ws.onmessage = function (evt) {
@@ -464,7 +495,7 @@
                                                         case "CONNECT":             // user session connected
                                                             var connData = JSON.parse(msg.Data)
                                                             clientName = connData.ClientName
-                                                            if (localStorage.getItem("clientName") != clientName) localStorage.setItem("clientName", clientName);       // save clientName from server (local javascript can't get client name) 
+                                                            if (localStorage.getItem("clientName") != clientName && params[0].toLowerCase() != "clientname") localStorage.setItem("clientName", clientName);       // save clientName from server (local javascript can't get client name) but not if using another clientname (from the http query string)
                                                             netName = connData.ServerName;
                                                             locale = connData.Locale;
                                                             document.getElementById("headerTitle").innerHTML = "&nbsp;" + netName
@@ -474,10 +505,10 @@
                                                             document.getElementById("dashButton").style.setProperty("display", "inline");
                                                             document.getElementById("settingsButton").style.setProperty("display", "inline");
                                                             document.getElementById("designButton").style.setProperty("display", "inline");
-                                                            document.getElementById("queryButton").style.setProperty("display", "inline");
+                                                            //document.getElementById("queryButton").style.setProperty("display", "inline");
                                                             document.getElementById("logonButton").style.setProperty("visibility", "visible");
-                                                            status("Ready.")
-                                                            send("SETTINGS", "GET:CATEGORIES()", "")
+                                                            status("Ready.");
+                                                            send("SETTINGS", "GET:CATEGORIES()", "");
                                                             break;
                                                         case "AUTHENTICATED":             // user session connected
                                                             user = msg.Data;
@@ -487,7 +518,7 @@
                                                             //document.getElementById("dashButton").style.setProperty("display", "inline");
                                                             //document.getElementById("settingsButton").style.setProperty("display", "inline");
                                                             //document.getElementById("designButton").style.setProperty("display", "inline");
-                                                            status("Ready. Logged in as " + user)
+                                                            status("Ready. Logged in as " + user);
                                                             break;
                                                         case "DISCONNECT":
                                                             netState = "disconnected";
@@ -585,7 +616,8 @@
             var myJSONObject = {
                 "Client": clientName, "Func": myMsg.func, "Level": myMsg.level, "Network": myMsg.network, "Category": myMsg.category, "ClassName": myMsg.className, "Instance": myMsg.instance, "Scope": myMsg.scope, "Data": myMsg.data
             };
-            return JSON.stringify(myJSONObject);
+            var myJSON = JSON.stringify(myJSONObject);
+            return myJSON;
         }
 
     </script>

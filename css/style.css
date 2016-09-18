@@ -30,10 +30,15 @@ body {
 }
 
 .navbar-nav > li > a, .navbar-brand {
-    padding-top:10px !important; padding-bottom:10px !important;
-    height: 40px !important;
+    padding-top:10px; padding-bottom:10px;
+    min-height: 40px;
+    height: 40px;
 }
-.navbar {min-height:40px !important;}
+
+.navbar-fixed-top {
+    height: 40px;
+}
+
 .navbar-text {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -103,7 +108,7 @@ a.nounderline
     position: absolute;
     left: -160px; 
     text-align: center;
-    display:inline-flexbox; 
+    display:inline; 
     padding-left: 0px; 
     transition: left 0.5s ease-out; 
     z-index:100; 

@@ -140,13 +140,30 @@
                         <div class="panel-heading"><h4 class="panel-title">General</h4></div>
                         <div class="panel-body">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <p>Web Site Location</p>
-                                    <input id="webLocation" name="textInput" type="text" class="form-control" placeholder="xxxxx">
+                                    <input id="genWeblocnInp" name="textInput" type="text" class="form-control" placeholder="xxxxx">
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <p>Title</p>
-                                    <input id="NavTitle" name="textInput" type="text" class="form-control" placeholder="My Home">
+                                    <input id="genNavtitleInp" name="textInput" type="text" class="form-control" placeholder="My Home">
+                                </div>
+                                <div class="col-md-2">
+                                    <p>Impersonate Client</p>
+                                    <div class="input-group">
+                                        <input id="genImpnameInp" name="textInput" type="text" class="form-control" placeholder="Name">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-primary" type="button" onclick="impersonateClient()">Go</button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <p>Width</p>
+                                    <input id="genDevwidthInp" name="textInput" type="text" class="form-control">
+                                </div>
+                                <div class="col-md-1">
+                                    <p>Height</p>
+                                    <input id="genDevheightInp" name="textInput" type="text" class="form-control">
                                 </div>
                             </div>
                         </div>
@@ -558,7 +575,7 @@
             <h4>Manage Triggers</h4>
             <br />
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <div class="alert-success">
                         <p><br />&nbsp;&nbsp;Triggers monitor the system based on current state, change of state and time parameters<br /><br /></p>
                     </div>
@@ -574,17 +591,17 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <p>Description</p>
                 <input type="text" class="form-control" id="trigDesc" name="textInput" placeholder="Enter Trigger description">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <p>Last Fired</p>
                 <input type="text" class="form-control" id="trigLastFired" name="textInput" placeholder="Never" disabled>
             </div>
             <br /><br /><br /><br />
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="panel-group">
                         <div class="panel panel-info">
                             <div class="panel-heading"><span class="panel-title">Trigger on Channel Change</span><a id="trigChgPanelIcon" onclick="togglePanel('trigChgColl1','trigChgColl2','trigChgPanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
@@ -629,7 +646,7 @@
                             </div>
                             <div class="panel-body">
                                 <div class="row">
-                                    <div class="col-md-5">
+                                    <div class="col-md-4">
                                         <p>Value</p>
                                         <div class="btn-group btn-group-justified">
                                             <button type="button" id="trigChgCond" name="equalsInput" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -645,7 +662,7 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="col-md-7">
+                                    <div class="col-md-6">
                                         <p>&nbsp;</p>
                                         <input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="">
                                     </div>
@@ -655,7 +672,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="panel-group">
                             <div class="panel panel-info">
                                 <div class="panel-heading"><span class="panel-title">AND if Channel State is</span><a id="trigStatePanelIcon" onclick="togglePanel('trigStateColl1', 'trigStateColl2', 'trigStatePanelIcon')" class="tip nounderline pointer pull-right" data-original-title="Toggle Advanced view">&#9660;</a></div>
@@ -782,7 +799,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-8">
                     <div class="panel panel-info">
                         <div class="panel-heading"><h4 class="panel-title">AND Trigger When</h4></div>
                         <div class="panel-body">
@@ -1579,7 +1596,7 @@
 
         var pcTicks = 10000;
         var unixEpoc = 621355968000000000; // epoch start in .NET time
-        var nullDate = 0;      // 1-1-0001 in .NET
+        var nullDate = new Date(new Date().getTimezoneOffset());      // UNIX epoc in UTC
         var condStr = ["equals", "greater", "less", "not", "contains", "change"];
         var myCodeMirror;
         var toolboxCB;          // global for callback routine from toolbox load calls
@@ -1660,7 +1677,21 @@
 
 //#region ---------------------------------------- General settings screen functions
         function generalScreenEnter() {
+            $("#genDevheightInp").val(localStorage.getItem("impHeight"));
+            $("#genDevwidthInp").val(localStorage.getItem("impWidth"));
         }
+
+        //reload with new client name to setup client
+        function impersonateClient() {
+            var newClientName = $("#genImpnameInp").val().trim()
+            if (newClientName != "") {
+                localStorage.setItem("impHeight", $("#genDevheightInp").val().trim());
+                localStorage.setItem("impWidth", $("#genDevwidthInp").val().trim());
+                parent.reload(newClientName.toUpperCase());
+            }
+        }
+
+
 //#endregion
 
 //#region ---------------------------------------- Queries settings screen functions
@@ -1832,7 +1863,7 @@
                     var toDate = $("#queryToDate").val().trim();
                     var toTime = $("#queryToTime").val().trim();
                     if (fromDate == "" && fromTime == "") {
-                        alert("Enter a 'From' date and/or time before submitting query.")
+                        alert("ERROR - Enter a 'From' date and/or time before submitting query.")
                         return;
                     }
                     if (fromDate == "") fromDate = new Date().toLocaleDateString()
@@ -1843,14 +1874,18 @@
                     toDateTime = formatDateTime(toDate + " " + toTime, "datetime");
                 }
                 if (isNaN(fromDateTime)) {
-                    alert("Invalid 'From' Time and/or Date. Re-enter.");
+                    alert("ERROR - Invalid 'From' Time and/or Date. Re-enter.");
                     return;
                 }
                 if (isNaN(toDateTime)) {
                     alert("Invalid 'To' Time and/or Date. Re-enter.");
                     return;
                 }
-                if (fromDateTime.valueOf() >= toDateTime.valueOf()) {
+                if (fromDateTime >= new Date()) {
+                    alert("'From' Date / Time is in the future and has to be a past date / time. Re-enter.");
+                    return;
+                }
+                if (fromDateTime >= toDateTime) {
                     alert("'From' Date / Time should be before 'To' Date / Time. Re-enter.");
                     return;
                 }
@@ -1878,8 +1913,6 @@
             if (data != "[]") {
                 var retResults = JSON.parse(data);
                 for (var ind in retResults) {
-                    //var a = new Date(retResults[ind].Time).valueOf() - tzOffset;
-                    //var d = new Date(a);
                     var d = new Date(retResults[ind].Time);
                     queryResults.push(new queryResult(d.valueOf(), d.toLocaleString(), retResults[ind].Category, retResults[ind].ClassName, retResults[ind].Instance, retResults[ind].Scope, retResults[ind].Data))
                 }
@@ -1902,6 +1935,79 @@
             loadNames("TRIGGERS")
             document.getElementById("editOptions").style.display = "inline";
         }
+
+        // Populate the Trigger object from the fields. If from date/time field is empty, then send epoc date, if to date/time is empty then means for all future (send back empty string)
+        function objTrig() {
+            var trigChgNetwork = 0;
+            var trigStateNetwork = 0;
+            var fromDateTime, toDateTime
+            var fromDate = $('#trigFromDate').val().trim();
+            var fromTime = $('#trigFromTime').val().trim();
+            var toDate = $('#trigToDate').val().trim();
+            var toTime = $('#trigToTime').val().trim();
+            var timeofDay = $('#trigTimeofDay').val().trim();
+            if (fromDate == "") fromDate = new Date(0).toLocaleDateString();
+            if (fromTime == "") fromTime = "12:00 AM";
+            if (toDate == "") toDate = "12-12-2099";
+            if (toTime == "") toTime = "12:00 AM";
+            var fromDateTime = formatDateTime(fromDate + " " + fromTime, "datetime");
+            var toDateTime = formatDateTime(toDate + " " + toTime, "datetime");
+            if (isNaN(fromDateTime)) {
+                alert("ERROR - Invalid 'From' Time and/or Date. Re-enter.");
+                return [];
+            }
+            if (isNaN(toDateTime)) {
+                alert("Invalid 'To' Time and/or Date. Re-enter.");
+                return [];
+            }
+            if (fromDateTime.valueOf() >= toDateTime.valueOf()) {
+                alert("'From' Date / Time should be before 'To' Date / Time. Re-enter.");
+                return [];
+            }
+            return [{
+                "trigName": $('#trigName').val().trim(),
+                "trigDesc": $('#trigDesc').val().trim(),
+                "trigScriptName": ($('#trigScriptName').text().trim() === "None" ? "" : $('#trigScriptName').text().trim()),
+                "trigScriptParam": $('#trigScriptParam').text().trim(),
+                "trigScriptValue": $('#trigScriptValue').val().trim(),
+                "trigScriptCond": condIndex('trigScriptCond'),
+                "trigStateNetwork": trigStateNetwork,
+                "trigStateCategory": catIndex($('#trigStateCategory').prop("textContent")),
+                "trigStateClass": $('#trigStateClass').val().trim(),
+                "trigStateInstance": $('#trigStateInstance').val().trim(),
+                "trigStateScope": $('#trigStateScope').val().trim(),
+                "trigStateCond": condIndex('trigStateCond'),
+                "trigStateData": $('#trigStateData').val().trim(),
+                "trigChgNetwork": trigChgNetwork,
+                "trigChgCategory": catIndex($('#trigChgCategory').prop("textContent")),
+                "trigChgClass": $('#trigChgClass').val().trim(),
+                "trigChgInstance": $('#trigChgInstance').val().trim(),
+                "trigChgScope": $('#trigChgScope').val().trim(),
+                "trigChgCond": condIndex('trigChgCond'),
+                "trigChgData": $('#trigChgData').val().trim(),
+                "trigFromDate": formatDateTime(fromDate, "date").toISOString(),
+                "trigFromTime": formatDateTime(fromTime, "time").toISOString(),
+                "trigToDate": formatDateTime(toDate, "date").toISOString(),
+                "trigToTime": formatDateTime(toTime, "time").toISOString(),
+                "trigTimeofDay": timeofDay != "" ? formatDateTime(timeofDay, "time").toISOString() : "",
+                "trigChkFortnight": $('#trigChkFortnight').prop('checked').toString().trim(),
+                "trigChkMonth": $('#trigChkMonth').prop('checked').toString().trim(),
+                "trigChkYear": $('#trigChkYear').prop('checked').toString().trim(),
+                "trigChkSunrise": $('#trigChkSunrise').prop('checked').toString().trim(),
+                "trigChkSunset": $('#trigChkSunset').prop('checked').toString().trim(),
+                "trigChkDay": $('#trigChkDay').prop('checked').toString().trim(),
+                "trigChkNight": $('#trigChkNight').prop('checked').toString().trim(),
+                "trigChkMon": $('#trigChkMon').prop('checked').toString().trim(),
+                "trigChkTue": $('#trigChkTue').prop('checked').toString().trim(),
+                "trigChkWed": $('#trigChkWed').prop('checked').toString().trim(),
+                "trigChkThu": $('#trigChkThu').prop('checked').toString().trim(),
+                "trigChkFri": $('#trigChkFri').prop('checked').toString().trim(),
+                "trigChkSat": $('#trigChkSat').prop('checked').toString().trim(),
+                "trigChkSun": $('#trigChkSun').prop('checked').toString().trim(),
+                "trigChkActive": $('#trigChkActive').prop('checked').toString().trim(),
+                "trigChkInactive": $('#trigChkInactive').prop('checked').toString().trim()
+            }];
+        }
 //#endregion
 
 //#region ---------------------------------------- Events settings screen functions
@@ -1909,12 +2015,58 @@
             loadNames("EVENTS")
             document.getElementById("editOptions").style.display = "inline";
         }
+
+        // Populate the Event object from fields
+        function objEvent() {
+            var trigSels = new Array();
+            var eventTrig = document.getElementById("eventTrigSel").children
+            for (var elem = 0; elem < eventTrig.length; elem++) {
+                trigSels[elem] = eventTrig[elem].value.trim();
+            }
+            var actionSels = new Array();
+            var eventAction = document.getElementById("eventActionSel").children
+            for (var elem = 0; elem < eventAction.length; elem++) {
+                actionSels[elem] = eventAction[elem].value.trim();
+            }
+            return [{
+                "eventName": $('#eventName').val().trim(),
+                "eventDesc": $('#eventDesc').val().trim(),
+                "eventChkEnabled": $('#eventChkEnabled').prop('checked').toString(),
+                "eventChkOneOff": $('#eventChkOneOff').prop('checked').toString(),
+                "eventFromDateTime": formatDateTime($('#eventFromDate').val(), "datetime").toISOString(),
+                "eventToDateTime": formatDateTime($('#eventToDate').val(), "datetime").toISOString(),
+                "eventLastFired": formatDateTime($('#eventLastFired').val(), "datetime").toISOString(),
+                "eventNumRecur": $('#eventTimesRun').val(),
+                "eventTrigs": trigSels,
+                "eventActions": actionSels
+            }];
+        }
+
 //#endregion
 
 //#region ---------------------------------------- Actions settings screen functions
         function actionsScreenEnter() {
             loadNames("ACTIONS")
             document.getElementById("editOptions").style.display = "inline";
+        }
+
+        // Populate the Action object from fields
+        function objAction() {
+            var actionNetwork = 0;
+            return [{
+                "actionName": $('#actionName').val().trim(),
+                "actionDesc": $('#actionDesc').val().trim(),
+                "actionScriptName": ($('#actionScriptName').text().trim() === "None" ? "" : $('#actionScriptName').text().trim()),
+                "actionScriptParam": $('#actionScriptParam').val().trim(),
+                "actionNetwork": actionNetwork,
+                "actionCategory": catIndex($('#actionCategory').prop("textContent")),
+                "actionClass": $('#actionClass').val().trim(),
+                "actionInstance": $('#actionInstance').val().trim(),
+                "actionScope": $('#actionScope').val().trim(),
+                "actionData": $('#actionData').val().trim(),
+                "actionChkRnd": $('#actionChkRnd').prop('checked').toString().trim(),
+                "actionDelay": $('#actionDelay').val().trim()
+            }];
         }
 //#endregion
 
@@ -1923,6 +2075,29 @@
             loadNames("TRANSFUNCS")
             document.getElementById("editOptions").style.display = "inline";
         }
+
+        // Populate the Transform object from fields
+        function objTransform() {
+            var transFuncOutNetwork = 0;
+            var transformSels = new Array();
+            var transFunc = document.getElementById("transFuncSel").children
+            for (var elem = 0; elem < transFunc.length; elem++) {
+                transformSels[elem] = transFunc[elem].value.trim();
+            }
+            return [{
+                "TransformName": $('#transformName').val().trim(),
+                "TransformDesc": $('#transformDesc').val().trim(),
+                "transFuncOutChk": $('#transFuncOutChkEnabled').prop('checked').toString().trim(),
+                "transFuncOutRounding": $('#transFuncOutRounding').text().trim(),
+                "transFuncOutNetwork": transFuncOutNetwork,
+                "transFuncOutCategory": catIndex($('#transFuncOutCategory').prop("textContent").trim()),
+                "transFuncOutClass": $('#transFuncOutClass').val().trim(),
+                "transFuncOutInstance": $('#transFuncOutInstance').val().trim(),
+                "transFuncOutScope": $('#transFuncOutScope').val().trim(),
+                "transFuncFunctions": transformSels
+            }];
+        }
+//#endregion
 
         //////////////////////////////////////////////////// Transform Functions
         // Start Value 22                                                       Starting value a numeric value for the operation (eg. 4.5)
@@ -2105,6 +2280,17 @@
             document.getElementById("editOptions").style.display = "inline";
             myCodeMirror.getScrollerElement().style.height = window.innerHeight - 230 + "px"
             myCodeMirror.getScrollerElement().style.width = window.innerWidth + "px"
+        }
+
+        // Populate the Program object from fields
+        function objProgram() {
+            return [{
+                "programName": $('#programName').val().trim(),
+                "programDesc": $('#programDesc').val().trim(),
+                "programType": $('#programType').val().trim(),
+                "programLang": $('#programLang').val().trim(),
+                "programCode": myCodeMirror.getValue()
+            }];
         }
 //#endregion
 
@@ -2353,7 +2539,7 @@
         //    return new Date($("#" + dateField).val().trim() + " " + $("#" + timeField).val().trim())
         //}
 
-        // Convert from general string date format to JS date object in local time. Format 'DD/MM/YY HH:MM:SS PM' with US dates and / or - date delimiters
+        // Convert from general string date format to JS date object in local time. Format 'DD/MM/YY HH:MM:SS PM' with US dates and / or - date delimiters, seconds ignored. No military time
         function formatDateTime(JSDateTime, dateTime) {
             if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
             var convStr = JSDateTime.replace(/\u200E/g, "").trim();       // remove hidden unicode left-to-right mark
@@ -2362,15 +2548,17 @@
                     var splitDate = convStr.trim().split("/")
                     if (splitDate.length == 1) splitDate = convStr.trim().split("-");
                     if (navigator.language == "en-US") {
-                        var myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], 0, 0, 0, 0)
+                        var myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], 0, new Date().getTimezoneOffset(), 0, 0)
                     } else {
-                        var myDate = new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0], 0, 0, 0, 0)
+                        var myDate = new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0], 0, new Date().getTimezoneOffset(), 0, 0)
                     }
                     break;
                 case "TIME":                                // assumes epoc date so we can add
                     var splitTime = convStr.split(":");
-                    if (splitTime.length < 2) return nullDate;
-                    var myDate = new Date(0, 0, 0, convStr.trim().split(" ")[1].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1].split(" ")[0], 0, 0);
+                    if (splitTime.length == 0) return nullDate;
+                    if (splitTime[0] == "12" && convStr.trim().split(" ")[1].toUpperCase() === "AM") splitTime[0] = 0;              // midnight
+                    //var myDate = new Date((convStr.trim().split(" ")[1].toUpperCase() === "PM" && +splitTime[0] < 12 ? +splitTime[0] + 12 : +splitTime[0]) * 3600000 + splitTime[1].split(" ")[0] * 60000);
+                    var myDate = new Date(1970, 0, 1, convStr.trim().split(" ")[1].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1].split(" ")[0], 0, 0);
                     break;
                 case "DATETIME":
                     var splitTD = convStr.split(" ");
@@ -2379,6 +2567,7 @@
                     var splitDate = splitTD[0].trim().split("/")
                     if (splitDate.length == 1) splitDate = splitTD[0].trim().split("-");
                     if (splitTime.length < 2 || splitDate.length < 2) return nullDate;
+                    if (splitTime[0] == "12" && splitTD[2].toUpperCase() === "AM") splitTime[0] = 0;              // midnight
                     if (navigator.language == "en-US") {
                         var myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], splitTD[2].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1], 0, 0)
                     } else {
@@ -2387,10 +2576,10 @@
                     break;
                 default:
             }
-            return (myDate)
-            //return (myDate.valueOf + now.getTimezoneOffset() * 60000);                  // UTC time
+            return myDate;
         }
 
+        /*
         function DotNetDateTime(myDate) {
             return (myDate.valueOf() * pcTicks + unixEpoc).toString();                  // send back date as UTC
         }
@@ -2404,6 +2593,23 @@
                 if (dateortime == "time") return datetime.toLocaleTimeString();
                 return datetime.toLocaleString();
             } else return "";
+        }
+*/
+        // Find the selected index of a conditional dropdown
+        function condIndex(listID) {
+            var selVal = $('#' + listID).prop("textContent").trim().toLowerCase()
+            for (var i = 0; i < condStr.length; i++) {
+                if (selVal == condStr[i]) return i;
+            }
+            return 0;       // assume equals
+        }
+
+        function catIndex(catName) {
+            var myCat = catName.toUpperCase().trim();
+            for (var cat in parent.categories) {
+                if (myCat == parent.categories[cat].Cat.toUpperCase().trim()) return cat;
+            }
+            return -1;
         }
 
         // enable bootstrap tooltips
@@ -2559,41 +2765,49 @@
         }
 
         function updRec() {
-            parent.status("Processing update...")
+            parent.status("Processing update...");
+            var myJSON;
             switch (getActiveTab().toUpperCase()) {
                 case "TRIGGERS":
                     if ($("#trigName").val() == "") {
                         parent.modalDialog("No record selected", "Please select a Trigger name to update first.")
                     } else {
-                        sendServer("UPD", "TRIGGERS", $("#trigName").val(), JSON.stringify(objTrig()));
+                        var tt = objTrig()              // TESTING, REMOVE
+                        myJSON = JSON.stringify(tt);
+                        //myJSON = JSON.stringify(objTrig());
+                        if (myJSON !== "[]") sendServer("UPD", "TRIGGERS", $("#trigName").val(), myJSON);
                     }
                     break;
                 case "ACTIONS":
                     if ($("#actionName").val() == "") {
                         parent.modalDialog("No record selected", "Please select an Action name to update first.")
                     } else {
-                        sendServer("UPD", "ACTIONS", $("#actionName").val(), JSON.stringify(objAction()));
+                        myJSON = JSON.stringify(objAction());
+                        if (myJSON !== "[]") sendServer("UPD", "ACTIONS", $("#actionName").val(), myJSON);
                     }
                     break;
                 case "EVENTS":
                     if ($("#eventName").val() == "") {
                         parent.modalDialog("No record selected", "Please select an Event name to update first.")
                     } else {
-                        sendServer("UPD", "EVENTS", $("#eventName").val(), JSON.stringify(objEvent()));
+                        myJSON = JSON.stringify(objEvent());
+                        if (myJSON !== "[]") sendServer("UPD", "EVENTS", $("#eventName").val(), myJSON);
                     }
                     break;
                 case "PROGRAMS":
                     if ($("#programName").val() == "") {
                         parent.modalDialog("No name entered", "Please select a name for your program before saving.")
                     } else {
-                        sendServer("UPD", "PROGRAMS", $("#programName").val(), JSON.stringify(objProgram()));
+                        myJSON = JSON.stringify(objProgram());
+                        if (myJSON !== "[]") sendServer("UPD", "PROGRAMS", $("#programName").val(), myJSON);
                     }
                     break;
                 case "TRANSFORMS":
                     if ($("#transformName").val() == "") {
                         parent.modalDialog("No record selected", "Please select a Transform name to update first.")
                     } else {
-                        sendServer("UPD", "TRANSFORMS", $("#transformName").val(), JSON.stringify(objTransform()));
+                        myJSON = JSON.stringify(objTranform());
+                        if (myJSON !== "[]") sendServer("UPD", "TRANSFORMS", $("#transformName").val(), myJSON);
                     }
                     break;
                 default:
@@ -2602,7 +2816,8 @@
 
         // TODO: Consolidate add and update, and do better checking in update
         function addRec() {
-            parent.status("Processing add...")
+            parent.status("Processing add...");
+            var myJSON;
             switch (getActiveTab().toUpperCase()) {
                 case "TRIGGERS":
                     if ($("#trigName").val() === "") {
@@ -2613,7 +2828,8 @@
                         parent.modalDialog("No description entered", "Please enter a Trigger description before adding.")
                         break;
                     }
-                    sendServer("ADD", "TRIGGERS", $("#trigName").val(), JSON.stringify(objTrig()));
+                    myJSON = JSON.stringify(objTrig());
+                    if (myJSON !== "[]") sendServer("ADD", "TRIGGERS", $("#trigName").val(), myJSON);
                     break;
                 case "ACTIONS":
                     if ($("#actionName").val() === "") {
@@ -2624,7 +2840,8 @@
                         parent.modalDialog("No description entered", "Please enter a Action description before adding.")
                         break;
                     }
-                    sendServer("ADD", "ACTIONS", $("#actionName").val(), JSON.stringify(objAction()));
+                    myJSON = JSON.stringify(objAction());
+                    if (myJSON !== "[]") sendServer("ADD", "ACTIONS", $("#actionName").val(), myJSON);
                     break;
                 case "EVENTS":
                     if ($("#eventName").val() === "") {
@@ -2639,7 +2856,8 @@
                         parent.modalDialog("No Trigger or Action selected", "Each Event must have at least one associated Trigger or Action.")
                         break;
                     }
-                    sendServer("ADD", "EVENTS", $("#eventName").val(), JSON.stringify(objEvent()));
+                    myJSON = JSON.stringify(objEvent());
+                    if (myJSON !== "[]") sendServer("ADD", "EVENTS", $("#eventName").val(), myJSON);
                     break;
                 case "TRANSFORMS":
                     if ($("#transformName").val() === "") {
@@ -2654,156 +2872,11 @@
                         parent.modalDialog("Transform not added", "Each Transform created must have at least one function and the output channel defined.")
                         break;
                     }
-                    sendServer("ADD", "TRANSFORMS", $("#transformName").val(), JSON.stringify(objTransform()));
+                    myJSON = JSON.stringify(objTransform());
+                    if (myJSON !== "[]") sendServer("ADD", "TRANSFORMS", $("#transformName").val(), myJSON);
                     break;
                 default:
             }
-        }
-//#endregion
-
-//#region ---------------------------------------- Populate Objects from server data
-        // Find the selected index of a conditional dropdown
-        function condIndex(listID) {
-            var selVal = $('#' + listID).prop("textContent").trim().toLowerCase()
-            for (var i = 0; i < condStr.length; i++) {
-                if (selVal == condStr[i]) return i;
-            }
-            return 0;       // assume equals
-        }
-
-        // Populate the Event object from fields
-        function objEvent() {
-            var trigSels = new Array();
-            var eventTrig = document.getElementById("eventTrigSel").children
-            for (var elem = 0; elem < eventTrig.length; elem++) {
-                trigSels[elem] = eventTrig[elem].value.trim();
-            }
-            var actionSels = new Array();
-            var eventAction = document.getElementById("eventActionSel").children
-            for (var elem = 0; elem < eventAction.length; elem++) {
-                actionSels[elem] = eventAction[elem].value.trim();
-            }
-            return [{
-                "eventName": $('#eventName').val().trim(),
-                "eventDesc": $('#eventDesc').val().trim(),
-                "eventChkEnabled": $('#eventChkEnabled').prop('checked').toString(),
-                "eventChkOneOff": $('#eventChkOneOff').prop('checked').toString(),
-                "eventFromDateTime": formatDateTime($('#eventFromDate').val(), "datetime").toISOString(),
-                "eventToDateTime": formatDateTime($('#eventToDate').val(), "datetime").toISOString(),
-                "eventLastFired": formatDateTime($('#eventLastFired').val(), "datetime").toISOString(),
-                "eventNumRecur": $('#eventTimesRun').val(),
-                "eventTrigs": trigSels,
-                "eventActions": actionSels
-            }];
-        }
-
-        // Populate the Action object from fields
-        function objAction() {
-            var actionNetwork = 0;
-            return [{
-                "actionName": $('#actionName').val().trim(),
-                "actionDesc": $('#actionDesc').val().trim(),
-                "actionScriptName": ($('#actionScriptName').text().trim() === "None" ? "" : $('#actionScriptName').text().trim()),
-                "actionScriptParam": $('#actionScriptParam').val().trim(),
-                "actionNetwork": actionNetwork,
-                "actionCategory": catIndex($('#actionCategory').prop("textContent")),
-                "actionClass": $('#actionClass').val().trim(),
-                "actionInstance": $('#actionInstance').val().trim(),
-                "actionScope": $('#actionScope').val().trim(),
-                "actionData": $('#actionData').val().trim(),
-                "actionChkRnd": $('#actionChkRnd').prop('checked').toString().trim(),
-                "actionDelay": $('#actionDelay').val().trim()
-            }];
-        }
-
-        // Populate the Trigger object from the fields
-        function objTrig() {
-            var trigChgNetwork = 0;
-            var trigStateNetwork = 0;
-            return [{
-                "trigName": $('#trigName').val().trim(),
-                "trigDesc": $('#trigDesc').val().trim(),
-                "trigScriptName": ($('#trigScriptName').text().trim() === "None" ? "" : $('#trigScriptName').text().trim()),
-                "trigScriptParam": $('#trigScriptParam').text().trim(),
-                "trigScriptValue": $('#trigScriptValue').val().trim(),
-                "trigScriptCond": condIndex('trigScriptCond'),
-                "trigStateNetwork": trigStateNetwork,
-                "trigStateCategory": catIndex($('#trigStateCategory').prop("textContent")),
-                "trigStateClass": $('#trigStateClass').val().trim(),
-                "trigStateInstance": $('#trigStateInstance').val().trim(),
-                "trigStateScope": $('#trigStateScope').val().trim(),
-                "trigStateCond": condIndex('trigStateCond'),
-                "trigStateData": $('#trigStateData').val().trim(),
-                "trigChgNetwork": trigChgNetwork,
-                "trigChgCategory": catIndex($('#trigChgCategory').prop("textContent")),
-                "trigChgClass": $('#trigChgClass').val().trim(),
-                "trigChgInstance": $('#trigChgInstance').val().trim(),
-                "trigChgScope": $('#trigChgScope').val().trim(),
-                "trigChgCond": condIndex('trigChgCond'),
-                "trigChgData": $('#trigChgData').val().trim(),
-                "trigFromDate": formatDateTime($('#trigFromDate').val().trim(), "date").toISOString(),
-                "trigFromTime": formatDateTime($('#trigFromTime').val().trim(), "time").toISOString(),
-                "trigToDate": formatDateTime($('#trigToDate').val().trim(), "date").toISOString(),
-                "trigToTime": formatDateTime($('#trigToTime').val().trim(), "time").toISOString(),
-                "trigTimeofDay": formatDateTime($('#trigTimeofDay').val().trim(), "time"),
-                "trigChkFortnight": $('#trigChkFortnight').prop('checked').toString().trim(),
-                "trigChkMonth": $('#trigChkMonth').prop('checked').toString().trim(),
-                "trigChkYear": $('#trigChkYear').prop('checked').toString().trim(),
-                "trigChkSunrise": $('#trigChkSunrise').prop('checked').toString().trim(),
-                "trigChkSunset": $('#trigChkSunset').prop('checked').toString().trim(),
-                "trigChkDay": $('#trigChkDay').prop('checked').toString().trim(),
-                "trigChkNight": $('#trigChkNight').prop('checked').toString().trim(),
-                "trigChkMon": $('#trigChkMon').prop('checked').toString().trim(),
-                "trigChkTue": $('#trigChkTue').prop('checked').toString().trim(),
-                "trigChkWed": $('#trigChkWed').prop('checked').toString().trim(),
-                "trigChkThu": $('#trigChkThu').prop('checked').toString().trim(),
-                "trigChkFri": $('#trigChkFri').prop('checked').toString().trim(),
-                "trigChkSat": $('#trigChkSat').prop('checked').toString().trim(),
-                "trigChkSun": $('#trigChkSun').prop('checked').toString().trim(),
-                "trigChkActive": $('#trigChkActive').prop('checked').toString().trim(),
-                "trigChkInactive": $('#trigChkInactive').prop('checked').toString().trim()
-            }];
-        }
-
-        // Populate the Transform object from fields
-        function objTransform() {
-            var transFuncOutNetwork = 0;
-            var transformSels = new Array();
-            var transFunc = document.getElementById("transFuncSel").children
-            for (var elem = 0; elem < transFunc.length; elem++) {
-                transformSels[elem] = transFunc[elem].value.trim();
-            }
-            return [{
-                "TransformName": $('#transformName').val().trim(),
-                "TransformDesc": $('#transformDesc').val().trim(),
-                "transFuncOutChk": $('#transFuncOutChkEnabled').prop('checked').toString().trim(),
-                "transFuncOutRounding": $('#transFuncOutRounding').text().trim(),
-                "transFuncOutNetwork": transFuncOutNetwork,
-                "transFuncOutCategory": catIndex($('#transFuncOutCategory').prop("textContent").trim()),
-                "transFuncOutClass": $('#transFuncOutClass').val().trim(),
-                "transFuncOutInstance": $('#transFuncOutInstance').val().trim(),
-                "transFuncOutScope": $('#transFuncOutScope').val().trim(),
-                "transFuncFunctions": transformSels
-            }];
-        }
-
-        // Populate the Program object from fields
-        function objProgram() {
-            return [{
-                "programName": $('#programName').val().trim(),
-                "programDesc": $('#programDesc').val().trim(),
-                "programType": $('#programType').val().trim(),
-                "programLang": $('#programLang').val().trim(),
-                "programCode": myCodeMirror.getValue()
-            }];
-        }
-
-        function catIndex(catName) {
-            var myCat = catName.toUpperCase().trim();
-            for (var cat in parent.categories) {
-                if (myCat == parent.categories[cat].Cat.toUpperCase().trim()) return cat;
-            }
-            return -1;
         }
 //#endregion
 
@@ -2934,8 +3007,21 @@
                             case "GET:TRIGGERS":
                                 var myTrig = JSON.parse(msg.Data);
                                 $('#trigDesc').val(myTrig[0].TrigDescription);
-                                if (myTrig[0].TrigScript === "") pressBut("trigScriptName", "None")
-                                    else pressBut("trigScriptName", myAction[0].TrigScript);
+                                if (myTrig[0].TrigScript === "") pressBut("trigScriptName", "None");
+                                    else pressBut("trigScriptName", myTrig[0].TrigScript);
+                                var trigFired = new Date(myTrig[0].TrigLastFired).toLocaleString().replace(/\u200E/g, "").trim();
+                                if (trigFired == "Invalid Date") trigFired = "never";
+                                var fromDate = new Date(myTrig[0].TrigDateFrom).toLocaleDateString().replace(/\u200E/g, "").trim();
+                                if (fromDate == "Invalid Date") fromDate = "";
+                                var toDate = new Date(myTrig[0].TrigDateTo).toLocaleDateString().replace(/\u200E/g, "").trim();
+                                if (toDate == "Invalid Date") toDate = "";
+                                var fromTime = new Date(myTrig[0].TrigTimeFrom).toLocaleTimeString().replace(/\u200E/g, "").trim()
+                                if (myTrig[0].TrigTimeFrom == "1970-01-01T00:00Z") fromTime = "";            // Unix epoch = no time
+                                var toTime = new Date(myTrig[0].TrigTimeTo).toLocaleTimeString().replace(/\u200E/g, "").trim()
+                                if (myTrig[0].TrigTimeTo == "1970-01-01T00:00Z") toTime = "";            
+                                var timeOfDay = new Date(myTrig[0].TrigTimeofDay).toLocaleTimeString().replace(/\u200E/g, "").trim()
+                                if (myTrig[0].TrigTimeofDay == "1970-01-01T00:00Z") timeOfDay = "";
+
                                 $('#trigScriptParam').val(myTrig[0].TrigScriptParam);
                                 $('#trigScriptValue').val(myTrig[0].TrigScriptData);
                                 pressBut("trigScriptCond", condStr[parseInt(myTrig[0].TrigScriptCond)]);
@@ -2944,7 +3030,6 @@
                                 $('#trigStateInstance').val(myTrig[0].TrigStateInstance);
                                 $('#trigStateScope').val(myTrig[0].TrigStateScope);
                                 document.getElementById("trigStateVal").innerText = myTrig[0].TrigStateInstance + " (" + myTrig[0].TrigStateClass + ")"
-                                //$("#trigStateVal").val(myTrig[0].TrigStateInstance + " (" + myTrig[0].TrigStateClass + ")")
                                 pressBut("trigStateCond", condStr[parseInt(myTrig[0].TrigStateCond)]);
                                 $('#trigStateData').val(myTrig[0].TrigStateData);
                                 pressBut("trigChgCategory", getCat(myTrig[0].TrigChgCategory));
@@ -2952,13 +3037,12 @@
                                 $('#trigChgInstance').val(myTrig[0].TrigChgInstance);
                                 $('#trigChgScope').val(myTrig[0].TrigChgScope);
                                 document.getElementById("trigChgVal").innerText = myTrig[0].TrigChgInstance + " (" + myTrig[0].TrigChgClass + ")"
-                                //$("#trigChgVal").val(myTrig[0].TrigChgInstance + " (" + myTrig[0].TrigChgClass + ")")
                                 pressBut("trigChgCond", condStr[parseInt(myTrig[0].TrigChgCond)]);
                                 $('#trigChgData').val(myTrig[0].TrigChgData);
-                                $('#trigFromDate').val(getJSDateTime(myTrig[0].TrigDateFrom, "date"));
-                                $('#trigFromTime').val(getJSDateTime(myTrig[0].TrigTimeFrom, "time"));
-                                $('#trigToDate').val(getJSDateTime(myTrig[0].TrigDateTo, "date"));
-                                $('#trigToTime').val(getJSDateTime(myTrig[0].TrigTimeTo, "time"));
+                                $('#trigFromDate').val(fromDate);
+                                $('#trigFromTime').val(fromTime);
+                                $('#trigToDate').val(toDate);
+                                $('#trigToTime').val(toTime);
                                 $('#trigChkFortnight').prop('checked', myTrig[0].TrigFortnightly);
                                 $('#trigChkMonth').prop('checked', myTrig[0].TrigMonthly);
                                 $('#trigChkYear').prop('checked', myTrig[0].TrigYearly);
@@ -2975,8 +3059,8 @@
                                 $('#trigChkSun').prop('checked', myTrig[0].TrigSun);
                                 $('#trigChkActive').prop('checked', myTrig[0].TrigActive);
                                 $('#trigChkInactive').prop('checked', myTrig[0].TrigInactive);
-                                $('#trigTimeofDay').val(getJSDateTime(myTrig[0].TrigTimeofDay, "time"));
-                                $('#trigLastFired').val(getJSDateTime(myTrig[0].TrigLastFired, "datetime"));
+                                $('#trigTimeofDay').val(timeOfDay);
+                                $('#trigLastFired').val(trigFired);
                                 break;
                             case "GET:TRANSFORMS":
                                 var myTransform = JSON.parse(msg.Data);
