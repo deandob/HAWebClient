@@ -2018,6 +2018,29 @@
 
         // Populate the Event object from fields
         function objEvent() {
+            var fromDateTime, toDateTime
+            var fromDate = $('#eventFromDate').val().trim();
+            var fromTime = $('#eventFromTime').val().trim();
+            var toDate = $('#eventToDate').val().trim();
+            var toTime = $('#eventToTime').val().trim();
+            if (fromDate == "") fromDate = new Date(0).toLocaleDateString();
+            if (fromTime == "") fromTime = "12:00 AM";
+            if (toDate == "") toDate = "12-12-2099";
+            if (toTime == "") toTime = "12:00 AM";
+            var fromDateTime = formatDateTime(fromDate + " " + fromTime, "datetime");
+            var toDateTime = formatDateTime(toDate + " " + toTime, "datetime");
+            if (isNaN(fromDateTime)) {
+                alert("ERROR - Invalid 'From' Time and/or Date. Re-enter.");
+                return [];
+            }
+            if (isNaN(toDateTime)) {
+                alert("Invalid 'To' Time and/or Date. Re-enter.");
+                return [];
+            }
+            if (fromDateTime.valueOf() >= toDateTime.valueOf()) {
+                alert("'From' Date / Time should be before 'To' Date / Time. Re-enter.");
+                return [];
+            }
             var trigSels = new Array();
             var eventTrig = document.getElementById("eventTrigSel").children
             for (var elem = 0; elem < eventTrig.length; elem++) {
@@ -2033,9 +2056,8 @@
                 "eventDesc": $('#eventDesc').val().trim(),
                 "eventChkEnabled": $('#eventChkEnabled').prop('checked').toString(),
                 "eventChkOneOff": $('#eventChkOneOff').prop('checked').toString(),
-                "eventFromDateTime": formatDateTime($('#eventFromDate').val(), "datetime").toISOString(),
-                "eventToDateTime": formatDateTime($('#eventToDate').val(), "datetime").toISOString(),
-                "eventLastFired": formatDateTime($('#eventLastFired').val(), "datetime").toISOString(),
+                "eventFromDateTime": fromDateTime.toISOString(),
+                "eventToDateTime": toDateTime.toISOString(),
                 "eventNumRecur": $('#eventTimesRun').val(),
                 "eventTrigs": trigSels,
                 "eventActions": actionSels
@@ -2579,6 +2601,16 @@
             return myDate;
         }
 
+        // Removes the seconds component of a locale time string + adds leading 0
+        function removeSec(time) {
+            var newDate = new Date(time);
+            var dateStr = newDate.toLocaleTimeString().replace(/\u200E/g, "");
+            var sec = newDate.getSeconds();
+            if (newDate.getSeconds().toString().length == 1) sec = "0" + newDate.getSeconds();
+            if (dateStr.split(":")[0].length == 1) dateStr = "0" + dateStr;
+            return dateStr.replace(":" + sec + " ", " ").trim();
+        }
+
         /*
         function DotNetDateTime(myDate) {
             return (myDate.valueOf() * pcTicks + unixEpoc).toString();                  // send back date as UTC
@@ -2963,12 +2995,21 @@
                                 break;
                             case "GET:EVENTS":
                                 var myEvent = JSON.parse(msg.Data);
+                                var eventFired = new Date(myEvent[0].EventLastFired).toLocaleString().replace(/\u200E/g, "").trim();
+                                if (eventFired == "Invalid Date") eventFired = "never";
+                                //if (myEvent[0].EventLastFired == "1970-01-01T00:00:00Z") eventFired = "never";
+                                var start = removeSec(new Date(myEvent[0].EventStart).toLocaleDateString().replace(/\u200E/g, "").trim());
+                                if (start == "Invalid Date") start = "";
+                                //if (myEvent[0].EventStart == "1970-01-01T00:00Z") start = "";            // Unix epoch = no time
+                                var stop = removeSec(new Date(myEvent[0].EventStop).toLocaleDateString().replace(/\u200E/g, "").trim());
+                                if (stop == "Invalid Date") stop = "";
+                                //if (myEvent[0].EventStop == "1970-01-01T00:00Z") stop = "";
                                 $('#eventDesc').val(myEvent[0].EventDescription);
                                 $('#eventChkEnabled').prop('checked', myEvent[0].EventActive);
                                 $('#eventChkOneOff').prop('checked', myEvent[0].EventOneOff);
-                                $('#eventFromDate').val(getJSDateTime(myEvent[0].EventStart, "datetime"));
-                                $('#eventToDate').val(getJSDateTime(myEvent[0].EventStop, "datetime"));
-                                $('#eventLastFired').val(getJSDateTime(myEvent[0].EventLastFired, "datetime"));
+                                $('#eventFromDate').val(start);
+                                $('#eventToDate').val(stop);
+                                $('#eventLastFired').val(eventFired);
                                 $('#eventTimesRun').val(myEvent[0].EventNumRecur);
                                 break;
                             case "GET:EVENTTRIGGERS":
@@ -2991,12 +3032,9 @@
                                 if (myAction[0].ActionScript === "") pressBut("actionScriptName", "None")
                                     else pressBut("actionScriptName", myAction[0].ActionScript);
                                 $('#actionScriptParam').val(myAction[0].ActionScriptParam);
-                                //$('#actionNetwork').val(myAction[0].ActionNetwork);
                                 pressBut("actionCategory", getCat(parseInt(myAction[0].ActionCategory)));
                                 if (myAction[0].ActionInstance === "" && myAction[0].ActionClass === "") $('#actionVal').text("None")
                                 else $('#actionVal').text(myAction[0].ActionInstance + " (" + myAction[0].ActionClass + ")")
-                                //document.getElementById("actionVal").innerText = myAction[0].ActionInstance + " (" + myAction[0].ActionClass + ")"
-                                //$("#actionVal").val(myTrig[0].ActionInstance + " (" + myTrig[0].ActionClass + ")")
                                 $('#actionClass').val(myAction[0].ActionClass);
                                 $('#actionInstance').val(myAction[0].ActionInstance);
                                 $('#actionScope').val(myAction[0].ActionScope);
@@ -3015,11 +3053,11 @@
                                 if (fromDate == "Invalid Date") fromDate = "";
                                 var toDate = new Date(myTrig[0].TrigDateTo).toLocaleDateString().replace(/\u200E/g, "").trim();
                                 if (toDate == "Invalid Date") toDate = "";
-                                var fromTime = new Date(myTrig[0].TrigTimeFrom).toLocaleTimeString().replace(/\u200E/g, "").trim()
+                                var fromTime = removeSec(myTrig[0].TrigTimeFrom);
                                 if (myTrig[0].TrigTimeFrom == "1970-01-01T00:00Z") fromTime = "";            // Unix epoch = no time
-                                var toTime = new Date(myTrig[0].TrigTimeTo).toLocaleTimeString().replace(/\u200E/g, "").trim()
+                                var toTime = removeSec(myTrig[0].TrigTimeTo);
                                 if (myTrig[0].TrigTimeTo == "1970-01-01T00:00Z") toTime = "";            
-                                var timeOfDay = new Date(myTrig[0].TrigTimeofDay).toLocaleTimeString().replace(/\u200E/g, "").trim()
+                                var timeOfDay = removeSec(myTrig[0].TrigTimeofDay);
                                 if (myTrig[0].TrigTimeofDay == "1970-01-01T00:00Z") timeOfDay = "";
 
                                 $('#trigScriptParam').val(myTrig[0].TrigScriptParam);
