@@ -330,6 +330,7 @@
         // show modal dialog. Global modalFunction used to define callback routine
         var modalFunction;
         function modalDialog(type, title, text, button, callback, param) {
+            if (text == undefined) text = "";
             if (type === "logon") {
                 document.getElementById("formLogin").style.setProperty("display", "inline");
                 document.getElementById("formInput").style.setProperty("display", "none");

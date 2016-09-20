@@ -75,7 +75,7 @@
             <div class="col-md-2">
                 <p>Log Name</p>
                 <div class="input-group">
-                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log">
+                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log"  tabindex=1>
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
                         <ul id="logNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
@@ -126,7 +126,7 @@
             </div><br />
             <div class="col-md-2">
                 <div class="input-group">
-                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log">
+                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log"  tabindex=1>
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
                         <ul id="generalNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
@@ -204,9 +204,9 @@
                     <div class="col-md-12">
                         <p>Name</p>
                         <div class="input-group">
-                            <input type="text" class="tip form-control" id="queryName" name="textInput" data-original-title="Query Name" data-placement="top" placeholder="New or Select query">
+                            <input type="text" class="tip form-control" id="queryName" name="textInput" data-original-title="Query Name" data-placement="top" placeholder="New or Select query" tabindex=1>
                             <div class="input-group-btn">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" tabindex=0/></button>
                                 <ul id="queryNameList" class="dropdown-menu pull-right">
                                     <li><a class="pointer"><i>No saved Queries</i></a></li>
                                 </ul>
@@ -214,9 +214,11 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-1">
+                </div>
                 <div class="col-md-3">
                     <p>Description</p>
-                    <input type="text" class="form-control" id="transformDesc" name="textInput" placeholder="Enter new Query description">
+                    <input type="text" class="form-control" id="queryDesc" name="textInput" placeholder="Enter new Query description" tabindex=2>
                 </div>
                 <div class="col-md-6">
                     <p>&nbsp;</p>
@@ -258,11 +260,11 @@
                                 <br />
                                 <div class="col-md-6">
                                     <p>Class</p>
-                                    <input type="text" class="form-control" id="queryClassInp" name="textInput" placeholder="All">
+                                    <input type="text" class="form-control" id="queryClassInp" name="textInput" placeholder="All" tabindex=3>
                                 </div>
                                 <div class="col-md-6">
                                     <p>Channel (Instance)</p>
-                                    <input type="text" class="form-control" id="queryInstanceInp" name="textInput" placeholder="All">
+                                    <input type="text" class="form-control" id="queryInstanceInp" name="textInput" placeholder="All"  tabindex=4>
                                 </div>
                             </div>
                         </div>
@@ -658,6 +660,7 @@
                                                 <li><a class="pointer" onclick="pressBut('trigChgCond', 'less')">less</a></li>
                                                 <li><a class="pointer" onclick="pressBut('trigChgCond', 'not')">not</a></li>
                                                 <li><a class="pointer" onclick="pressBut('trigChgCond', 'contains')">contains</a></li>
+                                                <li><a class="pointer" onclick="pressBut('trigChgCond', 'like')">like</a></li>
                                                 <li><a class="pointer" onclick="pressBut('trigChgCond', 'change')">change</a></li>
                                             </ul>
                                         </div>
@@ -729,6 +732,7 @@
                                                     <li><a class="pointer" onclick="pressBut('trigStateCond', 'less')">less</a></li>
                                                     <li><a class="pointer" onclick="pressBut('trigStateCond', 'not')">not</a></li>
                                                     <li><a class="pointer" onclick="pressBut('trigStateCond', 'contains')">contains</a></li>
+                                                    <li><a class="pointer" onclick="pressBut('trigStateCond', 'like')">like</a></li>
                                                     <li><a class="pointer" onclick="pressBut('trigStateCond', 'change')">change</a></li>
                                                 </ul>
                                             </div>
@@ -778,6 +782,7 @@
                                                         <li><a class="pointer" onclick="pressBut('trigScriptCond', 'less')">less</a></li>
                                                         <li><a class="pointer" onclick="pressBut('trigScriptCond', 'not')">not</a></li>
                                                         <li><a class="pointer" onclick="pressBut('trigScriptCond', 'contains')">contains</a></li>
+                                                        <li><a class="pointer" onclick="pressBut('trigScriptCond', 'like')">like</a></li>
                                                         <li><a class="pointer" onclick="pressBut('trigScriptCond', 'change')">change</a></li>
                                                         <li><a class="pointer" onclick="pressBut('trigScriptCond', 'live')">live</a></li>
                                                         <li><a class="pointer" onclick="pressBut('trigScriptCond', 'dead')">dead</a></li>
@@ -1597,7 +1602,7 @@
         var pcTicks = 10000;
         var unixEpoc = 621355968000000000; // epoch start in .NET time
         var nullDate = new Date(new Date().getTimezoneOffset());      // UNIX epoc in UTC
-        var condStr = ["equals", "greater", "less", "not", "contains", "change"];
+        var condStr = ["equals", "greater", "less", "not", "contains", "like", "change"];
         var myCodeMirror;
         var toolboxCB;          // global for callback routine from toolbox load calls
 
@@ -1704,6 +1709,32 @@
             clearClass("sortIcon", "icon-sort");
         }
 
+        function objQuery() {
+            var getQuery = queryJSON();
+            if (getQuery == "[]") return "[]";
+            return [{
+                "queryName": $('#queryName').val().trim(),
+                "queryDesc": $('#queryDesc').val().trim(),
+                "queryType": $("#queryTypeQuestionSel").prop("textContent").trim(),
+                "queryCategory": $("#queryCategory").prop("textContent").trim(),
+                "queryClass": $('#queryClassInp').val().trim(),
+                "queryInstance": $('#queryInstanceInp').val().trim(),
+                "queryCond": $("#queryValueSel").prop("textContent").trim(),
+                "queryValue": $('#queryValueInp').val().trim(),
+                "queryTimeframe": $("#queryTimeframeSel").prop("textContent").trim(),
+                "queryRadioElapsed": $('#queryRadioElapsed').prop('checked').toString().trim(),
+                "queryRadioSince": $('#queryRadioSince').prop('checked').toString().trim(),
+                "queryRadioBetween": $('#queryRadioBetween').prop('checked').toString().trim(),
+                "queryElapsed": $("#queryTimeValue").val().trim(),
+                "queryElapsedDrop": $("#queryTimeDrop").prop("textContent").trim(),
+                "queryFromDate": $('#queryFromDate').val().trim(),
+                "queryFromTime": $('#queryFromTime').val().trim(),
+                "queryToDate": $('#queryToDate').val().trim(),
+                "queryToTime": $('#queryToTime').val().trim(),
+                "queryJSON": getQuery
+            }];
+        }
+
         var unsortedArray;
         var queryResults = [];
         var queryResult = function (time, timeDate, category, className, channel, type, value) {
@@ -1785,6 +1816,7 @@
             }
         }
 
+        // enable time input if historical function selected
         function setQueryTimeFields(button, value) {
             if (value.toUpperCase() == "CURRENT") {
                 $("#queryElapsedFieldset").prop('disabled', true);
@@ -1831,6 +1863,14 @@
         }
 
         function queryButRun() {
+            var formatJSON = queryJSON();
+            if (formatJSON == "[]") return;
+            parent.send("QUERY", $("#queryTypeQuestionSel").prop("textContent").trim(), formatJSON);
+            parent.status("Please wait - processing query...");
+            $("#mainBody").css("cursor", "wait");
+        }
+
+        function queryJSON() {
             var toDateTime = new Date();
             var fromDateTime = new Date();
             if ($("#queryTimeframeSel").prop("textContent").trim().toUpperCase() !== "CURRENT") {               // format all the history options
@@ -1864,7 +1904,7 @@
                     var toTime = $("#queryToTime").val().trim();
                     if (fromDate == "" && fromTime == "") {
                         alert("ERROR - Enter a 'From' date and/or time before submitting query.")
-                        return;
+                        return "[]";
                     }
                     if (fromDate == "") fromDate = new Date().toLocaleDateString()
                     if (fromTime == "") fromTime = "12:00 AM"
@@ -1875,23 +1915,22 @@
                 }
                 if (isNaN(fromDateTime)) {
                     alert("ERROR - Invalid 'From' Time and/or Date. Re-enter.");
-                    return;
+                    return "[]";
                 }
                 if (isNaN(toDateTime)) {
                     alert("Invalid 'To' Time and/or Date. Re-enter.");
-                    return;
+                    return "[]";
                 }
                 if (fromDateTime >= new Date()) {
                     alert("'From' Date / Time is in the future and has to be a past date / time. Re-enter.");
-                    return;
+                    return "[]";
                 }
                 if (fromDateTime >= toDateTime) {
                     alert("'From' Date / Time should be before 'To' Date / Time. Re-enter.");
-                    return;
+                    return "[]";
                 }
             }
-
-            parent.send("QUERY", $("#queryTypeQuestionSel").prop("textContent").trim(), JSON.stringify({
+            return JSON.stringify({
                 Func: $("#queryTypeQuestionSel").prop("textContent").trim(),
                 StartDateTime: fromDateTime.toISOString(),          // send in ISO8601 format
                 EndDateTime: toDateTime.toISOString(),
@@ -1902,9 +1941,7 @@
                 ClassName: $("#queryClassInp").val(),
                 Instance: $("#queryInstanceInp").val(),
                 Scope: ""
-            }));
-            parent.status("Please wait - processing query...");
-            $("#mainBody").css("cursor", "wait");
+            });
         }
 
         function processQueryResults(data) {
@@ -1919,7 +1956,7 @@
                 queryResultVM.items = queryResults;
             } else {
                 queryResultVM.items = null;
-                parent.modalDialog("Query", "No results", "Query didn't return any records.")
+                parent.modalDialog("query", "No results", "Query didn't return any records.")
             }
             $("#queryPanelTitle").text("Results - " + queryResults.length + " record(s) found...");
             clearClass("sortIcon", "icon-sort");
@@ -1935,6 +1972,16 @@
             loadNames("TRIGGERS")
             document.getElementById("editOptions").style.display = "inline";
         }
+
+        // Radio behaviour for time intervals (fortnightly will imply monthly)
+   /*     function radio(active) {
+            if ($("#" + active).prop('checked') == true) {
+                $("#trigChkYear").prop('checked', false)
+                $("#trigChkFortnight").prop('checked', false)
+                $("#trigChkMonth").prop('checked', false)
+                $("#" + active).prop('checked', true)
+            }
+        }  */
 
         // Populate the Trigger object from the fields. If from date/time field is empty, then send epoc date, if to date/time is empty then means for all future (send back empty string)
         function objTrig() {
@@ -2014,6 +2061,11 @@
         function eventsScreenEnter() {
             loadNames("EVENTS")
             document.getElementById("editOptions").style.display = "inline";
+        }
+
+        // Delete the selected event item
+        function delEventItem(item) {
+            $("#" + item + " :selected").remove();
         }
 
         // Populate the Event object from fields
@@ -2240,7 +2292,6 @@
                                 alert("Date and/or Time isn't valid. Re-enter.")
                                 return
                             }
-                            //TODO: Convert to single timedate with addDateAndTime function......
                             cmdStr = cmdStr + " " + selRadio + "(" + $("#transFuncFromDate").val().trim() + " " + $("#transFuncFromTime").val().trim() + ")"
                         } else {
                             cmdStr = cmdStr + " " + selRadio + "(" + $("#transFuncTimeValue").val().trim() + " " + $("#transFuncTimeDrop").text().trim() + ")"
@@ -2304,6 +2355,16 @@
             myCodeMirror.getScrollerElement().style.width = window.innerWidth + "px"
         }
 
+        function selProgramType(type) {
+            loadNames(type.toUpperCase() + "S")
+            $("#programType").val(type)
+        }
+
+        /*
+        function selScriptLang(lang) {
+            alert(myCodeMirror.getValue())
+        } */
+
         // Populate the Program object from fields
         function objProgram() {
             return [{
@@ -2334,10 +2395,6 @@
             else document.getElementById(icon).innerHTML = "&#9660;"
         }
 
-        function selScriptLang(lang) {
-            alert(myCodeMirror.getValue())
-        }
-
         function toggleTB(toolboxName, openclose, panel) {
             var myTB = document.getElementById(toolboxName);
             //myTB.setAttribute("data-panel", panel)
@@ -2345,31 +2402,12 @@
             if (myTB.style.getPropertyValue("left") == "0px" && openclose == "close") myTB.style.setProperty("left", "-200px");
         }
 
-        // Radio behaviour for time intervals (fortnightly will imply monthly)
-        function radio(active) {
-            if ($("#" + active).prop('checked') == true) {
-                $("#trigChkYear").prop('checked', false)
-                $("#trigChkFortnight").prop('checked', false)
-                $("#trigChkMonth").prop('checked', false)
-                $("#" + active).prop('checked', true)
-            }
-        }
 
         // Load the names of the triggers/actions into the toolbox for selecting
         function popToolbox(item, CB, call) {
             toolboxCB = CB                  // callback once loaded
             if (call === "channel") parent.send("WIDGETS", "CHANNELS", "")          // load toolbox with channels
             if (call === "eventLB") loadNames(item + "DESC")
-        }
-
-        function selProgramType(type) {
-            loadNames(type.toUpperCase() + "S")
-            $("#programType").val(type)
-        }
-
-        // Delete the selected event item
-        function delEventItem(item) {
-            $("#" + item + " :selected").remove();
         }
 
         // Functions to call once the modal messagebox is closed
@@ -2458,6 +2496,10 @@
                     if (dropdown === "actionName") document.getElementById("actionName").value = selected
                     if (dropdown === "actionScriptName") document.getElementById(dropdown).innerHTML = selected + "&nbsp;&nbsp;<span class='caret'></span>"
                     if (sendNet == "true") parent.send("AUTOMATION", "GET:ACTIONS(" + selected + ")", selected)
+                    break;
+                case "QUERIES":
+                    if (dropdown === "queryName") document.getElementById("queryName").value = selected;
+                    if (sendNet == "true") parent.send("AUTOMATION", "GET:QUERIES(" + selected + ")", selected)
                     break;
                 case "TRANSFORMS":
                     if (sendNet == "true") {
@@ -2556,11 +2598,6 @@
             }
         }
 
-        // Create single DateTime value from Date and Time inputs (return NaN if invalid)
-        //function addDateAndTime(dateField, timeField) {
-        //    return new Date($("#" + dateField).val().trim() + " " + $("#" + timeField).val().trim())
-        //}
-
         // Convert from general string date format to JS date object in local time. Format 'DD/MM/YY HH:MM:SS PM' with US dates and / or - date delimiters, seconds ignored. No military time
         function formatDateTime(JSDateTime, dateTime) {
             if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
@@ -2611,22 +2648,6 @@
             return dateStr.replace(":" + sec + " ", " ").trim();
         }
 
-        /*
-        function DotNetDateTime(myDate) {
-            return (myDate.valueOf() * pcTicks + unixEpoc).toString();                  // send back date as UTC
-        }
-
-
-        // Convert from PC date format ticks to Javascript date from UTC to local time
-        function getJSDateTime(ticks, dateortime) {
-            var datetime = new Date((ticks - unixEpoc) / pcTicks)
-            if (datetime.valueOf() > 0) {
-                if (dateortime == "date") return datetime.toLocaleDateString();
-                if (dateortime == "time") return datetime.toLocaleTimeString();
-                return datetime.toLocaleString();
-            } else return "";
-        }
-*/
         // Find the selected index of a conditional dropdown
         function condIndex(listID) {
             var selVal = $('#' + listID).prop("textContent").trim().toLowerCase()
@@ -2802,17 +2823,15 @@
             switch (getActiveTab().toUpperCase()) {
                 case "TRIGGERS":
                     if ($("#trigName").val() == "") {
-                        parent.modalDialog("No record selected", "Please select a Trigger name to update first.")
+                        parent.modalDialog("update", "No record selected", "Please select a Trigger name to update first.")
                     } else {
-                        var tt = objTrig()              // TESTING, REMOVE
-                        myJSON = JSON.stringify(tt);
-                        //myJSON = JSON.stringify(objTrig());
+                        myJSON = JSON.stringify(objTrig());
                         if (myJSON !== "[]") sendServer("UPD", "TRIGGERS", $("#trigName").val(), myJSON);
                     }
                     break;
                 case "ACTIONS":
                     if ($("#actionName").val() == "") {
-                        parent.modalDialog("No record selected", "Please select an Action name to update first.")
+                        parent.modalDialog("update", "No record selected", "Please select an Action name to update first.")
                     } else {
                         myJSON = JSON.stringify(objAction());
                         if (myJSON !== "[]") sendServer("UPD", "ACTIONS", $("#actionName").val(), myJSON);
@@ -2820,15 +2839,23 @@
                     break;
                 case "EVENTS":
                     if ($("#eventName").val() == "") {
-                        parent.modalDialog("No record selected", "Please select an Event name to update first.")
+                        parent.modalDialog("update", "No record selected", "Please select an Event name to update first.")
                     } else {
                         myJSON = JSON.stringify(objEvent());
                         if (myJSON !== "[]") sendServer("UPD", "EVENTS", $("#eventName").val(), myJSON);
                     }
                     break;
+                case "QUERIES":
+                    if ($("#queryName").val() == "") {
+                        parent.modalDialog("update", "No record selected", "Please select a Query name to update first.")
+                    } else {
+                        myJSON = JSON.stringify(objQuery());
+                        if (myJSON !== "[]") sendServer("UPD", "QUERIES", $("#queryName").val(), myJSON);
+                    }
+                    break;
                 case "PROGRAMS":
                     if ($("#programName").val() == "") {
-                        parent.modalDialog("No name entered", "Please select a name for your program before saving.")
+                        parent.modalDialog("update", "No name entered", "Please select a name for your program before saving.")
                     } else {
                         myJSON = JSON.stringify(objProgram());
                         if (myJSON !== "[]") sendServer("UPD", "PROGRAMS", $("#programName").val(), myJSON);
@@ -2836,7 +2863,7 @@
                     break;
                 case "TRANSFORMS":
                     if ($("#transformName").val() == "") {
-                        parent.modalDialog("No record selected", "Please select a Transform name to update first.")
+                        parent.modalDialog("update", "No record selected", "Please select a Transform name to update first.")
                     } else {
                         myJSON = JSON.stringify(objTranform());
                         if (myJSON !== "[]") sendServer("UPD", "TRANSFORMS", $("#transformName").val(), myJSON);
@@ -2851,13 +2878,25 @@
             parent.status("Processing add...");
             var myJSON;
             switch (getActiveTab().toUpperCase()) {
+                case "QUERIES":
+                    if ($("#queryName").val() === "") {
+                        parent.modalDialog("add", "No record selected", "Please select or enter a Query name before adding.")
+                        break;
+                    }
+                    if ($("#queryDesc").val() === "") {
+                        parent.modalDialog("add", "No description entered", "Please enter a Query description before adding.")
+                        break;
+                    }
+                    myJSON = JSON.stringify(objQuery());
+                    if (myJSON !== "[]") sendServer("ADD", "QUERIES", $("#queryName").val(), myJSON);
+                    break;
                 case "TRIGGERS":
                     if ($("#trigName").val() === "") {
-                        parent.modalDialog("No record selected", "Please select or enter a Trigger name before adding.")
+                        parent.modalDialog("add", "No record selected", "Please select or enter a Trigger name before adding.")
                         break;
                     }
                     if ($("#trigDesc").val() === "") {
-                        parent.modalDialog("No description entered", "Please enter a Trigger description before adding.")
+                        parent.modalDialog("add", "No description entered", "Please enter a Trigger description before adding.")
                         break;
                     }
                     myJSON = JSON.stringify(objTrig());
@@ -2865,11 +2904,11 @@
                     break;
                 case "ACTIONS":
                     if ($("#actionName").val() === "") {
-                        parent.modalDialog("No record selected", "Please select or enter a Action name before adding.")
+                        parent.modalDialog("add", "No record selected", "Please select or enter a Action name before adding.")
                         break;
                     }
                     if ($("#actionDesc").val() === "") {
-                        parent.modalDialog("No description entered", "Please enter a Action description before adding.")
+                        parent.modalDialog("add", "No description entered", "Please enter a Action description before adding.")
                         break;
                     }
                     myJSON = JSON.stringify(objAction());
@@ -2877,15 +2916,15 @@
                     break;
                 case "EVENTS":
                     if ($("#eventName").val() === "") {
-                        parent.modalDialog("No record selected", "Please select or enter a Event name before adding.")
+                        parent.modalDialog("add", "No record selected", "Please select or enter a Event name before adding.")
                         break;
                     }
                     if ($("#eventDesc").val() === "") {
-                        parent.modalDialog("No description entered", "Please enter a Event description before adding.")
+                        parent.modalDialog("add", "No description entered", "Please enter a Event description before adding.")
                         break;
                     }
                     if (($("#eventTrigSel").children("option").length == 0) || ($("#eventActionSel").children("option").length == 0)) {
-                        parent.modalDialog("No Trigger or Action selected", "Each Event must have at least one associated Trigger or Action.")
+                        parent.modalDialog("add", "No Trigger or Action selected", "Each Event must have at least one associated Trigger or Action.")
                         break;
                     }
                     myJSON = JSON.stringify(objEvent());
@@ -2893,15 +2932,15 @@
                     break;
                 case "TRANSFORMS":
                     if ($("#transformName").val() === "") {
-                        parent.modalDialog("No record selected", "Please select or enter a Transform name before adding.")
+                        parent.modalDialog("add", "No record selected", "Please select or enter a Transform name before adding.")
                         break;
                     }
                     if ($("#transformDesc").val() === "") {
-                        parent.modalDialog("No description entered", "Please enter a Transform description before adding.")
+                        parent.modalDialog("add", "No description entered", "Please enter a Transform description before adding.")
                         break;
                     }
                     if ($("#transFuncSel").children("option").length === 0 || $("#transFuncOutCategory").prop("textContent").trim() === "" || $("#transFuncOutClass").prop("value").trim() === "" || $("#transFuncOutScope").prop("value").trim() === "" || $("#transFuncOutInstance").prop("value").trim() === "") {
-                        parent.modalDialog("Transform not added", "Each Transform created must have at least one function and the output channel defined.")
+                        parent.modalDialog("add", "Transform not added", "Each Transform created must have at least one function and the output channel defined.")
                         break;
                     }
                     myJSON = JSON.stringify(objTransform());
@@ -2960,6 +2999,9 @@
                                     case "EVENTS":
                                         popPulldown("eventNameList", msg.Data, "EventName", true)
                                         break;
+                                    case "QUERIES":
+                                        popPulldown("queryNameList", msg.Data, "QueryName", true)
+                                        break;
                                     case "TRIGGERSDESC":
                                         $("#selectToolboxScroll").children('li').remove();
                                         var trigs = JSON.parse(msg.Data)
@@ -2997,13 +3039,10 @@
                                 var myEvent = JSON.parse(msg.Data);
                                 var eventFired = new Date(myEvent[0].EventLastFired).toLocaleString().replace(/\u200E/g, "").trim();
                                 if (eventFired == "Invalid Date") eventFired = "never";
-                                //if (myEvent[0].EventLastFired == "1970-01-01T00:00:00Z") eventFired = "never";
                                 var start = removeSec(new Date(myEvent[0].EventStart).toLocaleDateString().replace(/\u200E/g, "").trim());
                                 if (start == "Invalid Date") start = "";
-                                //if (myEvent[0].EventStart == "1970-01-01T00:00Z") start = "";            // Unix epoch = no time
                                 var stop = removeSec(new Date(myEvent[0].EventStop).toLocaleDateString().replace(/\u200E/g, "").trim());
                                 if (stop == "Invalid Date") stop = "";
-                                //if (myEvent[0].EventStop == "1970-01-01T00:00Z") stop = "";
                                 $('#eventDesc').val(myEvent[0].EventDescription);
                                 $('#eventChkEnabled').prop('checked', myEvent[0].EventActive);
                                 $('#eventChkOneOff').prop('checked', myEvent[0].EventOneOff);
@@ -3025,6 +3064,37 @@
                                 for (var action in myEventActions) {
                                     $("#eventActionSel").append("<option value='" + myEventActions[action].ActionName + "'>" + myEventActions[action].ActionName + " - " + myEventActions[action].Desc + "</option>");
                                 }
+                                break;
+                            case "GET:QUERIES":
+                                var myQuery = JSON.parse(msg.Data);
+                                var queryFromDate = new Date(myQuery[0].QueryFromDate).toLocaleString().replace(/\u200E/g, "").trim();
+                                if (queryFromDate == "Invalid Date") queryFromDate = "";
+                                var queryFromTime = new Date(myQuery[0].QueryFromTime).toLocaleString().replace(/\u200E/g, "").trim();
+                                if (queryFromTime == "Invalid Date") queryFromTime = "";
+                                var queryToDate = new Date(myQuery[0].QueryToDate).toLocaleString().replace(/\u200E/g, "").trim();
+                                if (queryToDate == "Invalid Date") queryToDate = "";
+                                var queryToTime = new Date(myQuery[0].QueryToTime).toLocaleString().replace(/\u200E/g, "").trim();
+                                if (queryToTime == "Invalid Date") queryToTime = "";
+                                $('#queryName').val(myQuery[0].QueryName);
+                                $('#queryDesc').val(myQuery[0].QueryDesc);
+                                $("#queryTypeQuestionSel").prop("textContent", myQuery[0].QueryType);
+                                //pressBut("trigStateCategory", getCat(myTrig[0].TrigStateCategory));
+                                //TODO: store category as number
+                                $("#queryCategory").prop("textContent", myQuery[0].QueryCategory);
+                                $('#queryClassInp').val(myQuery[0].QueryClass);
+                                $('#queryInstanceInp').val(myQuery[0].QueryInstance);
+                                $("#queryValueSel").prop("textContent", myQuery[0].QueryCond);
+                                $('#queryValueInp').val(myQuery[0].QueryValue);
+                                $("#queryTimeframeSel").prop("textContent", myQuery[0].QueryTimeframe);
+                                $('#queryRadioElapsed').prop("checked", myQuery[0].QueryRadioElapsed);
+                                $('#queryRadioSince').prop("checked", myQuery[0].QueryRadioSince);
+                                $('#queryRadioBetween').prop("checked", myQuery[0].QueryRadioBetween);
+                                $("#queryTimeValue").val(myQuery[0].QueryElapsed);
+                                $("#queryTimeDrop").prop("textContent", myQuery[0].QueryElapsedDrop);
+                                $("#queryFromDate").val(queryFromDate);
+                                $('#queryFromTime').val(queryFromTime);
+                                $('#queryToDate').val(queryToDate);
+                                $('#queryToTime').val(queryToTime);
                                 break;
                             case "GET:ACTIONS":
                                 var myAction = JSON.parse(msg.Data);
@@ -3220,6 +3290,14 @@
                                     loadNames("ACTIONS")
                                 } else {
                                     parent.status("WARNING - Error adding action '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "ADD:QUERIES":
+                                if (msg.Data == "OK") {
+                                    parent.status("Query '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' added.");
+                                    loadNames("QUERIES")
+                                } else {
+                                    parent.status("WARNING - Error adding query '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
                                 }
                                 break;
                             case "ADD:EVENTS":
