@@ -38,7 +38,7 @@
                 <a class="tip icon nounderline pointer" data-original-title="Add" data-placement="top" onclick="addRec()"><i class="icon-new-tab icon-large">&nbsp;</i></a>
                 <a class="tip icon nounderline pointer" data-original-title="Delete" data-placement="top" onclick="delRec()"><i class="icon-remove-2 icon-large">&nbsp;</i></a>
                 <a class="tip icon nounderline pointer" data-original-title="Save" data-placement="top" onclick="updRec()"><i class="icon-save icon-large">&nbsp;</i></a>
-                <a class="tip icon nounderline pointer" data-original-title="Clear" data-placement="top" onclick="clearRec()"><i class="icon-check-empty icon-large">&nbsp;</i></a>
+                <a class="tip icon nounderline pointer" data-original-title="Clear" data-placement="top" onclick="clearRecs()"><i class="icon-check-empty icon-large">&nbsp;</i></a>
             </div>
         </div>
     </div>
@@ -1716,6 +1716,7 @@
                 "queryName": $('#queryName').val().trim(),
                 "queryDesc": $('#queryDesc').val().trim(),
                 "queryType": $("#queryTypeQuestionSel").prop("textContent").trim(),
+                "queryNetwork": 0,
                 "queryCategory": $("#queryCategory").prop("textContent").trim(),
                 "queryClass": $('#queryClassInp').val().trim(),
                 "queryInstance": $('#queryInstanceInp').val().trim(),
@@ -2424,6 +2425,9 @@
                         case "ACTIONS":
                             sendServer("DEL", "ACTIONS", param, param)
                             break;
+                        case "QUERIES":
+                            sendServer("DEL", "QUERIES", param, param)
+                            break;
                         case "TRANSFORMS":
                             sendServer("DEL", "TRANSFORMS", param, param)
                             break;
@@ -2806,6 +2810,13 @@
                         parent.modalDialog("delete", "Deleting Event", "Confirm deletion of '" + $("#eventName").val() + "'.", "Delete", "Delete Record", $("#eventName").val())
                     }
                     break;
+                case "QUERIES":
+                    if ($("#queryName").val() == "") {
+                        parent.modalDialog("delete", "No record selected", "Please select a Query name to delete first.")
+                    } else {
+                        parent.modalDialog("delete", "Deleting Query", "Confirm deletion of '" + $("#queryName").val() + "'.", "Delete", "Delete Record", $("#queryName").val())
+                    }
+                    break;
                 case "TRANSFORMS":
                     if ($("#transformName").val() == "") {
                         parent.modalDialog("delete", "No record selected", "Please select a Transform name to delete first.")
@@ -3076,21 +3087,19 @@
                                 var queryToTime = new Date(myQuery[0].QueryToTime).toLocaleString().replace(/\u200E/g, "").trim();
                                 if (queryToTime == "Invalid Date") queryToTime = "";
                                 $('#queryName').val(myQuery[0].QueryName);
-                                $('#queryDesc').val(myQuery[0].QueryDesc);
-                                $("#queryTypeQuestionSel").prop("textContent", myQuery[0].QueryType);
-                                //pressBut("trigStateCategory", getCat(myTrig[0].TrigStateCategory));
-                                //TODO: store category as number
-                                $("#queryCategory").prop("textContent", myQuery[0].QueryCategory);
+                                $('#queryDesc').val(myQuery[0].QueryDescription);
+                                pressBut("queryTypeQuestionSel", myQuery[0].QueryType);
+                                pressBut("queryCategory", myQuery[0].QueryCategory);
                                 $('#queryClassInp').val(myQuery[0].QueryClass);
                                 $('#queryInstanceInp').val(myQuery[0].QueryInstance);
-                                $("#queryValueSel").prop("textContent", myQuery[0].QueryCond);
+                                pressBut("queryValueSel", myQuery[0].QueryCond);
                                 $('#queryValueInp').val(myQuery[0].QueryValue);
-                                $("#queryTimeframeSel").prop("textContent", myQuery[0].QueryTimeframe);
                                 $('#queryRadioElapsed').prop("checked", myQuery[0].QueryRadioElapsed);
                                 $('#queryRadioSince').prop("checked", myQuery[0].QueryRadioSince);
                                 $('#queryRadioBetween').prop("checked", myQuery[0].QueryRadioBetween);
+                                setQueryTimeFields("queryTimeframeSel", myQuery[0].QueryTimeframe);
                                 $("#queryTimeValue").val(myQuery[0].QueryElapsed);
-                                $("#queryTimeDrop").prop("textContent", myQuery[0].QueryElapsedDrop);
+                                pressBut("queryTimeDrop", myQuery[0].QueryElapsedDrop);
                                 $("#queryFromDate").val(queryFromDate);
                                 $('#queryFromTime').val(queryFromTime);
                                 $('#queryToDate').val(queryToDate);
@@ -3232,6 +3241,15 @@
                                     parent.status("WARNING - Error deleting event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
                                 }
                                 break;
+                            case "DEL:QUERIES":
+                                if (msg.Data == "OK") {
+                                    parent.status("Query '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
+                                    clearRecs()
+                                    loadNames("QUERIES")
+                                } else {
+                                    parent.status("WARNING - Error deleting Query '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
                             case "DEL:TRANSFORMS":
                                 if (msg.Data == "OK") {
                                     parent.status("Transform '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' deleted.");
@@ -3267,6 +3285,13 @@
                                     parent.status("Event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' updated.");
                                 } else {
                                     parent.status("WARNING - Error updating event '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
+                                }
+                                break;
+                            case "UPD:QUERIES":
+                                if (msg.Data == "OK") {
+                                    parent.status("Query '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' updated.");
+                                } else {
+                                    parent.status("WARNING - Error updating Query '" + msg.Scope.substring(msg.Scope.indexOf("(") + 1, msg.Scope.length - 1) + "' (" + msg.Data + ")");
                                 }
                                 break;
                             case "UPD:TRANSFORMS":
