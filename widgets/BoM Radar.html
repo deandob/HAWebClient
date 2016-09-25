@@ -142,22 +142,25 @@
         </svg>
     </div>
 
-    <script src="../widgetFramework.js"></script>
     <script>
-        ///////////////////// Widget specific functions
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var radarID, radarInterval, background, waterways, legend, locations, range, rain;
         var timer, radarFiles, latestDate, delta;
-
         var loc = document.getElementById("myLoc");
         var locSurr = document.getElementById("myLocSurr");
         var radarOffset = 0;
 
-        function widgetStart(mode) {            // widget specific startup
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            radarID = parseInt(fw.attribs[0].value);
+            radarInterval = fw.attribs[1].value;
 
-            radarID = parseInt(_attribs[0].value);
-            radarInterval = _attribs[1].value;
-
-            channelSend("UTILITIES/FTP Helper/FTP File Listing", "text", "anon/gen/radar/IDR" + (radarID + radarOffset).toString() + ".T.*");        // Get initial file listing for the saved Radar ID
+            fw.channelSend("UTILITIES/FTP Helper/FTP File Listing", "text", "anon/gen/radar/IDR" + (radarID + radarOffset).toString() + ".T.*");        // Get initial file listing for the saved Radar ID
 
             setMyLocation();
 
@@ -180,13 +183,23 @@
             document.getElementById("imgWaterways").setAttribute("xlink:href", waterways);
             document.getElementById("imgLocations").setAttribute("xlink:href", locations);
             document.getElementById("imgRange").setAttribute("xlink:href", range);
-            return true;
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
         }
 
         // draw circle on map to represent current location
         function setMyLocation() {
 
-            var locn = _attribs[3 + (-1 * radarOffset)].value.split(",");     // use Radar offset (64Km, 128Km, 256Km files are all one number different) to locate target setting
+            var locn = fw.attribs[3 + (-1 * radarOffset)].value.split(",");     // use Radar offset (64Km, 128Km, 256Km files are all one number different) to locate target setting
 
             if (locn[0] + locn[1] !== "00") {
                 locSurr.setAttribute("cx", locn[0]);
@@ -221,7 +234,7 @@
 
             if ((new Date() - new Date(latestDate.valueOf() - tzOffset)) > delta) {                    // each loop, check to see if later radarfiles exist if a new file is due
                 if (checkLatestLp > 20) {                               // check each radarInterval (msec) * 20 seconds
-                    channelSend("UTILITIES/FTP Helper/FTP File Listing", "text", "anon/gen/radar/IDR" + (radarID + radarOffset).toString() + ".T.*");
+                    fw.channelSend("UTILITIES/FTP Helper/FTP File Listing", "text", "anon/gen/radar/IDR" + (radarID + radarOffset).toString() + ".T.*");
                     checkLatestLp = 0;
                 } else checkLatestLp++;
             }
@@ -229,8 +242,8 @@
         }
 
         function toolboxStart() {           // called when loaded in toolbox
-            _widgetID.height.baseVal.value = 100
-            _widgetID.width.baseVal.value = 100
+            fw.widgetID.height.baseVal.value = 100
+            fw.widgetID.width.baseVal.value = 100
             document.getElementById("imgBackground").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.background.png");
             document.getElementById("imgRange").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.range.png");
             document.getElementById("imgLegend").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR.legend.0.png");
@@ -246,9 +259,9 @@
             // if right click on the radar image, set the new target for each radar
             if (event.which === 3 && (event.target.id.indexOf("imgRain") !== -1)) {
                 //if (event.which === 3 && (event.target.id.indexOf("imgRain") !== -1 || event.target.id.indexOf("myLoc") !== -1)) {
-                fwFunc("setAttrib", 3 + (-1 * radarOffset), event.clientX + "," + event.clientY)
+                fw.func("setAttrib", 3 + (-1 * radarOffset), event.clientX + "," + event.clientY)
                 //parent.widgetRequest(widgetName, "setAttrib", 3 + (-1 * radarOffset), event.clientX + "," + event.clientY);
-                fwFunc("save")
+                fw.func("save")
                 //parent.widgetRequest(widgetName, "save");
             }
             switch (event.target.id) {

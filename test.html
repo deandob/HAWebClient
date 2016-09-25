@@ -76,34 +76,40 @@
 
     <script>
 
-        // Initialize widget framework API
         var fw;
-        function widgetLoad(myName) {
-            fw = new parent.widgetAPI(myName);                                  // widget framework object
+
+        setTimeout(_nameLoaded, 0)
+
+        function testxx(me) {
+            fw = new parent.widgetAPI(me)
+            parent.widgetTestxx(new Date().valueOf())
         }
+
+        function _nameLoaded() {
+            _widgetName = document.getElementById("widget").getAttribute("data-widgetName");               // Name of widget in parent DOM 'objWidgetX'
+
+            //var tt= document.getElementById("widget");               // Name of widget in parent DOM 'objWidgetX'
+            if (_widgetName === null) {
+                setTimeout(_nameLoaded, 0)                                                                   // not ready, wait and try again
+            } else {
+                parent.widgetTest(new Date().valueOf())
+            }
+        }
+
+        function eee() {
+            //parent.widgetTest(new Date().valueOf())
+            var rr = this;
+        }
+        //parent.widgetTest()
+
 
         var header = document.getElementById("header")
+        var _widgetName = document.getElementById("widget").getAttribute("data-test");
+        //parent.widgetTest();
 
-        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
-        function dashStart(mode) {
-            if (fw.attribs[0].value === true) fw.widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
-            else fw.widgetID.style.setProperty("box-shadow", "none")
-            header.innerText = fw.attribs[2].value;
-            fw.widgetID.className = fw.attribs[1].value
-            header.className = fw.widgetID.className
-            return "OK";
-        }
-
-        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
-        function designStart(mode) {
-            return dashStart();
-        }
-
-        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
-        function toolStart(mode) {
-            fw.widgetID.style.setProperty("width", parseInt(fw.widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
-            fw.widgetID.style.setProperty("height", parseInt(fw.widgetID.style.getPropertyValue("width")) + "px");
-            return "OK"
+        function toolboxStart() {           // called when loaded in toolbox
+            _widgetID.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
+            _widgetID.style.setProperty("height", parseInt(_widgetID.style.getPropertyValue("width")) + "px");
         }
 
         function startEdit() {              // called when editing started
@@ -113,7 +119,7 @@
         function endEdit(param0) {                // called when editing finishes
             document.body.setAttribute("spellcheck", "false");
             fw.func("setAttrib", 2, header.textContent)
-            dashStart()
+            widgetStart()
         }
 
         function startDesign() {            // called when switching to design mode
@@ -125,8 +131,18 @@
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
-            fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 10) + "px");
-            fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY - 10) + "px");
+            _widgetID.style.setProperty("width", (_iniWidth * scaleX - 10) + "px");
+            _widgetID.style.setProperty("height", (_iniHeight * scaleY - 10) + "px");
+        }
+
+        //// Widget specific functions
+        function widgetStart(mode) {            // widget specific startup
+            if (_attribs[0].value === true) _widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
+            else _widgetID.style.setProperty("box-shadow", "none")
+            header.innerText = _attribs[2].value;
+            _widgetID.className = _attribs[1].value
+            header.className = _widgetID.className
+            return true;
         }
 
     </script>

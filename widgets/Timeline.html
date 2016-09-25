@@ -65,13 +65,41 @@
         </div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script src="../js/d3v3.min.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
 
-        function toolboxStart() {           // called when loaded in toolbox
-            _widgetID.style.height = 30;                // ensure when dragging height is 100
+        var margin = { top: 0, bottom: 2, left: 5, right: 15 };
+        var dragging = false;
+        var timeline, xAxis, yAxis, x, y, width, height, clipPath, bground, zoom, drag, historyHrs, title;
+        var chart = d3.select("#timeline");
+        var chartTitle = "";
+        var currTime = [];
+        var items = [];
+
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            chartTitle = fw.attribs[1].value;
+            historyHrs = parseFloat(fw.attribs[2].value);
+            if (isNaN(historyHrs)) historyHrs = 24;
+            if (fw.attribs[0].value !== "") fw.func("history", fw.attribs[0].value, Date.now() - 1000 * 3600 * historyHrs, Date.now());         // request data from server
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            fw.widgetID.style.height = 30;                // ensure when dragging height is 100
             historyHrs = 24;
+            return "OK"
         }
 
         function startDesign() {            // called when switching to design mode
@@ -97,7 +125,7 @@
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
-            width = _iniWidth * scaleX
+            width = fw.iniWidth * scaleX
 
             clipPath
                 .attr("width", width)
@@ -117,7 +145,7 @@
             bground
                .attr("width", width)
 
-            if (_toolbox == false) {
+            if (fw.state != "toolbox") {
                 chart.call(zoom.x((x)));      // enable x axis zoom
                 chart.call(drag);           // enable drag events
             }
@@ -130,14 +158,6 @@
                 .attr("y", 0 - (margin.top / 2))
                 .text(chartTitle);
         }
-
-        var margin = { top: 0, bottom: 2, left: 5, right: 15 };
-        var dragging = false;
-        var timeline, xAxis, yAxis, x, y, width, height, clipPath, bground, zoom, drag, historyHrs, title;
-        var chart = d3.select("#timeline");
-        var chartTitle = "";
-        var currTime = [];
-        var items = [];
 
         timeline = document.getElementById("timeline");
 
@@ -167,8 +187,8 @@
         zoom = d3.behavior.zoom()
             .on("zoom", zoomed)
         drag = d3.behavior.drag()
-            .on("dragstart", start_drag)
-            .on("dragend", stop_drag)
+            .on("dragstart", startfwdrag)
+            .on("dragend", stopfwdrag)
 
         // setup axis titles from host after charts have been initialized
         title = chart.append("text")
@@ -205,34 +225,23 @@
             }
         }, 1000);
 
-        //// Widget specific functions
-        function widgetStart(mode) {            // widget specific startup
-            chartTitle = _attribs[1].value;
-            historyHrs = parseFloat(_attribs[2].value);
-            if (isNaN(historyHrs)) historyHrs = 24;
-            if (_attribs[0].value !== "") fwFunc("history", _attribs[0].value, Date.now() - 1000 * 3600 * historyHrs, Date.now());         // request data from server
-            return true;
-        }
-
         // Zoom event
         function zoomed() {
-            if (_designing == false) {
-                chart.select(".x.axis").call(xAxis);
-                chart.selectAll("rect.points")
-                    .attr("clip-path", "url(#clip)")
-                    .attr("x", function (d) { return x(d.date) })
-                chart.selectAll("circle.currtime")
-                    .attr("clip-path", "url(#clip)")
-                    .attr("cx", function (d) { return x(d) })
-            }
+            chart.select(".x.axis").call(xAxis);
+            chart.selectAll("rect.points")
+                .attr("clip-path", "url(#clip)")
+                .attr("x", function (d) { return x(d.date) })
+            chart.selectAll("circle.currtime")
+                .attr("clip-path", "url(#clip)")
+                .attr("cx", function (d) { return x(d) })
         }
 
         // Drag events
-        function start_drag() {
+        function startfwdrag() {
             chart.style("cursor", "e-resize");
             dragging = true;
         }
-        function stop_drag() {
+        function stopfwdrag() {
             chart.style("cursor", "default");
             dragging = false;
         }
@@ -243,7 +252,7 @@
             var mysplit;
             for (var rec in newItems) {
                 mySplit = newItems[rec].split(",");
-                if (_attribs[3].value !== "All" && _attribs[3].value !== "" && _attribs[3].value != mySplit[1]) continue;               // is the value a match?
+                if (fw.attribs[3].value !== "All" && fw.attribs[3].value !== "" && fw.attribs[3].value != mySplit[1]) continue;               // is the value a match?
                 items.push({ date: new Date((mySplit[0] - 621355968000000000) / 10000), value: mySplit[1] });
             }
             chart.selectAll("rect.points")

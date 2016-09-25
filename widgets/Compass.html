@@ -50,8 +50,13 @@
         </svg>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var needleID = document.getElementById("needle");		    // id of the path to rotate
         var numID = document.getElementById("numVal");		        // id text field
         var avgID = document.getElementById("avg");                 // id average marker
@@ -59,13 +64,23 @@
         var oldAvg = 0;
         var direction = "N"
 
-        // Called from framework when widget starts
-        function widgetStart(param) {                               // widget specific startup
-            if (_attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline");
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            if (fw.attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline");
             // Hide the svg used to display the widget in the toolbox for proper drag/drop (can only drag id=widget SVG element) & put dial face in background
             document.getElementById("TBNeedle").style.setProperty("display", "none");
-            _widgetID.style.setProperty("z-index", "1");
-            return true;
+            fw.widgetID.style.setProperty("z-index", "1");
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
         }
 
         function startEdit() {              // called when editing started
@@ -89,12 +104,12 @@
 
         // Called from framework for incoming channel events
         function feed(channel, scope, data) {
-            if (channel === _attribs[0].value.split("/")[2]) return rotateDial(data);
-            if (channel === _attribs[1].value.split("/")[2]) return setAvg(data);
+            if (channel === fw.attribs[0].value.split("/")[2]) return rotateDial(data);
+            if (channel === fw.attribs[1].value.split("/")[2]) return setAvg(data);
         }
 
         function endEdit(param0) {                                  // called when editing finishes
-            if (_attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline")
+            if (fw.attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline")
                 else document.getElementById("svgAvg").style.setProperty("display", "none")                             // Only display average marker if channel is set
         }
 

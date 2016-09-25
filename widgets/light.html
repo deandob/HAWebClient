@@ -54,18 +54,64 @@
         </svg>
     </div>
 
-    <script src="../widgetFramework.js"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
+        var lightIDs, iconID, channelName, channelClass, dimmer, lightRect, startPressTime, timeoutID, aniHandle, aniDelay, lastSendTime;
+        var iconIDs = document.getElementsByClassName("lightColor");
+        var lightID = document.getElementById("lightRect");
+        var groupID = document.getElementById("group");
+
+        var lightVal = 0;                           // Light state value
+        var dimVal = 0.5;                           // save the dim value as the max value for on for short press
+        var DIM_PRESS_TIME = 400;                   // mSec time before press turns from click to dimmer
+        var ONOFF_AMI_TIME = 400;                   // mSec for animation turning on the light to full
+        var DIM_RAMP_TIME = 4000;                   // msec timer for ramping up or down
+        var SERVER_SEND_INTERVAL = 200;             // send light value to server every 100ms when dimming so light changes in real time
+        var oldVal = 0;                                                             // starting point
+        var newVal = 0;
+        var frames = 0;
+        var oldTime = 0;
+        var frameRate = 1000 / 60;                                                  //msec at 60 fps
+        var aniDuration = 0;
+
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            lightRect = document.getElementById("lightRect");
+            channelClass = fw.attribs[0].value.split("/")[1];
+            channelName = fw.attribs[0].value.split("/")[2]
+            dimmer = fw.attribs[1].value;
+            groupID.addEventListener("mousedown", startPress, false);
+            groupID.addEventListener("mouseup", stopPress, false);
+            groupID.addEventListener("mouseout", mouseExit, false);
+            fw.func("setTooltip", channelName);
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
+        }
+
         function startDesign() {            // called when switching to design mode
-            _groupID.removeEventListener("mousedown", startPress, false);        // remove mouse listeners so editing mouse functions work
-            _groupID.removeEventListener("mouseup", stopPress, false);
-            _groupID.removeEventListener("mouseout", mouseExit, false);
+            groupID.removeEventListener("mousedown", startPress, false);        // remove mouse listeners so editing mouse functions work
+            groupID.removeEventListener("mouseup", stopPress, false);
+            groupID.removeEventListener("mouseout", mouseExit, false);
         }
 
         function endDesign() {              // called when switching from design mode
-            _groupID.addEventListener("mousedown", startPress, false);
-            _groupID.addEventListener("mouseup", stopPress, false);
-            _groupID.addEventListener("mouseout", mouseExit, false);
+            groupID.addEventListener("mousedown", startPress, false);
+            groupID.addEventListener("mouseup", stopPress, false);
+            groupID.addEventListener("mouseout", mouseExit, false);
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
@@ -88,42 +134,6 @@
                     break;
             }
         }
-
-        //// Widget specific functions
-        var lightIDs, iconID, channelFqn, channelName, channelClass, dimmer, lightRect;
-        function widgetStart(mode) {            // widget specific startup
-            lightRect = document.getElementById("lightRect");
-            channelFqn = _attribs[0].value;
-            channelClass = channelFqn.split("/")[1];
-            channelName = channelFqn.split("/")[2]
-            dimmer = _attribs[1].value;
-            _groupID.addEventListener("mousedown", startPress, false);
-            _groupID.addEventListener("mouseup", stopPress, false);
-            _groupID.addEventListener("mouseout", mouseExit, false);
-            fwFunc("setTooltip", channelName);
-            return true;
-        }
-
-        iconIDs = document.getElementsByClassName("lightColor");
-        lightID = document.getElementById("lightRect");
-
-        var lightVal = 0;                           // Light state value
-        var dimVal = 0.5;                           // save the dim value as the max value for on for short press
-        var DIM_PRESS_TIME = 400;                   // mSec time before press turns from click to dimmer
-        var ONOFF_AMI_TIME = 400;                   // mSec for animation turning on the light to full
-        var DIM_RAMP_TIME = 4000;                   // msec timer for ramping up or down
-        var SERVER_SEND_INTERVAL = 200;             // send light value to server every 100ms when dimming so light changes in real time
-        var startPressTime;
-        var timeoutID;
-        var oldVal = 0;                                                             // starting point
-        var newVal = 0;
-        var frames = 0;
-        var oldTime = 0;
-        var frameRate = 1000 / 60;                                                  //msec at 60 fps
-        var aniDuration = 0;
-        var aniHandle;
-        var aniDelay;
-        var lastSendTime;
 
         function startPress() {
             startPressTime = new Date().getTime();
@@ -151,7 +161,7 @@
                 frames = 0;
                 endLight = lightVal;
             }
-            channelSend(channelFqn, "action", parseInt(endLight * 100));           // update the light with the final value
+            fw.channelSend(fw.attribs[0].value, "action", parseInt(endLight * 100));           // update the light with the final value
         }
 
         // if pressing for a long time invoke dimmer ramp function
@@ -175,7 +185,7 @@
                 if (val <= 0.01) lightEndState = "off";
                 if (val >= 0.99) lightEndState = "on";
                 if ((val > 0) && (val < 1) && (delay === ONOFF_AMI_TIME)) lightEndState = "on (dimmer " + parseInt(val * 100) + "%)";
-                if (channelName !== undefined) fwFunc("updateStatus", "Light " + channelName + " is " + lightEndState);
+                if (channelName !== undefined) fw.func("updateStatus", "Light " + channelName + " is " + lightEndState);
                 oldVal = lightVal;
                 newVal = val;
                 aniDuration = delay * Math.abs(newVal - oldVal) / frameRate;        // number of frames to end & compensate for current light level
@@ -203,8 +213,8 @@
                 aniHandle = requestAnimationFrame(animate);                         // call requestAnimationFrame to continue animating
                 if (aniDelay === DIM_RAMP_TIME) {                                    // If dimming, send the new light value to the server every 100msec
                     if (currTime - lastSendTime > SERVER_SEND_INTERVAL) {
-                        fwFunc("updateStatus", "Dimming " + channelName + " light to " + parseInt(lightVal * 100) + "%");
-                        channelSend(channelFqn, "action", parseInt(lightVal * 100));
+                        fw.func("updateStatus", "Dimming " + channelName + " light to " + parseInt(lightVal * 100) + "%");
+                        fw.channelSend(fw.attribs[0].value, "action", parseInt(lightVal * 100));
                         lastSendTime = currTime;
                     }
                 }

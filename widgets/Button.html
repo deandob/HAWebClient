@@ -141,10 +141,30 @@
         <div id="widget" class="noSelect red btn" style="width: 100px; height: 50px; position: absolute; left: 0px; top: 0px; z-index: 0; cursor: pointer">Press</div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;                                                                 
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
 
-        function toolboxStart() {           // called when loaded in toolbox
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            if (fw.attribs[6].value === true) fw.widgetID.className = fw.attribs[7].value + " noSelect btn btnShadow"
+            else fw.widgetID.className = fw.attribs[7].value + " noSelect btn btnNoShadow"
+            fw.widgetID.innerHTML = fw.attribs[5].value;
+            if (fw.attribs[8].value !== "") fw.func("setTooltip", fw.attribs[8].value);
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
         }
 
         function startEdit() {              // called when editing started
@@ -153,48 +173,39 @@
 
         function endEdit(param0) {                // called when editing finishes
             document.body.setAttribute("spellcheck", "false");
-            fwFunc("setAttrib", 5, _widgetID.textContent)               // Save any edited text
-            widgetStart()
+            fw.func("setAttrib", 5, fw.widgetID.textContent)               // Save any edited text
+            dashStart()
         }
 
         function startDesign() {            // called when switching to design mode
-            _widgetID.contentEditable = "true"
-            _widgetID.className = _widgetID.className.replace(" noSelect", "")
+            fw.widgetID.contentEditable = "true"
+            fw.widgetID.className = fw.widgetID.className.replace(" noSelect", "")
         }
 
         function endDesign() {            // called when switching to design mode
-            _widgetID.contentEditable = "false"
+            fw.widgetID.contentEditable = "false"
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
-            _widgetID.style.setProperty("width", (_iniWidth * scaleX - 10) + "px");             // Allow space for shadow
-            _widgetID.style.setProperty("height", (_iniHeight * scaleY - 10) + "px");
-            _widgetID.style.setProperty("line-height", _iniHeight * scaleY - 10 + "px");
+            fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 10) + "px");             // Allow space for shadow
+            fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY - 10) + "px");
+            fw.widgetID.style.setProperty("line-height", fw.iniHeight * scaleY - 10 + "px");
         }
 
         function clicked(event) {                   // left Button pressed
             if (event.which === 1) {
-                switch (_attribs[1].value) {        // button type
+                switch (fw.attribs[1].value) {        // button type
                     case "momentary":
-                        channelSend(_attribs[0].value, _attribs[2].value, _attribs[3].value);
-                        setTimeout(function () { channelSend(_attribs[0].value, _attribs[2].value, _attribs[4].value); }, 300);
+                        fw.channelSend(fw.attribs[0].value, fw.attribs[2].value, fw.attribs[3].value);
+                        setTimeout(function () { fw.channelSend(fw.attribs[0].value, fw.attribs[2].value, fw.attribs[4].value); }, 300);
                         break;
                     case "toggle":
                         break;
                     case "static":
-                        channelSend(_attribs[0].value, _attribs[2].value, _attribs[3].value);
+                        fw.channelSend(fw.attribs[0].value, fw.attribs[2].value, fw.attribs[3].value);
                         break;
                 }
             }
-        }
-
-        //// Widget specific functions
-        function widgetStart(mode) {            // widget specific startup
-            if (_attribs[6].value === true) _widgetID.className = _attribs[7].value + " noSelect btn btnShadow"
-            else _widgetID.className = _attribs[7].value + " noSelect btn btnNoShadow"
-            _widgetID.innerHTML = _attribs[5].value;
-            if (_attribs[8].value !== "") fwFunc("setTooltip", _attribs[8].value);
-            return true;
         }
 
         function feed(channel, scope, data) {            // feed from the server

@@ -103,7 +103,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
-                                    <textarea id="logs" rows="30" readonly style="width: 100%"></textarea>
+                                    <textarea id="logs" class="form-control" rows="20" readonly style="width: 100%"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -124,20 +124,10 @@
                     </div>
                 </div>
             </div><br />
-            <div class="col-md-2">
-                <div class="input-group">
-                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log"  tabindex=1>
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="generalNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
-                    </div>
-                </div>
-            </div>
-            <br /><br /><br /><br />
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-5">
                     <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">General</h4></div>
+                        <div class="panel-heading"><h4 class="panel-title">Server Settings</h4></div>
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-4">
@@ -148,7 +138,16 @@
                                     <p>Title</p>
                                     <input id="genNavtitleInp" name="textInput" type="text" class="form-control" placeholder="My Home">
                                 </div>
-                                <div class="col-md-2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="panel panel-info">
+                        <div class="panel-heading"><h4 class="panel-title">Client Settings</h4></div>
+                        <div class="panel-body">
+                            <div class="row">
+                                <div class="col-md-6">
                                     <p>Impersonate Client</p>
                                     <div class="input-group">
                                         <input id="genImpnameInp" name="textInput" type="text" class="form-control" placeholder="Name">
@@ -157,24 +156,16 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-md-1">
+                                <div class="col-md-3">
                                     <p>Width</p>
                                     <input id="genDevwidthInp" name="textInput" type="text" class="form-control">
                                 </div>
-                                <div class="col-md-1">
+                                <div class="col-md-3">
                                     <p>Height</p>
                                     <input id="genDevheightInp" name="textInput" type="text" class="form-control">
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-5">
-                    <div class="panel panel-info">
-                        <div class="panel-heading"><h4 class="panel-title">Widget Designer</h4></div>
-                        <div class="panel-body">
+                            <br/>
                             <div class="row">
                                 <div class="col-md-4">
                                     <p>Grid Size</p>
@@ -2246,7 +2237,7 @@
                             $("#transFuncRadioElapsed").prop("checked", true)
                             selSetTransRadio("transFuncRadioElapsed")
                             $("#transFuncTimeDrop").html(splitFunc[5].split(")")[0].trim() + "&nbsp;&nbsp;<span class='caret'></span></button>")
-                            $("#transFuncTimeValue").val(splitFunc[4].split("(")[1].trim())
+                            $("#transFuncTimeValue").val(splitFunc[4].split("(")[1].trim())             // TODO: Error if space in the name -> convert to JSON
                         }
                         if (splitTime[1].split("(")[0].toLowerCase().trim() === "since") {
                             $("#transFuncRadioSince").prop("checked", true)
@@ -2876,7 +2867,7 @@
                     if ($("#transformName").val() == "") {
                         parent.modalDialog("update", "No record selected", "Please select a Transform name to update first.")
                     } else {
-                        myJSON = JSON.stringify(objTranform());
+                        myJSON = JSON.stringify(objTransform());
                         if (myJSON !== "[]") sendServer("UPD", "TRANSFORMS", $("#transformName").val(), myJSON);
                     }
                     break;

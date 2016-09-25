@@ -127,9 +127,13 @@
         </video>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script src="../js/d3v3.min.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
 
         var maskID, camCanvas, maskIniX, maskIniY, imgWidth, imgHeight, cameras = [], activeCam = 0, recFiles = [], motion = [];
         var maskMinSize = 50;
@@ -141,12 +145,136 @@
             this.y2 = y2;
         };
 
-        function newCamera(camName) {
-            alert(camName)
+        var createMask = false;
+        var maskIniX, maskIniY, mouseCurrX, mouseCurrY;
+        var margin = { top: 0, bottom: 2, left: 110, right: 70 }
+        var xAxis, yAxis, x, y, width, height, clipPath, bground, zoom, drag
+        var chart = d3.select("#recordings")
+        var currTime = [];
+        var controls, recordings, camNum, camChannels, vidSource, channelName, cameraName, liveStreamPort, recStreamPort;
+
+        recordings = document.getElementById("recordings")
+        controls = document.getElementById("controls")
+
+        height = 45 - margin.top - margin.bottom;           // fixed height
+        chart.style("height", height);
+
+        bground = chart.append("rect")                  // used for grabbing & zooming
+            .attr("fill", "black")
+            .attr("opacity", 0)
+            .attr("x", margin.left)
+            .attr("height", height)
+
+        // ensure the chart that is outside the axis does not get drawn
+        clipPath = chart.append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("x", 0)
+            .attr("height", height)
+
+        // setup Axis
+        x = d3.time.scale()
+        xAxis = d3.svg.axis()
+        chart.append("g")
+            .attr("class", "x axis")
+
+        // Zoom and drag events
+        zoom = d3.behavior.zoom()
+            .on("zoom", zoomed)
+        drag = d3.behavior.drag()
+            .on("dragstart", start_drag)
+            .on("dragend", stop_drag)
+
+        // track current time on timeline
+        currTime.push(new Date())
+        chart.selectAll("circle.currtime")
+            .data(currTime)
+            .enter()
+            .append("circle")
+            .attr("clip-path", "url(#clip)")
+            .attr("class", "currtime")
+            .attr("id", "currtime")
+            .attr("cx", function (d) { return x(d); })
+            .attr("cy", "19")
+            .attr("r", "5")
+            .attr("fill", "orange")
+            .attr("stroke-width", "1")
+            .attr("stroke-opacity", "0")
+            .attr("transform", "translate(" + margin.left + ",0)")
+            .on("mousedown", selLive);
+
+        // Move the current time marker along axis
+        setInterval(function () {
+            currTime[0] = new Date()
+            chart.selectAll("circle.currtime")
+                    .data(currTime)
+                    .attr("clip-path", "url(#clip)")
+                    .attr("cx", function (d) { return x(d) })
+        }, 1000)
+
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            vidSource = document.getElementById("vidSource")
+            //TODO: Read stream server name from Server in case camera server is a separate server
+            serverName = fw.func("serverName");
+            camCanvas = document.getElementById("group");
+
+            //TODO: Get these from the server instead
+            liveStreamPort = 8088
+            recStreamPort = 3000
+
+            fw.widgetID.autoplay = true;
+            fw.widgetID.oncanplay = function () { fw.widgetID.play() }
+            fw.widgetID.onended = function () {
+                if (selSegment !== null && selSegment !== undefined) {
+                    selSegment.setAttribute("fill", "red")
+                    selSegment.setAttribute("height", "8")
+                }
+            }
+
+            // BUG: Sometimes the wrong attribute will be loaded (eg. text widget attribs). Data-widgetname not getting set correctly. Maybe closure issue in fw when changing screens??
+            // - When the camera widget is on a different screen, then reload, it reloads the widgets from the second screen not from the default first. Somethign not right with ini code
+            channelName = fw.attribs[0].value
+            cameraName = channelName.split("/")[2]
+
+            camChannels = fw.func("getChannels", "SECURITY", "IP Cameras")
+            var docFrag = document.createDocumentFragment();
+            if (camChannels === "") {
+                alert("ERROR - No camera channel")
+            } else {
+                for (myCam in camChannels) {                            // Add the available cameras to the camera selection list
+                    var optionItem = document.createElement("option")
+                    if (camChannels[myCam].Name === cameraName) camNum = myCam
+                    optionItem.value = camChannels[myCam].Name;
+                    docFrag.appendChild(optionItem)
+                }
+                document.getElementById("cameraList").appendChild(docFrag)
+
+                if (camNum !== undefined) {
+                    document.getElementById("selCamera").value = cameraName
+                    masks = JSON.parse(camChannels[camNum].Attribs[3].Value)
+                    selLive()
+                    fw.channelSend("SECURITY/IP Cameras/" + cameraName, "recfiles", "");
+                } else {
+                    if (!_designing) alert("No default camera or camera server not running")
+                }
+            }
+            return "OK";
         }
 
-        function toolboxStart() {           // called when loaded in toolbox
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
             document.getElementById("allControls").style.setProperty("display", "none");
+            return "OK"
+        }
+
+        function newCamera(camName) {
+            alert(camName)
         }
 
         function startEdit() {              // called when editing started
@@ -159,26 +287,26 @@
 
         function startDesign() {            // called when switching to design mode
             zoom.x()            // disable zoom
-            _widgetID.pause()
+            fw.widgetID.pause()
             drawAllMasks()
         }
 
         function endDesign() {
             var svgs = document.getElementsByClassName("masks")
             for (var svg = svgs.length - 1; svg >= 0; svg--) svgs[svg].parentNode.removeChild(svgs[svg]);       // remove SVG masks from the bottom of the DOM
-            _widgetID.play()
+            fw.widgetID.play()
             zoom.x(x)           // enable zoom
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
-            _widgetID.setAttribute("width", _iniWidth * scaleX);              // scale the video object
-            _widgetID.setAttribute("height", _iniHeight * scaleY);
-            imgWidth = _iniWidth * scaleX
-            imgHeight = _iniHeight * scaleY
+            fw.widgetID.setAttribute("width", fw.iniWidth * scaleX);              // scale the video object
+            fw.widgetID.setAttribute("height", fw.iniHeight * scaleY);
+            imgWidth = fw.iniWidth * scaleX
+            imgHeight = fw.iniHeight * scaleY
 
-            if (_editing) drawAllMasks()
+            if (fw.state === "edit") drawAllMasks()
 
-            width = _iniWidth * scaleX - margin.left - margin.right;
+            width = fw.iniWidth * scaleX - margin.left - margin.right;
             recordings.width = width
             recordings.style.setProperty("top", imgHeight - 42 + "px");       // internet explorer does not do svg style percentages!
             controls.style.setProperty("top", imgHeight - 70 + "px");       // internet explorer does not do svg style percentages!
@@ -204,14 +332,13 @@
             bground
                .attr("width", width)
 
-            if (_toolbox == false) {
+            if (fw.state != "toolbox") {
                 chart.call(zoom.x((x)));      // enable x axis zoom
                 chart.call(drag);           // enable drag events
             }
 
             chart.selectAll("circle.currtime").attr("cx", function (d) { return x(d); })
             chart.selectAll(".x.axis").attr("transform", "translate(" + margin.left + "," + (height - 18) + ")").call(xAxis)
-
         }
 
         function clicked(event) {           // click in dashboard mode
@@ -219,7 +346,7 @@
 
         function endSession() {
             vidSource.src = "http://dummy:1000/dummy"           // Break the session to kill the server session
-            _widgetID.load()
+            fw.widgetID.load()
         }
 
         // Setup and manage masks. Click and drag to create a new mask, click inside an existing mask to delete it
@@ -229,14 +356,12 @@
                         document.getElementById("mask" + msk).parentNode.removeChild(document.getElementById("mask" + msk));      // Remove SVG & adjust SVG mask IDs and mask array
                         masks.splice(msk, 1)       // remove from masks array
                         for (var maskLeft = parseInt(msk) + 1; maskLeft <= masks.length; maskLeft++) document.getElementById("mask" + maskLeft).setAttribute("id", "mask" + (maskLeft - 1))
-                        channelSend(channelName, "mask", JSON.stringify(masks))
+                        fw.channelSend(channelName, "mask", JSON.stringify(masks))
                         return;
                     }
                 }
             }
 
-        var createMask = false;
-        var maskIniX, maskIniY, mouseCurrX, mouseCurrY;
         function mouseMove(event) {
             mouseCurrX = event.clientX;
             mouseCurrY = event.clientY;
@@ -254,7 +379,7 @@
                     var x = parseInt(maskID.getAttribute("x")) / imgWidth
                     var y = parseInt(maskID.getAttribute("y")) / imgHeight
                     masks.push(new mask(x, x + parseInt(maskID.getAttribute("width")) / imgWidth, y, y + parseInt(maskID.getAttribute("height")) / imgHeight))
-                    channelSend(channelName, "mask", JSON.stringify(masks))
+                    fw.channelSend(channelName, "mask", JSON.stringify(masks))
                 } else {
                     maskID.parentNode.removeChild(maskID);                       // Reject masks that are too small
                 }
@@ -291,121 +416,6 @@
             document.getElementById("group").appendChild(maskSVG)
         }
 
-        var margin = { top: 0, bottom: 2, left: 110, right: 70}
-        var xAxis, yAxis, x, y, width, height, clipPath, bground, zoom, drag
-        var chart = d3.select("#recordings")
-        var currTime = [];
-
-        recordings = document.getElementById("recordings")
-        controls = document.getElementById("controls")
-
-        height = 45 - margin.top - margin.bottom;           // fixed height
-        chart.style("height", height);
-
-        bground = chart.append("rect")                  // used for grabbing & zooming
-            .attr("fill", "black")
-            .attr("opacity", 0)
-            .attr("x", margin.left)
-            .attr("height", height)
-
-        // ensure the chart that is outside the axis does not get drawn
-        clipPath = chart.append("clipPath")
-            .attr("id", "clip")
-            .append("rect")
-            .attr("x", 0)
-            .attr("height", height)
-
-        // setup Axis
-        x = d3.time.scale()
-        xAxis = d3.svg.axis()
-        chart.append("g")
-            .attr("class", "x axis")
-
-        // Zoom and drag events
-        zoom = d3.behavior.zoom()
-            .on("zoom", zoomed)
-        drag = d3.behavior.drag()
-            .on("dragstart", start_drag)
-            .on("dragend", stop_drag)
-     
-        // track current time on timeline
-        currTime.push(new Date())                           
-        chart.selectAll("circle.currtime")
-            .data(currTime)
-            .enter()
-            .append("circle")
-            .attr("clip-path", "url(#clip)")
-            .attr("class", "currtime")
-            .attr("id", "currtime")
-            .attr("cx", function (d) { return x(d); })
-            .attr("cy", "19")
-            .attr("r", "5")
-            .attr("fill", "orange")
-            .attr("stroke-width", "1")
-            .attr("stroke-opacity", "0")
-            .attr("transform", "translate(" + margin.left + ",0)")
-            .on("mousedown", selLive);
-
-        // Move the current time marker along axis
-        setInterval(function () {
-            currTime[0] = new Date()
-            chart.selectAll("circle.currtime")
-                    .data(currTime)
-                    .attr("clip-path", "url(#clip)")
-                    .attr("cx", function (d) { return x(d) })
-            }, 1000)
-
-        //// Widget specific functions
-        var controls, recordings, camNum, camChannels, vidSource, channelName, cameraName, liveStreamPort, recStreamPort;
-        function widgetStart(mode) {            // widget specific startup
-            vidSource = document.getElementById("vidSource")
-            //TODO: Read stream server name from Server in case camera server is a separate server
-            serverName = fwFunc("serverName");
-            camCanvas = document.getElementById("group");
-
-            //TODO: Get these from the server instead
-            liveStreamPort = 8088
-            recStreamPort = 3000
-
-            _widgetID.autoplay = true;
-            _widgetID.oncanplay = function () {_widgetID.play() }
-            _widgetID.onended = function () {
-                if (selSegment !== null && selSegment !== undefined) {
-                    selSegment.setAttribute("fill", "red")
-                    selSegment.setAttribute("height", "8")
-                }
-            }
-
-            // BUG: Sometimes the wrong attribute will be loaded (eg. text widget attribs). Data-widgetname not getting set correctly. Maybe closure issue in fw when changing screens??
-            // - When the camera widget is on a different screen, then reload, it reloads the widgets from the second screen not from the default first. Somethign not right with ini code
-            channelName = _attribs[0].value
-            cameraName = channelName.split("/")[2]
-
-            camChannels = fwFunc("getChannels", "SECURITY", "IP Cameras")
-            var docFrag = document.createDocumentFragment();
-            if (camChannels === "") {
-                alert("ERROR - No camera channel")
-            } else {
-                for (myCam in camChannels) {                            // Add the available cameras to the camera selection list
-                    var optionItem = document.createElement("option")
-                    if (camChannels[myCam].Name === cameraName) camNum = myCam
-                    optionItem.value = camChannels[myCam].Name;
-                    docFrag.appendChild(optionItem)
-                }
-                document.getElementById("cameraList").appendChild(docFrag)
-
-                if (camNum !== undefined) {
-                    document.getElementById("selCamera").value = cameraName
-                    masks = JSON.parse(camChannels[camNum].Attribs[3].Value)
-                    selLive()
-                    channelSend("SECURITY/IP Cameras/" + cameraName, "recfiles", "");
-                } else {
-                    if (!_designing) alert("No default camera or camera server not running")
-                }
-            }
-            return true
-        }
-
         // Toggle the play button between play icon and pause icon
         var playState = "play"
         function playBut() {
@@ -414,20 +424,20 @@
                 document.getElementById("pauseIcon1").style.setProperty("opacity", "0");
                 document.getElementById("pauseIcon2").style.setProperty("opacity", "0");
                 document.getElementById("playIcon").style.setProperty("opacity", "1");
-                _widgetID.pause()
+                fw.widgetID.pause()
             } else {
                 playState = "play";
                 document.getElementById("pauseIcon1").style.setProperty("opacity", "1");
                 document.getElementById("pauseIcon2").style.setProperty("opacity", "1");
                 document.getElementById("playIcon").style.setProperty("opacity", "0");
-                _widgetID.play()
+                fw.widgetID.play()
             }
         }
 
         // skip fwd or rev a couple of seconds
         function skipFast(direction) {
             try {
-                _widgetID.currentTime = _widgetID.currentTime + direction
+                fw.widgetID.currentTime = fw.widgetID.currentTime + direction
             } catch (err) { }
         }
 
@@ -459,14 +469,14 @@
             if (imgWidth * (vidScale - 1) / 2 <= Math.abs(translateX * imgWidth / 100)) translateX = translateX >= 0 ? 50 * (vidScale - 1) : -50 * (vidScale - 1)  // don't pan over the image borders and adjust for scaling
             if (imgHeight * (vidScale - 1) / 2 <= Math.abs(translateY * imgHeight / 100)) translateY = translateY >= 0 ? 50 * (vidScale - 1) : -50 * (vidScale - 1)
             //widgetID.style.setProperty("transform", "translate(" + translateX + "%," + translateY + "%) scale(" + vidScale + ")")
-            _widgetID.style.setProperty("transform", "translate(" + translateX + "%," + translateY + "%)")
-            _widgetID.height = imgHeight * vidScale
-            _widgetID.width = imgWidth * vidScale
+            fw.widgetID.style.setProperty("transform", "translate(" + translateX + "%," + translateY + "%)")
+            fw.widgetID.height = imgHeight * vidScale
+            fw.widgetID.width = imgWidth * vidScale
         }
 
         // Zoom event
         function zoomed() {
-            if (_designing == false) {
+            if (fw.designing == false) {
                 chart.select(".x.axis").call(xAxis);
                 chart.selectAll("rect.points")
                     .attr("clip-path", "url(#clip)")
@@ -519,9 +529,9 @@
 
         // Setup stream to play
         function dispVid(port, selFile) {
-            _widgetID.pause();
+            fw.widgetID.pause();
             vidSource.src = "http://" + serverName + ":" + port + "/" + cameraName + selFile;                            // stream URL
-            _widgetID.load();                // BUG HERE: Does not adjust the source.
+            fw.widgetID.load();                // BUG HERE: Does not adjust the source.
         }
 
         ////TODO: When the camera selection changes, get the file list

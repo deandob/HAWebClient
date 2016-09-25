@@ -133,8 +133,13 @@
         </div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var notes = [];
         notes.push({ creDate: new Date, text: "This is a test" })
         var header = document.getElementById("header")
@@ -143,28 +148,15 @@
         var oldheader;
         var oldtext;
 
-        function toolboxStart() {           // called when loaded in toolbox
-            _widgetID.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
-            _widgetID.style.setProperty("height", parseInt(_widgetID.style.getPropertyValue("width")) + "px");
-        }
-
-        function scale(scaleX, scaleY) {    // manage scaling
-            _widgetID.style.setProperty("width", (_iniWidth * scaleX - 10) + "px");
-            _widgetID.style.setProperty("height", (_iniHeight * scaleY - 10) + "px");
-            if (_iniWidth * scaleX > 400) buttons.style.setProperty("display", "inline");
-            else buttons.style.setProperty("display", "none");
-        }
-
-        //// Widget specific functions
-        function widgetStart(mode) {            // widget specific startup
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
             buttons.style.setProperty("display", "inline")
-            if (_attribs[0].value === true) _widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
-                else _widgetID.style.setProperty("box-shadow", "none")
-            header.innerHTML = "<b>" + _attribs[2].value + "</b>";
-            _widgetID.className = _attribs[1].value
-            header.className = _widgetID.className
-
-/*            for (var i in notes) {
+            if (fw.attribs[0].value === true) fw.widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
+            else fw.widgetID.style.setProperty("box-shadow", "none")
+            header.innerHTML = "<b>" + fw.attribs[2].value + "</b>";
+            fw.widgetID.className = fw.attribs[1].value
+            header.className = fw.widgetID.className
+            /*            for (var i in notes) {
                 var docFrag = document.createDocumentFragment();
                 var itemDate = document.createElement("div")
                 var itemText = document.createElement("div")
@@ -183,15 +175,33 @@
 
             //setTimeout(saveChanges, 3000);
 
-            return true;
+            return "OK";
         }
 
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            fw.widgetID.style.setProperty("width", parseInt(fw.widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
+            fw.widgetID.style.setProperty("height", parseInt(fw.widgetID.style.getPropertyValue("width")) + "px");
+            return "OK"
+        }
+
+        function scale(scaleX, scaleY) {    // manage scaling
+            fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 10) + "px");
+            fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY - 10) + "px");
+            if (fw.iniWidth * scaleX > 400) buttons.style.setProperty("display", "inline");
+            else buttons.style.setProperty("display", "none");
+        }
         function saveChanges() {
             if (oldheader !== header.innerHTML) {
-                fwFunc("setAttrib", 2, header.innerHTML);
+                fw.func("setAttrib", 2, header.innerHTML);
             }
             if (oldtext !== textArea.innerHTML) {
-                fwFunc("setAttrib", 2, textArea.innerHTML)
+                fw.func("setAttrib", 2, textArea.innerHTML)
             }
         }
 

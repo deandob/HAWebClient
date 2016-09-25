@@ -143,8 +143,13 @@
         <div id="widget" class="noSelect" style="position: absolute; left: 0px; top: 0px; width: 170px; height: 45px; text-align: left; overflow: hidden;"><b><i>label text</i></b></div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var buttons = document.getElementById("buttons");
         var buttonHeight = parseInt(buttons.style.getPropertyValue("height"));
         var colorCounter = 0;
@@ -152,8 +157,23 @@
         var fontSize = 3;
         var oldChVal;
 
-        function toolboxStart() {           // called when loaded in toolbox
-            _widgetID.style.setProperty("text-align", "center");
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            fw.widgetID.innerHTML = fw.attribs[0].value;
+            fw.widgetID.style.setProperty("font-size", fw.attribs[2].value + "px");
+            fw.widgetID.style.setProperty("text-align", fw.attribs[3].value);
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            fw.widgetID.style.setProperty("text-align", "center");
+            return "OK"
         }
 
         function startEdit() {              // called when editing started
@@ -165,19 +185,19 @@
             document.getElementById("decFont").addEventListener("mousedown", execDec);
             document.getElementById("remFormat").addEventListener("mousedown", removeFormat);
             document.getElementById("insCh").addEventListener("mousedown", insertCh);
-            //fwFunc("setTooltip", "'B' bold, 'I' italic, '█' color, '+,-' font size, '#' channel")
-            fwFunc("adjustSize", "topOffset", -1 * buttonHeight);    // Make room for the editing buttons
-            _widgetID.style.setProperty("height", _widgetID.scrollHeight + buttonHeight + "px");
-            _widgetID.style.setProperty("top", buttonHeight + "px");
+            //fw.func("setTooltip", "'B' bold, 'I' italic, '█' color, '+,-' font size, '#' channel")
+            fw.func("adjustSize", "topOffset", -1 * buttonHeight);    // Make room for the editing buttons
+            fw.widgetID.style.setProperty("height", fw.widgetID.scrollHeight + buttonHeight + "px");
+            fw.widgetID.style.setProperty("top", buttonHeight + "px");
             buttons.style.setProperty("display", "inline");
-            _widgetID.setAttribute("class", "select");
+            fw.widgetID.setAttribute("class", "select");
         }
 
         function endEdit(param0) {                // called when editing finishes
             document.body.setAttribute("spellcheck", "false");
-            fwFunc("adjustSize", "topOffset", buttonHeight);    // reset height
-            _widgetID.style.setProperty("height", _widgetID.scrollHeight + "px");
-            _widgetID.style.setProperty("top", "0px");
+            fw.func("adjustSize", "topOffset", buttonHeight);    // reset height
+            fw.widgetID.style.setProperty("height", fw.widgetID.scrollHeight + "px");
+            fw.widgetID.style.setProperty("top", "0px");
             document.getElementById("bold").removeEventListener("mousedown", execBold);
             document.getElementById("italic").removeEventListener("mousedown", execItalic);
             document.getElementById("colorButton").removeEventListener("mousedown", setColor);
@@ -186,28 +206,28 @@
             document.getElementById("remFormat").removeEventListener("mousedown", removeFormat);
             document.getElementById("insCh").removeEventListener("mousedown", insertCh);
             buttons.style.setProperty("display", "none");
-            fwFunc("setAttrib", 0, _widgetID.innerHTML);         // save
-            _widgetID.setAttribute("class", "noSelect");
-            //fwFunc("setTooltip", "")
+            fw.func("setAttrib", 0, fw.widgetID.innerHTML);         // save
+            fw.widgetID.setAttribute("class", "noSelect");
+            //fw.func("setTooltip", "")
             widgetStart();
         }
 
         function startDesign() {            // called when switching to design mode
-            _widgetID.contentEditable = "true";
-            _widgetID.innerHTML = _attribs[0].value;
+            fw.widgetID.contentEditable = "true";
+            fw.widgetID.innerHTML = fw.attribs[0].value;
         }
 
         function endDesign() {            // called when switching to design mode
-            _widgetID.contentEditable = "false";
-            setText(_widgetID.innerHTML, oldChVal);
+            fw.widgetID.contentEditable = "false";
+            setText(fw.widgetID.innerHTML, oldChVal);
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
-            _widgetID.setAttribute("class", "noSelect");
-            _widgetID.style.setProperty("width", (_iniWidth * scaleX) + "px");
-            fwFunc("adjustSize", "width", _iniWidth * scaleX);
-            if (!_toolbox) _widgetID.style.setProperty("height", (_iniHeight * scaleY - buttonHeight) + "px");
-            fwFunc("adjustSize", "height", _iniHeight * scaleY);
+            fw.widgetID.setAttribute("class", "noSelect");
+            fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX) + "px");
+            fw.func("adjustSize", "width", fw.iniWidth * scaleX);
+            if (fw.state != "toolbox") fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY - buttonHeight) + "px");
+            fw.func("adjustSize", "height", fw.iniHeight * scaleY);
         }
 
         // Called from framework for incoming channel events
@@ -216,20 +236,12 @@
                 if (+data === 0) data = "No Date"
                 else if (parseInt(data) > 10000) data = new Date(+data).toLocaleString("en-us", { day: "numeric", month: "short", year: "2-digit", hour: "numeric", minute: "numeric" })
             }
-            setText(_attribs[0].value, data);
+            setText(fw.attribs[0].value, data);
         }
 
         // Called from framework for initial channel status 
         function ini(channel, scope, data) {
             feed(channel, scope, data);
-        }
-
-        //// Widget specific functions
-        function widgetStart(mode) {            // widget specific startup
-            _widgetID.innerHTML = _attribs[0].value;
-           _widgetID.style.setProperty("font-size", _attribs[2].value + "px");
-           _widgetID.style.setProperty("text-align", _attribs[3].value);
-            return true;
         }
 
         function execBold(ev) {
@@ -289,9 +301,9 @@
 
         function setText(newText, serverVal) {
             if (newText.indexOf("[#]") >= 0 && serverVal !== undefined) {
-                _widgetID.innerHTML = newText.replace(newText.slice(newText.indexOf("["), newText.indexOf("]") + 1), serverVal);        // replace [#] with the server variable
+                fw.widgetID.innerHTML = newText.replace(newText.slice(newText.indexOf("["), newText.indexOf("]") + 1), serverVal);        // replace [#] with the server variable
             } else {
-                _widgetID.innerHTML = newText;
+                fw.widgetID.innerHTML = newText;
             }
             oldChVal = serverVal;
         }

@@ -37,7 +37,7 @@
                     <li class="divider-vertical"></li>
                     <li id="designButton" class="pointer" style="display:none"><a onclick="design()" class="tip" data-original-title="Manage home automation widgets" data-placement="bottom"><i class="icon-pencil icon-large"></i> Design</a></li>
                     <li class="divider-vertical"></li>
-<!--                    <li id="queryButton" class="pointer" style="display:none"><a onclick="queriesFrame()" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>-->
+                    <li id="queryButton" class="pointer" style="display:none"><a onclick="queriesFrame()" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>
                     <li id="toolboxDropdown" class="dropdown pointer" style="display:none">
                         <a class="dropdown-toggle tip" data-toggle="dropdown" data-original-title="Select toolbox from dropdown" data-placement="right"><i class="icon-edit icon-large"></i> Toolbox <b class="caret"></b></a>
                         <ul class="dropdown-menu" role="menu">
@@ -47,6 +47,7 @@
                         </ul>
                     </li>
                 </ul>
+                <!--
                 <div id="selDevice" class="input-group tip" style="display: none" data-original-title="select device type for screens" data-placement="bottom">
                     <form class="navbar-form navbar-left" role="listbox">
                         <div class="form-group">
@@ -61,7 +62,7 @@
                             </div>
                         </div>
                     </form>
-                </div>
+                </div>-->
                 <ul class="nav navbar-nav navbar-right">
                     <li class="divider-vertical"></li>
                     <li><a id="logonButton" style="visibility: hidden" onclick="login()" class="tip icon pointer" data-original-title="Enter Username" data-placement="bottom"><i class="icon-user icon-large"></i> Login</a></li>
@@ -135,7 +136,7 @@
         var clientName = localStorage.getItem("clientName");
         if (clientName == null) clientName = "";
         var user = "";
-        var device = "desktop";                           // TODO: detect device used to load appropriate screens
+        //var device = "desktop";                           // TODO: detect device used to load appropriate screens
         var deviceWidth = screen.availWidth;
         var deviceHeight = screen.availHeight;
         var debugURL = "";
@@ -168,7 +169,9 @@
                 clientName = params[1].toUpperCase();
                 serverName = localStorage.getItem("serverName");
                 deviceHeight = +localStorage.getItem("impHeight");
+                if (deviceHeight === null) deviceHeight = screen.availHeight;
                 deviceWidth = +localStorage.getItem("impWidth");
+                if (deviceWidth === null) deviceWidth = screen.availWidth;
                 break;
             case "debug":
                 debugURL = "?" + Math.random()          // pass any parameter in the URL line to turn on debugging (force cache reloading) and specify remote websockets server
@@ -212,9 +215,9 @@
                 document.getElementById("dashButton").className = "pointer";
                 document.getElementById("settingsButton").className = "active";
                 document.getElementById("designButton").className = "pointer";
-                //document.getElementById("queryButton").className = "pointer";
+                document.getElementById("queryButton").className = "pointer";
                 document.getElementById("toolboxDropdown").style.setProperty("display", "none")
-                document.getElementById("selDevice").style.setProperty("display", "none")
+                //document.getElementById("selDevice").style.setProperty("display", "none")
                 document.getElementById("helpButton").className = "pointer";
                 document.getElementById("displayUser").style.setProperty("display", "inline")
                 status("Settings Mode");
@@ -231,7 +234,7 @@
                 document.getElementById("designButton").className = "pointer";
                 document.getElementById("queryButton").className = "active";
                 document.getElementById("toolboxDropdown").style.setProperty("display", "none")
-                document.getElementById("selDevice").style.setProperty("display", "none")
+                //document.getElementById("selDevice").style.setProperty("display", "none")
                 document.getElementById("helpButton").className = "pointer";
                 document.getElementById("displayUser").style.setProperty("display", "inline")
                 status("Queries Mode");
@@ -252,9 +255,9 @@
                 document.getElementById("dashButton").className = "active";
                 document.getElementById("settingsButton").className = "pointer";
                 document.getElementById("designButton").className = "pointer";
-                //document.getElementById("queryButton").className = "pointer";
+                document.getElementById("queryButton").className = "pointer";
                 document.getElementById("toolboxDropdown").style.setProperty("display", "none")
-                document.getElementById("selDevice").style.setProperty("display", "none")
+                //document.getElementById("selDevice").style.setProperty("display", "none")
                 document.getElementById("helpButton").className = "pointer";
                 document.getElementById("displayUser").style.setProperty("display", "inline")
             }
@@ -274,7 +277,7 @@
                 document.getElementById("dashButton").className = "pointer";
                 document.getElementById("settingsButton").className = "pointer";
                 document.getElementById("toolboxDropdown").style.setProperty("display", "inline")
-                document.getElementById("selDevice").style.setProperty("display", "inline")
+                //document.getElementById("selDevice").style.setProperty("display", "inline")
                 document.getElementById("helpButton").className = "pointer";
                 document.getElementById("displayUser").style.setProperty("display", "none")
             }
@@ -296,18 +299,27 @@
             document.getElementById("settingsButton").className = "pointer";
             document.getElementById("designButton").className = "pointer";
             document.getElementById("toolboxDropdown").style.setProperty("display", "none")
-            document.getElementById("selDevice").style.setProperty("display", "none")
+            //document.getElementById("selDevice").style.setProperty("display", "none")
             document.getElementById("helpButton").className = "active";
             document.getElementById("displayUser").style.setProperty("display", "inline")
             status("");
         }
 
+        /*
         // Change screen device from device dropdown selected
         function selectDevice(selectedDevice) {
             document.getElementById("screenDevice").value = selectedDevice;
             device = selectedDevice;
             modalDialog("input", "Device Width", "Enter device width", "OK", "setDeviceWidth");
         }
+        
+        function setDeviceWidth(width) {                    // TODO: Is this still needed?
+            deviceWidth = +width;
+            iFrame.addEventListener("load", waitForWidgets);     // wait for widgets to load
+            iFrame.src = iFrame.src;            // reload
+        }
+
+        */
 
         // Login
         function login() {
@@ -381,25 +393,20 @@
             document.getElementById("modalInput").value = "";
         }
 
-        function setDeviceWidth(width) {                    // TODO: Is this still needed?
-            deviceWidth = +width;
-            iFrame.addEventListener("load", waitForWidgets);     // wait for widgets to load
-            iFrame.src = iFrame.src;            // reload
-        }
-
-        function waitForWidgets() {
-            if (!iFrame.contentWindow.allLoaded) {
-                setTimeout(waitForWidgets, 900);                // TODO: NOT ROBUST ENOUGH FOR LARGER SCREENS
-            } else {
-                designOn();
-            }
-        }
+//        function waitForWidgets() {
+//            if (!iFrame.contentWindow.allLoaded) {
+//                setTimeout(waitForWidgets, 900);                // TODO: NOT ROBUST ENOUGH FOR LARGER SCREENS
+//            } else {
+//                designOn();
+//            }
+//        }
 
         function status(message) {
             document.getElementById("serverStatus").innerText = message
         }
 
         // enable bootstrap tooltips
+        //TODO: Put this after startup........ so it doesn't delay.
         function enableTooltip() {
             $(".tip").tooltip({ delay: { show: tooltipDelay } });
         }
@@ -482,6 +489,7 @@
                                             switch (msg.Scope.toUpperCase()) {
                                                 case "GET:CATEGORIES()":
                                                     categories = JSON.parse(msg.Data);
+                                                    send("WIDGETS", "CHANNELS", "")
                                                     break;
                                                 default:
                                             }
@@ -506,10 +514,10 @@
                                                             document.getElementById("dashButton").style.setProperty("display", "inline");
                                                             document.getElementById("settingsButton").style.setProperty("display", "inline");
                                                             document.getElementById("designButton").style.setProperty("display", "inline");
-                                                            //document.getElementById("queryButton").style.setProperty("display", "inline");
+                                                            document.getElementById("queryButton").style.setProperty("display", "inline");
                                                             document.getElementById("logonButton").style.setProperty("visibility", "visible");
-                                                            status("Ready.");
-                                                            send("SETTINGS", "GET:CATEGORIES()", "");
+                                                            status("Connected to server " + serverName + ".");
+                                                            //send("SETTINGS", "GET:CATEGORIES()", "");
                                                             break;
                                                         case "AUTHENTICATED":             // user session connected
                                                             user = msg.Data;

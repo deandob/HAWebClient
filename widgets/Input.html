@@ -107,12 +107,33 @@
         </div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var textInput = document.getElementById("textInput");
 
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            if (fw.attribs[2].value !== "") fw.func("setTooltip", fw.attribs[2].value);
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
+        }
+
         function submitInp() {
-            channelSend(_attribs[0].value, _attribs[3].value, textInput.value);
+            fw.channelSend(fw.attribs[0].value, fw.attribs[3].value, textInput.value);
         }
 
         function toolboxStart() {           // called when loaded in toolbox
@@ -122,7 +143,7 @@
         }
 
         function endEdit(param0) {                // called when editing finishes
-            widgetStart();
+            dashStart();
         }
 
         function startDesign() {            // called when switching to design mode
@@ -132,17 +153,11 @@
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
-            _widgetID.style.setProperty("width", (_iniWidth * scaleX) + "px");
-            _widgetID.style.setProperty("height", (_iniHeight * scaleY) + "px");
+            fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX) + "px");
+            fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY) + "px");
         }
 
         function clicked(event) {                   // left Button pressed
-        }
-
-        //// Widget specific functions
-        function widgetStart(mode) {            // widget specific startup
-            if (_attribs[2].value !== "") fwFunc("setTooltip", _attribs[2].value);
-            return true;
         }
 
         // Called from framework for initial channel status

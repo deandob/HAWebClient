@@ -157,8 +157,8 @@
             document.getElementById("decFont").addEventListener("mousedown", execDec);
             document.getElementById("remFormat").addEventListener("mousedown", removeFormat);
             document.getElementById("insCh").addEventListener("mousedown", insertCh);
-            //fwFunc("setTooltip", "'B' bold, 'I' italic, '█' color, '+,-' font size, '#' channel")
-            fwFunc("adjustSize", "topOffset", -1 * buttonHeight);    // Make room for the editing buttons
+            //fw.func("setTooltip", "'B' bold, 'I' italic, '█' color, '+,-' font size, '#' channel")
+            fw.func("adjustSize", "topOffset", -1 * buttonHeight);    // Make room for the editing buttons
             _widgetID.style.setProperty("height", _widgetID.scrollHeight + buttonHeight + "px");
             _widgetID.style.setProperty("top", buttonHeight + "px");
             buttons.style.setProperty("display", "inline");
@@ -173,7 +173,7 @@
 
         function endEdit(param0) {                // called when editing finishes
             document.body.setAttribute("spellcheck", "false");
-            fwFunc("adjustSize", "topOffset", buttonHeight);    // reset height
+            fw.func("adjustSize", "topOffset", buttonHeight);    // reset height
             _widgetID.style.setProperty("height", _widgetID.scrollHeight + "px");
             _widgetID.style.setProperty("top", "0px");
             document.getElementById("bold").removeEventListener("mousedown", execBold);
@@ -184,9 +184,9 @@
             document.getElementById("remFormat").removeEventListener("mousedown", removeFormat);
             document.getElementById("insCh").removeEventListener("mousedown", insertCh);
             buttons.style.setProperty("display", "none");
-            fwFunc("setAttrib", 0, _widgetID.innerHTML);         // save
+            fw.func("setAttrib", 0, _widgetID.innerHTML);         // save
             _widgetID.setAttribute("class", "noSelect");
-            //fwFunc("setTooltip", "")
+            //fw.func("setTooltip", "")
             widgetStart();
         }
 
@@ -203,9 +203,9 @@
         function scale(scaleX, scaleY) {    // manage scaling
             _widgetID.setAttribute("class", "noSelect");
             _widgetID.style.setProperty("width", (_iniWidth * scaleX) + "px");
-            fwFunc("adjustSize", "width", _iniWidth * scaleX);
+            fw.func("adjustSize", "width", _iniWidth * scaleX);
             if (!_toolbox) _widgetID.style.setProperty("height", (_iniHeight * scaleY - buttonHeight) + "px");
-            fwFunc("adjustSize", "height", _iniHeight * scaleY);
+            fw.func("adjustSize", "height", _iniHeight * scaleY);
         }
 
         // Called from framework for incoming channel events

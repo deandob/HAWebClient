@@ -25,27 +25,45 @@
         </div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
 
         var imageLoc = "../images/"
         var img = new Image()
         img.style.setProperty("width", "100%")
         img.style.setProperty("height", "100%")
 
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            if (fw.attribs[0].value === true) fw.widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
+            else fw.widgetID.style.setProperty("box-shadow", "none")
+            if (mode !== "endEdit") setImage(fw.attribs[2].value)
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            setImage("")
+            fw.widgetID.style.setProperty("width", parseInt(fw.widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
+            fw.widgetID.style.setProperty("height", parseInt(fw.widgetID.style.getPropertyValue("width")) + "px");
+            return "OK"
+        }
+
         img.onload = function () {
             imgHeight = this.naturalHeight                                              // Image aspect ratio and native dimensions
             imgWidth = this.naturalWidth
             document.getElementById("widget").appendChild(img)
-            if (!_toolbox) _widgetID.style.setProperty("border", _attribs[1].value + "px solid #808080")
+            if (fw.state != "toolbox") fw.widgetID.style.setProperty("border", fw.attribs[1].value + "px solid #808080")
             scale(imgScaleX, imgScaleY)
-        }
-
-        function toolboxStart() {           // called when loaded in toolbox
-            setImage("")
-            _widgetID.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
-            _widgetID.style.setProperty("height", parseInt(_widgetID.style.getPropertyValue("width")) + "px");
-            return true
         }
 
         function startEdit() {              // called when editing started
@@ -69,7 +87,7 @@
         function designAction(func, channel, scope, data) {
             switch (func) {
                 case "load":                                            // channel event updates
-                    setTimeout(setImage, 100, _attribs[2].value)        // Give server time to save file
+                    setTimeout(setImage, 100, fw.attribs[2].value)        // Give server time to save file
                     break;
                 default:
                     return false;
@@ -80,19 +98,11 @@
         function scale(scaleX, scaleY) {    // manage scaling
             imgScaleX = scaleX
             imgScaleY = scaleY
-            _widgetID.style.setProperty("width", (_iniWidth * scaleX - 10) + "px");
-            _widgetID.style.setProperty("height", (imgHeight * _iniWidth * scaleY / imgWidth - 10) + "px");
-            fwFunc("adjustSize", "width", _iniWidth * scaleX)
-            fwFunc("adjustSize", "height", imgHeight * _iniWidth * scaleY / imgWidth)
+            fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 10) + "px");
+            fw.widgetID.style.setProperty("height", (imgHeight * fw.iniHeight * scaleY / imgWidth - 10) + "px");
+            fw.func("adjustSize", "width", fw.iniWidth * scaleX)
+            fw.func("adjustSize", "height", imgHeight * fw.iniHeight * scaleY / imgHeight)
             return true
-        }
-
-        //// Widget specific functions
-        function widgetStart(mode) {            // widget specific startup
-            if (_attribs[0].value === true) _widgetID.style.setProperty("box-shadow", "6px 6px 8px #cccccc")
-            else _widgetID.style.setProperty("box-shadow", "none")
-            if (mode !== "endEdit") setImage(_attribs[2].value)
-            return true;
         }
 
         function setImage(imageName) {

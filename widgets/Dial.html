@@ -59,8 +59,13 @@
         </svg>
     </div>
 
-    <script src="../widgetFramework.js?222"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var needleID = document.getElementById("needle");		    // id of the path to rotate
         var svgNeedle = document.getElementById("svgNeedle");		// id of the path to rotate
         var numID = document.getElementById("numVal");		        // id text field
@@ -70,15 +75,25 @@
         var oldVal = 0;
         var oldAvg = 0;
 
-        // Called from framework when widget starts
-        function widgetStart(param) {                               // widget specific startup
-            range = parseInt(_attribs[2].value);
-            if (_attribs[1].value !== "") avgID.style.setProperty("display", "inline");
+        // Widget specific startup actions. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            range = parseInt(fw.attribs[2].value);
+            if (fw.attribs[1].value !== "") avgID.style.setProperty("display", "inline");
             // Hide the svg used to display the widget in the toolbox for proper drag/drop (can only drag id=widget SVG element) & put dial face in background
             document.getElementById("TBNeedle").style.setProperty("display", "none");
             document.getElementById("TBNumVal").style.setProperty("display", "none");
-            _widgetID.style.setProperty("z-index", "1");
-            return true;
+            fw.widgetID.style.setProperty("z-index", "1");
+            return "OK"
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
         }
 
         function startDesign() {            // called when switching to design mode
@@ -91,7 +106,7 @@
         }
 
         function endEdit(param0) {                                  // called when editing finishes
-            if (_attribs[1].value !== "") avgID.style.setProperty("display", "inline")
+            if (fw.attribs[1].value !== "") avgID.style.setProperty("display", "inline")
             else avgID.style.setProperty("display", "none")                             // Only display average marker if channel is set
         }
 
@@ -108,8 +123,8 @@
         function feed(channel, scope, data) {
             var numeric = parseFloat(data);
             if (isNaN(numeric)) return;
-            if (channel === _attribs[0].value.split("/")[2]) return rotateDial(numeric);
-            if (channel === _attribs[1].value.split("/")[2]) return setAvg(numeric);
+            if (channel === fw.attribs[0].value.split("/")[2]) return rotateDial(numeric);
+            if (channel === fw.attribs[1].value.split("/")[2]) return setAvg(numeric);
         }
 
         // Called from framework for initial channel status

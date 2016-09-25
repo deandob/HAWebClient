@@ -87,10 +87,13 @@
         </svg>
     </div>
 
-    <script src="../widgetFramework.js"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
 
-        //// Widget specific functions
         var historyHrs;
         var max = -9999999;
         var min = 9999999;
@@ -101,12 +104,23 @@
             "635461096156800000,5", "635461096157000000,4", "635461096157200000,10", "635461096157400000,0", "635461096157600000,6", "635461096157800000,5", "635461096160000000,5"]);
         var path = document.getElementById("path");
 
-        function widgetStart(mode) {            // widget specific startup after object is loaded
-            historyHrs = parseFloat(_attribs[2].value)
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            historyHrs = parseFloat(fw.attribs[2].value)
             if (isNaN(historyHrs)) historyHrs = 24;
-            if (_attribs[0].value !== "") fwFunc("history", _attribs[0].value, Date.now() - 1000 * 3600 * historyHrs, Date.now());
-            path.setAttribute("class", _attribs[1].value);
-            return true;
+            if (fw.attribs[0].value !== "") fw.func("history", fw.attribs[0].value, Date.now() - 1000 * 3600 * historyHrs, Date.now());
+            path.setAttribute("class", fw.attribs[1].value);
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
         }
 
         function help() {
@@ -126,7 +140,7 @@
         function endDesign() {              // called when switching from design mode
             series = oldSer;
             if (oldSer !== []) render();
-            path.setAttribute("class", _attribs[1].value);          // set color
+            path.setAttribute("class", fw.attribs[1].value);          // set color
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
@@ -147,7 +161,7 @@
 
         // Result set in JSON of any channel history request 
         function history(channel, scope, data) {
-            //alert(_attribs[0].value + "   " + channel)
+            //alert(fw.attribs[0].value + "   " + channel)
             load(channel, data)
         }
 
@@ -168,8 +182,8 @@
 
         function render() {
             var pathD = "M";
-            var timeRange = parseInt((series[series.length - 1].x - series[0].x) / _iniWidth);
-            var dataRange = 1.1 * (max - min) / _iniHeight;
+            var timeRange = parseInt((series[series.length - 1].x - series[0].x) / fw.iniWidth);
+            var dataRange = 1.1 * (max - min) / fw.iniHeight;
             var oldX = -1;
             for (var lp = 0; lp < series.length; lp++) {
                 var x = parseInt((series[lp].x - series[0].x) / timeRange);
@@ -178,7 +192,7 @@
             }
             pathD = pathD.substr(0, pathD.length - 2);                      // remove trailing L
             path.setAttribute("d", pathD);
-            if (!_toolbox) fwFunc("settooltip", _attribs[0].value.split("/")[2] + "<br>Max: " + max + ", Min: " + min)
+            if (fw.state !== "toolbox") fw.func("settooltip", fw.attribs[0].value.split("/")[2] + "<br>Max: " + max + ", Min: " + min)
         }
 
     </script>

@@ -81,15 +81,17 @@
         </div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
 
-        // Widget specific variables
-        var myVariable;
-
-        function widgetStart(mode) {                            // widget specific startup. Return true if successful, or return false to abort loading
- /*           var pc1 = new RTCPeerConnection(), pc2 = new RTCPeerConnection();
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            /*           var pc1 = new RTCPeerConnection(), pc2 = new RTCPeerConnection();
 
             navigator.mediaDevices.getUserMedia({ video: true, audio: true })
               .then(stream => pc1.addStream(video1.srcObject = stream))
@@ -109,7 +111,18 @@
                 .catch(log);
 
             var log = msg => div.innerHTML += "<br>" + msg; */
-            return true;
+
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
         }
 
         function toolboxStart() {                               // called when loaded in toolbox

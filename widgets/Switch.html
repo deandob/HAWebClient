@@ -107,20 +107,42 @@
         </div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var slider = document.getElementById("slider");
         var textOn = document.getElementById("textOn");
         var textOff = document.getElementById("textOff");
 
-        function toolboxStart() {           // called when loaded in toolbox
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            fw.widgetID.className = fw.attribs[1].value + " noSelect outline"
+            slider.className = fw.attribs[1].value + "Slider"
+            textOn.textContent = fw.attribs[3].value;
+            textOff.textContent = fw.attribs[4].value;
+            if (fw.attribs[2].value !== "") fw.func("setTooltip", fw.attribs[2].value);
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
         }
 
         function startEdit() {              // called when editing started
         }
 
         function endEdit(param0) {                // called when editing finishes
-            widgetStart();
+            dashStart();
         }
 
         function startDesign() {            // called when switching to design mode
@@ -130,9 +152,9 @@
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
-            _widgetID.style.setProperty("width", (_iniWidth * scaleX - 6) + "px");             // compensate for border
-            _widgetID.style.setProperty("height", (_iniHeight * scaleY) - 6 + "px");
-            slider.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) / 2 - 8 + "px")   // adjust for width changes
+            fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 6) + "px");             // compensate for border
+            fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY) - 6 + "px");
+            slider.style.setProperty("width", parseInt(fw.widgetID.style.getPropertyValue("width")) / 2 - 8 + "px")   // adjust for width changes
         }
 
         function clicked(event) {                   // left Button pressed
@@ -140,20 +162,10 @@
                 if (slider.style.getPropertyValue("left") !== "4px") {
                     slider.style.setProperty("left", "4px")
                 } else {
-                    //channelSend(_attribs[0].value, "value", XXXX);
-                    slider.style.setProperty("left", parseInt(_widgetID.style.getPropertyValue("width")) / 2 + 2 + "px")
+                    //channelSend(fw.attribs[0].value, "value", XXXX);
+                    slider.style.setProperty("left", parseInt(fw.widgetID.style.getPropertyValue("width")) / 2 + 2 + "px")
                 }
             }
-        }
-
-        //// Widget specific functions
-        function widgetStart(mode) {            // widget specific startup
-            _widgetID.className = _attribs[1].value + " noSelect outline"
-            slider.className = _attribs[1].value + "Slider"
-            textOn.textContent = _attribs[3].value;
-            textOff.textContent = _attribs[4].value;
-            if (_attribs[2].value !== "") fwFunc("setTooltip", _attribs[2].value);
-            return true;
         }
 
         // Called from framework for initial channel status
@@ -168,7 +180,7 @@
         function feed(channel, scope, data) {            // feed from the server
             switch (scope.toLowerCase()) {
                 case "value":                     // current state when starting
-                    if (parseInt(data) > 0) slider.style.setProperty("left", parseInt(_widgetID.style.getPropertyValue("width")) / 2 + 2 + "px");
+                    if (parseInt(data) > 0) slider.style.setProperty("left", parseInt(fw.widgetID.style.getPropertyValue("width")) / 2 + 2 + "px");
                         else slider.style.setProperty("left", "4px");
                     break;
             }

@@ -9,7 +9,7 @@ var _cacheIni = [];
 //TODO: Consider using prototypes in the parent rather than using this script, then call directly from the widget
 
 // As widget loading and the loading this script is async, wait until the parent has inserted widget name so I know who I am before I can start
-setTimeout(_nameLoaded, 1)
+////////////////////////////////////////////////////setTimeout(_nameLoaded, 1)
 
 function _nameLoaded() {
     _widgetName = document.getElementById("widget").getAttribute("data-widgetName");               // Name of widget in parent DOM 'objWidgetX'
@@ -113,8 +113,7 @@ function _fw_endSession(param) {
 }
 
 // manage scaling only for the scale DOM group
-function _fw_scale(scaleX, scaleY) {
-    
+function _fw_scale(scaleX, scaleY) {   
     if (_gScale !== null && +scaleX != 1 && +scaleY != 1) _gScale.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
     _scaleX = scaleX;
     _scaleY = scaleY;
@@ -184,7 +183,7 @@ function _fw_help() {
 }
 
 // Access general framework functions from dashboard
-function fwFunc(funcName, param0, param1, param2) {
+function _fwFunc(funcName, param0, param1, param2) {
     if (typeof parent.widgetRequest === "function") {
         var result = parent.widgetRequest(_widgetName, funcName, param0, param1, param2);
         if (_widgetName.substr(0, 11) !== "objWidgetTB") _attribs = parent.widgets[_widgetNum].attribs;        // reload attributes in case attribs are updated

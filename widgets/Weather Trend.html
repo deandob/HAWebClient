@@ -58,24 +58,39 @@
         </div>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var icon = document.getElementById("icon");
 
-        // Called from framework when widget starts
-        function widgetStart(param) {                               // widget specific startup
-            _widgetID.setAttribute("class", "wi " + _attribs[1].value + " noselect");          // color
-            return true;
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            fw.widgetID.setAttribute("class", "wi " + fw.attribs[1].value + " noselect");          // color
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
         }
 
         function scale(scaleX, scaleY) {
-            _widgetID.style.setProperty("font-size", 5 * scaleX + "em")
-            _widgetID.style.setProperty("width", 100 * scaleX + "px")
-            _widgetID.style.setProperty("height", 100 * scaleX + "px")
+            fw.widgetID.style.setProperty("font-size", 5 * scaleX + "em")
+            fw.widgetID.style.setProperty("width", 100 * scaleX + "px")
+            fw.widgetID.style.setProperty("height", 100 * scaleX + "px")
         }
 
         function endEdit(param0) {                  // called when editing finishes
-            widgetStart()
+            dashStart()
         }
 
         // Called from framework for incoming channel events
@@ -157,7 +172,7 @@
                 default:
             }
             icon.setAttribute("class", "wi " + iconLetter + " noselect")
-            fwFunc("setTooltip", data);
+            fw.func("setTooltip", data);
         }
 
         // Called from framework for initial channel status

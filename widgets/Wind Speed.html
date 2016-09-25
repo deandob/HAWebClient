@@ -57,8 +57,13 @@
         </svg>
     </div>
 
-    <script src="../widgetFramework.js" type="text/javascript"></script>
     <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
         var bladesID = document.getElementById("blades");		    // id of the path to rotate
         var numID = document.getElementById("numVal");		        // id text field
         var avgID = document.getElementById("avg");                 // id average marker
@@ -67,15 +72,30 @@
         var cycles = "infinite"
         var speedChange = false;
 
-        // Called from framework when widget starts
-        function widgetStart(param) {                               // widget specific startup
-            if (_attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline");
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            if (fw.attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline");
             // Hide the svg used to display the widget in the toolbox for proper drag/drop (can only drag id=widget SVG element) & put dial face in background
             document.getElementById("TBBlades1").style.setProperty("display", "none");
             document.getElementById("TBBlades2").style.setProperty("display", "none");
             document.getElementById("TBBlades3").style.setProperty("display", "none");
             bladesID.addEventListener("animationiteration", animationListener, false);
-            _widgetID.style.setProperty("z-index", "1");
+            fw.widgetID.style.setProperty("z-index", "1");
+            return "OK";
+        }
+
+        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
+        function designStart(mode) {
+            return dashStart();
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
+        }
+
+        // Called from framework when widget starts
+        function widgetStart(param) {                               // widget specific startup
             return true;
         }
 
@@ -123,8 +143,8 @@
 
         // Called from framework for incoming channel events
         function feed(channel, scope, data) {
-            if (channel === _attribs[0].value.split("/")[2]) return rotateSpeed(data);
-            if (channel === _attribs[1].value.split("/")[2]) return setAvg(data);
+            if (channel === fw.attribs[0].value.split("/")[2]) return rotateSpeed(data);
+            if (channel === fw.attribs[1].value.split("/")[2]) return setAvg(data);
         }
 
         // Called from framework for initial channel status
@@ -143,7 +163,7 @@
 
         // Rotate dial between 0 and Range
         function rotateSpeed(newSpeed) {
-            fwFunc("setTooltip", "Speed: " + newSpeed + " Km/hr")
+            fw.func("setTooltip", "Speed: " + newSpeed + " Km/hr")
             if (oldSpeed !== newSpeed) {
                 if (+newSpeed !== 0) {
                     speed = 10 / newSpeed;
