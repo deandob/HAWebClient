@@ -1,13 +1,12 @@
 ﻿<!doctype html>
 <html lang="en">
 <head>
-    <!--<meta http-equiv="Content-Type" content="text/html; charset=utf-8; Cache-Control: max-age=31536000000; pragma: no-cache; max-age=0" />-->   
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Home Automation Client</title>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
-    <meta name="description" content="">
+    <meta name="description" content="Home Automation Framework">
     <meta id="version" content="0.92">
     <meta name="author" content="">
 
@@ -31,13 +30,13 @@
             <div class="collapse navbar-collapse" id="navCollapse">
                 <ul class="nav navbar-nav">
                     <li class="divider-vertical"></li>
-                    <li id="dashButton" class="active" style="display: none"><a onclick="dashboardFrame()" class="tip" data-original-title="View and control home automation" data-placement="bottom"><i class="icon-home icon-large"></i> Dashboard</a></li>
+                    <li id="dashButton" class="active" style="display: none"><a onclick="adjustNavBar('Dashboard')" class="tip" data-original-title="View and control home automation" data-placement="bottom"><i class="icon-home icon-large"></i> Dashboard</a></li>
                     <li class="divider-vertical"></li>
-                    <li id="settingsButton" class="pointer" style="display: none"><a onclick="settingsFrame()" class="tip" data-original-title="Setup events, triggers and system settings" data-placement="bottom"><i class="icon-cog icon-large"></i> Settings</a></li>
+                    <li id="settingsButton" class="pointer" style="display: none"><a onclick="adjustNavBar('Settings')" class="tip" data-original-title="Setup events, triggers and system settings" data-placement="bottom"><i class="icon-cog icon-large"></i> Settings</a></li>
                     <li class="divider-vertical"></li>
-                    <li id="designButton" class="pointer" style="display:none"><a onclick="design()" class="tip" data-original-title="Manage home automation widgets" data-placement="bottom"><i class="icon-pencil icon-large"></i> Design</a></li>
+                    <li id="designButton" class="pointer" style="display:none"><a onclick="adjustNavBar('Design')" class="tip" data-original-title="Manage home automation widgets" data-placement="bottom"><i class="icon-pencil icon-large"></i> Design</a></li>
                     <li class="divider-vertical"></li>
-                    <li id="queryButton" class="pointer" style="display:none"><a onclick="queriesFrame()" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>
+                    <li id="queryButton" class="pointer" style="display:none"><a onclick="adjustNavBar('Query')" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>
                     <li id="toolboxDropdown" class="dropdown pointer" style="display:none">
                         <a class="dropdown-toggle tip" data-toggle="dropdown" data-original-title="Select toolbox from dropdown" data-placement="right"><i class="icon-edit icon-large"></i> Toolbox <b class="caret"></b></a>
                         <ul class="dropdown-menu" role="menu">
@@ -47,33 +46,17 @@
                         </ul>
                     </li>
                 </ul>
-                <!--
-                <div id="selDevice" class="input-group tip" style="display: none" data-original-title="select device type for screens" data-placement="bottom">
-                    <form class="navbar-form navbar-left" role="listbox">
-                        <div class="form-group">
-                            <div class="input-group-btn col-md-1">
-                                <input type="text" class="form-control input-sm" id="screenDevice" value="desktop" disabled>
-                                <button type="button" class="btn btn-default dropdown-toggle input-sm" data-toggle="dropdown"><span class="caret"></span></button>
-                                <ul id="deviceList" class="dropdown-menu pull-left">
-                                    <li class="pointer"><a onclick="selectDevice('desktop')">desktop</a></li>
-                                    <li class="pointer"><a onclick="selectDevice('tablet')">tablet</a></li>
-                                    <li class="pointer"><a onclick="selectDevice('phone')">phone</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </form>
-                </div>-->
                 <ul class="nav navbar-nav navbar-right">
                     <li class="divider-vertical"></li>
                     <li><a id="logonButton" style="visibility: hidden" onclick="login()" class="tip icon pointer" data-original-title="Enter Username" data-placement="bottom"><i class="icon-user icon-large"></i> Login</a></li>
-                    <li id="helpButton" class="pointer"><a onclick="helpFrame()" class="tip" data-original-title="Press for more information" data-placement="bottom"><i class="icon-question-sign icon-large"></i> Help</a></li>
+                    <li id="helpButton" class="pointer"><a onclick="adjustNavBar('Help')" class="tip" data-original-title="Press for more information" data-placement="bottom"><i class="icon-question-sign icon-large"></i> Help</a></li>
                 </ul>
                 <p id="displayUser" class="nav navbar-text navbar-right"></p>
             </div>
         </div>
     </div>
 
-    <iframe id="iFrame" style="border:none;" width="100%"></iframe>
+    <iframe id="iFrame" src="dashboard.html" style="border:none;" width="100%"></iframe>
 
     <footer class="navbar navbar-fixed-bottom">
         <div style="position: absolute; padding:8px 5px 15px 15px; height: 38px; border:1px solid #bce8f1; background-color:#d9edf7; color: #3a87ad; border-radius:4px; bottom: 10px; right: 10px; left: 10px">
@@ -128,33 +111,22 @@
         </div>
     </div>
 
-    <script src="js/jquery-3.1.0.slim.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
     <script>
         "use strict";
+        var profilelog = "";
+        var startProfile = new Date().valueOf();
 
-        var clientName = localStorage.getItem("clientName");
-        if (clientName == null) clientName = "";
-        var user = "";
-        //var device = "desktop";                           // TODO: detect device used to load appropriate screens
-        var deviceWidth = screen.availWidth;
-        var deviceHeight = screen.availHeight;
-        var debugURL = "";
+        var ws, clientName;
         var wsPort = 1066;
         var serverName = document.domain;
-        var categories;
-        var tooltipDelay = 1500;                            // Delay before showing tooltip when hovering
-        var connection = "local";
-        var locale;
-
         var params = document.URL.split("?");
         if (params.length > 1) params = params[1].split("=");
         switch (params[0].toLowerCase()) {         // command line options after URL '?'
             case "remote":
-//                serverName = "haproxy.azurewebsites.net";
-                wsPort = 80;
+                //                serverName = "haproxy.azurewebsites.net";
                 document.getElementById("connType").setAttribute("class", "tip icon-cloud-download-2 icon-large pull-right");
                 document.getElementById("connType").setAttribute("data-original-title", "remote access");
+                wsPort = 80;
                 connection = "remote"
                 break;
             case "clear":
@@ -179,12 +151,51 @@
             case "local":
             default:
                 document.getElementById("connType").setAttribute("class", "tip icon-home-4 icon-large pull-right")
-                document.getElementById("connType").setAttribute("data-original-title","local access") 
+                document.getElementById("connType").setAttribute("data-original-title", "local access")
         }
-        localStorage.setItem("serverName", serverName);
+        startNet();
 
+        if (typeof clientName === "undefined") {
+            clientName = localStorage.getItem("clientName");
+            if (clientName == null) clientName = "";
+        }
+        var netState = "starting"
+        var msg;
+
+        var func = {
+            action: 0,                                          // Action or method call
+            response: 1,                                        // Data response to a method call
+            event: 2,                                           // Asynchronous event message
+            log: 3,                                             // Log Message
+            error: 4,                                           // Error Message
+            sql: 5                                              // Execute SQL message
+        }
+
+        var templMsg = {
+            client: clientName,               // NEED TO CONVERT TO .NET FORMAT
+            func: func.action,
+            level: 3,
+            network: 1,
+            category: "SYSTEM",
+            className: "NETWORK",
+            instance: null,
+            scope: "CONNECT",
+            data: ""
+        }
+
+        var user = "";
+        var deviceWidth = screen.availWidth;
+        var deviceHeight = screen.availHeight;
+        var debugURL = "";
+        var categories;
+        var TOOLTIPDELAY = 1500;                            // Delay before showing tooltip when hovering
+        var connection = "local";
+        var locale;
         var netName = ""
+
+        localStorage.setItem("serverName", serverName);
         var iFrame = document.getElementById("iFrame");
+
         window.addEventListener("resize", function (event) {
             iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
             deviceWidth = screen.availWidth;
@@ -197,89 +208,41 @@
         //TODO: Add extra bootstrap column classes to stack differently on smaller devices
         //TODO: Field for general settings web files location so that widgets can be retrieved
 
-        //if (deviceWidth < 1200) device = "tablet";
-        //if (deviceWidth < 1025) device = "phone";               // TODO: Might not be needed anymore
         iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
+        document.getElementById("versionTxt").innerText = "Version: " + document.getElementById("version").content;
 
-        // Startup function after DOM is loaded and all content loaded
-        window.onload = function () {
-            document.getElementById("versionTxt").innerText = "Version: " + document.getElementById("version").content;
-            enableTooltip();
-        }
-
-        function settingsFrame() {
-            if (clientName != "") {
+        // Activate the main framework functions and adjust button visibility
+        function adjustNavBar(button) {
+            if (clientName !== "") {
                 iFrame.removeEventListener("load", designOff);
                 iFrame.removeEventListener("load", designOn);
-                iFrame.setAttribute("src", "settings.html" + debugURL);
-                document.getElementById("dashButton").className = "pointer";
-                document.getElementById("settingsButton").className = "active";
-                document.getElementById("designButton").className = "pointer";
-                document.getElementById("queryButton").className = "pointer";
-                document.getElementById("toolboxDropdown").style.setProperty("display", "none")
-                //document.getElementById("selDevice").style.setProperty("display", "none")
-                document.getElementById("helpButton").className = "pointer";
-                document.getElementById("displayUser").style.setProperty("display", "inline")
-                status("Settings Mode");
-            }
-        }
-
-        function queriesFrame() {
-            if (clientName != "") {
-                iFrame.removeEventListener("load", designOff);
-                iFrame.removeEventListener("load", designOn);
-                iFrame.setAttribute("src", "queries.html" + debugURL);
-                document.getElementById("dashButton").className = "pointer";
-                document.getElementById("settingsButton").className = "pointer";
-                document.getElementById("designButton").className = "pointer";
-                document.getElementById("queryButton").className = "active";
-                document.getElementById("toolboxDropdown").style.setProperty("display", "none")
-                //document.getElementById("selDevice").style.setProperty("display", "none")
-                document.getElementById("helpButton").className = "pointer";
-                document.getElementById("displayUser").style.setProperty("display", "inline")
-                status("Queries Mode");
-            }
-        }
-
-
-        function dashboardFrame() {
-            if (clientName != "") {
-                iFrame.removeEventListener("load", designOff);
-                iFrame.removeEventListener("load", designOn);
-                if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
-                    iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
-                    iFrame.addEventListener("load", designOff);
+                iFrame.setAttribute("src", button + ".html" + debugURL);
+                if (button === "Design") {
+                    document.getElementById("designButton").className = "active";
+                    document.getElementById("toolboxDropdown").style.setProperty("display", "none");
+                    if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
+                        iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
+                        iFrame.addEventListener("load", designOn);
+                    } else {
+                        designOn();
+                    }
                 } else {
-                    designOff()
+                    document.getElementById("toolboxDropdown").style.setProperty("display", "none");
                 }
-                document.getElementById("dashButton").className = "active";
-                document.getElementById("settingsButton").className = "pointer";
-                document.getElementById("designButton").className = "pointer";
-                document.getElementById("queryButton").className = "pointer";
-                document.getElementById("toolboxDropdown").style.setProperty("display", "none")
-                //document.getElementById("selDevice").style.setProperty("display", "none")
-                document.getElementById("helpButton").className = "pointer";
-                document.getElementById("displayUser").style.setProperty("display", "inline")
-            }
-        }
-
-        function design() {
-            if (clientName != "") {
-                iFrame.removeEventListener("load", designOff);
-                iFrame.removeEventListener("load", designOn);
-                if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
-                    iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
-                    iFrame.addEventListener("load", designOn)
-                } else {
-                    designOn();
-                }
-                document.getElementById("designButton").className = "active";
-                document.getElementById("dashButton").className = "pointer";
-                document.getElementById("settingsButton").className = "pointer";
-                document.getElementById("toolboxDropdown").style.setProperty("display", "inline")
-                //document.getElementById("selDevice").style.setProperty("display", "inline")
-                document.getElementById("helpButton").className = "pointer";
-                document.getElementById("displayUser").style.setProperty("display", "none")
+                if (button === "Dashboard") {
+                    document.getElementById("dashButton").className = "active"
+                    if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
+                        iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
+                        iFrame.addEventListener("load", designOff);
+                    }
+                } else document.getElementById("dashButton").className = "pointer";
+                if (button === "Queries") document.getElementById("queryButton").className = "active"
+                else document.getElementById("queryButton").className = "pointer";
+                if (button === "Settings") document.getElementById("settingsButton").className = "active"
+                else document.getElementById("settingsButton").className = "pointer";
+                if (button === "Help") document.getElementById("helpButton").className = "active"
+                else document.getElementById("helpButton").className = "pointer";
+                status(button + " Mode");
             }
         }
 
@@ -290,36 +253,6 @@
         function designOff() {
             iFrame.contentWindow.toggleDesign("off");
         }
-
-        function helpFrame() {
-            iFrame.removeEventListener("load", designOff);
-            iFrame.removeEventListener("load", designOn);
-            iFrame.setAttribute("src", "help.html" + debugURL)     // Force cache refresh
-            document.getElementById("dashButton").className = "pointer";
-            document.getElementById("settingsButton").className = "pointer";
-            document.getElementById("designButton").className = "pointer";
-            document.getElementById("toolboxDropdown").style.setProperty("display", "none")
-            //document.getElementById("selDevice").style.setProperty("display", "none")
-            document.getElementById("helpButton").className = "active";
-            document.getElementById("displayUser").style.setProperty("display", "inline")
-            status("");
-        }
-
-        /*
-        // Change screen device from device dropdown selected
-        function selectDevice(selectedDevice) {
-            document.getElementById("screenDevice").value = selectedDevice;
-            device = selectedDevice;
-            modalDialog("input", "Device Width", "Enter device width", "OK", "setDeviceWidth");
-        }
-        
-        function setDeviceWidth(width) {                    // TODO: Is this still needed?
-            deviceWidth = +width;
-            iFrame.addEventListener("load", waitForWidgets);     // wait for widgets to load
-            iFrame.src = iFrame.src;            // reload
-        }
-
-        */
 
         // Login
         function login() {
@@ -393,22 +326,14 @@
             document.getElementById("modalInput").value = "";
         }
 
-//        function waitForWidgets() {
-//            if (!iFrame.contentWindow.allLoaded) {
-//                setTimeout(waitForWidgets, 900);                // TODO: NOT ROBUST ENOUGH FOR LARGER SCREENS
-//            } else {
-//                designOn();
-//            }
-//        }
-
+        // Display status message in status bottom bar
         function status(message) {
             document.getElementById("serverStatus").innerText = message
         }
 
         // enable bootstrap tooltips
-        //TODO: Put this after startup........ so it doesn't delay.
         function enableTooltip() {
-            $(".tip").tooltip({ delay: { show: tooltipDelay } });
+            $(".tip").tooltip({ delay: { show: TOOLTIPDELAY } });
         }
 
         // clear cache (called by uwpbrowser exe)
@@ -417,38 +342,18 @@
             status("Cache reloaded.")
         }
 
+        // Client impersonation
         function reload(newClient) {
             window.location.href = "haclient.html?clientname=" + newClient
         }
 
+        // Performance profile string
+        function profiler(text) {
+            profilelog = profilelog + " " + text + ":" + (new Date().valueOf() - startProfile)
+            if (text === "show") alert("profile => " + profilelog);
+        }
+
         /////////////////////////////////////// Network
-
-        var netState = "starting"
-        var msg;
-
-        var func = {
-            action: 0,                                          // Action or method call
-            response: 1,                                        // Data response to a method call
-            event: 2,                                           // Asynchronous event message
-            log: 3,                                             // Log Message
-            error: 4,                                           // Error Message
-            sql: 5                                              // Execute SQL message
-        }
-
-        var templMsg = {
-            client: clientName,               // NEED TO CONVERT TO .NET FORMAT
-            func: func.action,
-            level: 3,
-            network: 1,
-            category: "SYSTEM",
-            className: "NETWORK",
-            instance: null,
-            scope: "CONNECT",
-            data: ""
-        }
-
-        var ws;
-        startNet();
         function startNet() {
             try {
                 ws = new WebSocket("ws://" + serverName + ":" + wsPort + "/HAclient");
@@ -457,11 +362,12 @@
             }
             try {
                 ws.onopen = function () {
+                    profiler("wsopen");
+                    send("NETWORK", "CONNECT", "")          // Establish initial generic machine session
                     netState = "connected"
                     status("Connected to Server. Establishing session...")
                     user = "local_machine"
-                    send("NETWORK", "CONNECT", "")          // Establish initial generic machine session
-                    setTimeout(checkSession, 10000);      // If HA Server isn't responding, restart 
+                    setTimeout(checkSession, 10000);        // If HA Server isn't responding, restart
                 }
 
                 ws.onmessage = function (evt) {
@@ -494,9 +400,9 @@
                                                 default:
                                             }
                                             break;
-//                                        case "QUERY":
+                                            //                                        case "QUERY":
 
-  //                                          break;
+                                            //                                          break;
                                         case "NETWORK":
                                             switch (msg.Instance.toUpperCase()) {
                                                 case "SERVER":
@@ -509,7 +415,6 @@
                                                             locale = connData.Locale;
                                                             document.getElementById("headerTitle").innerHTML = "&nbsp;" + netName
                                                             netState = "localsession"
-                                                            iFrame.setAttribute("src", "dashboard.html" + debugURL);
                                                             document.getElementById("displayUser").innerHTML = "<strong>" + clientName + "</strong>";
                                                             document.getElementById("dashButton").style.setProperty("display", "inline");
                                                             document.getElementById("settingsButton").style.setProperty("display", "inline");
@@ -517,12 +422,14 @@
                                                             document.getElementById("queryButton").style.setProperty("display", "inline");
                                                             document.getElementById("logonButton").style.setProperty("visibility", "visible");
                                                             status("Connected to server " + serverName + ".");
-                                                            //send("SETTINGS", "GET:CATEGORIES()", "");
+                                                            msg.ClassName = "INITLOAD";
+                                                            profiler("HAClientiniload")
+                                                            waitForIframe(msg)
                                                             break;
                                                         case "AUTHENTICATED":             // user session connected
                                                             user = msg.Data;
                                                             netState = "usersession"
-                                                            iFrame.setAttribute("src", "dashboard.html" + debugURL)
+                                                            //iFrame.setAttribute("src", "dashboard.html" + debugURL)
                                                             document.getElementById("displayUser").innerHTML = "Welcome <strong>" + user + "</strong>";
                                                             //document.getElementById("dashButton").style.setProperty("display", "inline");
                                                             //document.getElementById("settingsButton").style.setProperty("display", "inline");
@@ -532,7 +439,7 @@
                                                         case "DISCONNECT":
                                                             netState = "disconnected";
                                                             clientName = "";
-                                                            iFrame.setAttribute("src", "")
+                                                            //iFrame.setAttribute("src", "")
                                                             document.getElementById("displayUser").innerHTML = "Please login first";
                                                             document.getElementById("dashButton").style.setProperty("display", "none");
                                                             document.getElementById("settingsButton").style.setProperty("display", "none");
@@ -546,7 +453,7 @@
                                             }
                                             break;
                                         default:
-                                            if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHost(msg);
+                                            waitForIframe(msg);
                                     }
                                     break;
                                 default:
@@ -566,21 +473,28 @@
                     }
                 }
 
+                // Server usually responds before Iframe has loaded, so wait.
+                function waitForIframe(msg) {
+                    if (typeof iFrame.contentWindow.recvHost === "function") {
+                        iFrame.contentWindow.recvHost(msg);
+                    } else {
+                        setTimeout(waitForIframe, 5, msg);
+                    }
+                }
+
                 ws.onerror = function (evt) {
                     status("Network Error was reported: " + evt.type);
                 }
 
                 ws.onclose = function (evt) {
-                    if (netState == "starting") {
+                    adjustNavBar("Dashboard");                               // If re-establishing a broken connection, reset to dashboard.
+                    if (netState === "starting") {
                         status("Cannot connect to the server. Please check server availability. Retrying...");
-                        dashboardFrame();                               // If re-establishing a broken connection, reset to dashboard.
-                        startNet();     // Try again
                     } else {
                         status("Server connection closed");
                         netState = "closed"
-                        dashboardFrame();                               // If re-establishing a broken connection, reset to dashboard.
-                        setTimeout(startNet, 500);
                     }
+                    setTimeout(startNet, 500);
                 }
             } catch (exception) {
                 alert("General Network Error was reported: " + exception);
@@ -630,5 +544,7 @@
         }
 
     </script>
+    <script defer src="js/jquery-3.1.0.slim.min.js"></script>
+    <script defer src="js/bootstrap.min.js"></script>
 </body>
 </html>

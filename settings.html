@@ -61,8 +61,8 @@
 
     <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
 
-<!-- #region Console ------------------------------------------------------------------------------------------------------->
-        <div class="tab-pane fade in active" id="console" >
+        <!-- #region Console ------------------------------------------------------------------------------------------------------->
+        <div class="tab-pane fade in active" id="console">
             <h4>Console Logs</h4>
             <br />
             <div class="row">
@@ -75,7 +75,7 @@
             <div class="col-md-2">
                 <p>Log Name</p>
                 <div class="input-group">
-                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log"  tabindex=1>
+                    <input type="text" class="form-control" id="logsName" name="textInput" placeholder="Select Log" tabindex=1>
                     <div class="input-group-btn">
                         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
                         <ul id="logNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
@@ -111,9 +111,8 @@
                 </div>
             </div>
         </div>
-<!-- #endregion -->
-
-<!-- #region General --------------------------------------------------------------->
+        <!-- #endregion -->
+        <!-- #region General --------------------------------------------------------------->
         <div class="tab-pane fade" id="general">
             <h4>General Settings</h4>
             <br />
@@ -165,7 +164,7 @@
                                     <input id="genDevheightInp" name="textInput" type="text" class="form-control">
                                 </div>
                             </div>
-                            <br/>
+                            <br />
                             <div class="row">
                                 <div class="col-md-4">
                                     <p>Grid Size</p>
@@ -178,15 +177,14 @@
             </div>
         </div>
         <!-- #endregion -->
-             
-<!-- #region Queries --------------------------------------------------------------->
+        <!-- #region Queries --------------------------------------------------------------->
         <div class="tab-pane fade" id="queries">
             <h4>Queries</h4>
             <br />
             <div class="row">
                 <div class="col-md-10">
                     <div class="alert-success">
-                        <p><br />&nbsp;&nbsp;Enter or select queries based on value and/or time<br /><br /></p>
+                        <p><br />&nbsp;&nbsp;Enter or select queries based on value and/or time. Edit, run and export queries.<br /><br /></p>
                     </div>
                 </div>
             </div><br />
@@ -197,7 +195,7 @@
                         <div class="input-group">
                             <input type="text" class="tip form-control" id="queryName" name="textInput" data-original-title="Query Name" data-placement="top" placeholder="New or Select query" tabindex=1>
                             <div class="input-group-btn">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" tabindex=0/></button>
+                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" tabindex=0 /></button>
                                 <ul id="queryNameList" class="dropdown-menu pull-right">
                                     <li><a class="pointer"><i>No saved Queries</i></a></li>
                                 </ul>
@@ -211,9 +209,13 @@
                     <p>Description</p>
                     <input type="text" class="form-control" id="queryDesc" name="textInput" placeholder="Enter new Query description" tabindex=2>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-1">
                     <p>&nbsp;</p>
                     <button type="button" id="queryButRun" onclick="queryButRun()" class="btn btn-primary tip pointer nofocus" data-original-title="Press to execute query">Run Query</button>&nbsp;&nbsp;&nbsp;
+                </div>
+                <div class="col-md-1">
+                    <p>&nbsp;</p>
+                    <button type="button" id="queryButExp" onclick="queryButExp()" class="btn btn-primary tip pointer nofocus" data-original-title="Press to export to CSV">Export CSV</button>&nbsp;&nbsp;&nbsp;
                 </div>
             </div>
             <br />
@@ -255,7 +257,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <p>Channel (Instance)</p>
-                                    <input type="text" class="form-control" id="queryInstanceInp" name="textInput" placeholder="All"  tabindex=4>
+                                    <input type="text" class="form-control" id="queryInstanceInp" name="textInput" placeholder="All" tabindex=4>
                                 </div>
                             </div>
                         </div>
@@ -447,8 +449,7 @@
             </div>
         </div>
         <!-- #endregion -->
-
-<!-- #region Events --------------------------------------------------------------->
+        <!-- #region Events --------------------------------------------------------------->
         <div class="tab-pane fade" id="events">
             <h4>Manage Events</h4><br />
             <div class="row">
@@ -562,8 +563,7 @@
             </div>
         </div>
         <!-- #endregion -->
-
-<!-- #region Triggers --------------------------------------------------------------->
+        <!-- #region Triggers --------------------------------------------------------------->
         <div class="tab-pane fade" id="triggers">
             <h4>Manage Triggers</h4>
             <br />
@@ -908,9 +908,8 @@
                 </div>
             </div>
         </div>
-<!-- #endregion -->
-
-<!-- #region Actions --------------------------------------------------------------->
+        <!-- #endregion -->
+        <!-- #region Actions --------------------------------------------------------------->
         <div class="tab-pane fade" id="actions">
             <h4>Manage Actions</h4>
             <br />
@@ -1041,9 +1040,8 @@
                 </div>
             </div>
         </div>
-<!-- #endregion -->
-
-<!-- #region Transforms --------------------------------------------------------------->
+        <!-- #endregion -->
+        <!-- #region Transforms --------------------------------------------------------------->
         <div class="tab-pane fade" id="transforms">
             <h4>Manage Transforms</h4>
             <br />
@@ -1305,9 +1303,8 @@
                 </div>
             </div>
         </div>
-<!-- #endregion -->
-
-<!-- #region Programs --------------------------------------------------------------->
+        <!-- #endregion -->
+        <!-- #region Programs --------------------------------------------------------------->
         <div class="tab-pane fade" id="programs">
             <h4>Manage Programs</h4>
             <br />
@@ -1377,9 +1374,8 @@
                 </div>
             </div>
         </div>
-<!-- #endregion -->
-
-<!-- #region Plugin Manager --------------------------------------------------------------->
+        <!-- #endregion -->
+        <!-- #region Plugin Manager --------------------------------------------------------------->
         <div class="tab-pane fade" id="plugins">
             <h4>Manage Plugin Settings</h4>
             <br />
@@ -1435,9 +1431,8 @@
                 </div>
             </div>
         </div>
-<!-- #endregion -->
-
-<!-- #region Store --------------------------------------------------------------->
+        <!-- #endregion -->
+        <!-- #region Store --------------------------------------------------------------->
         <div class="tab-pane fade" id="store">
             <h4>Add Widgets and Plugins</h4>
             <br />
@@ -1495,9 +1490,8 @@
             </div>
             <br /><br /><br /><br />
         </div>
-<!-- #endregion -->
-
-<!-- #region Security --------------------------------------------------------------->
+        <!-- #endregion -->
+        <!-- #region Security --------------------------------------------------------------->
         <div class="tab-pane fade" id="security">
             <h4>User Administration</h4>
             <br />
@@ -1555,22 +1549,11 @@
             </div>
             <br /><br /><br /><br />
         </div>
-<!-- #endregion -->
+        <!-- #endregion -->
 
     </div>
-    <!--<script src="//maxcdn.bootstrapcdn.com/bootlint/0.2.0/bootlint.min.js"></script>-->
-
-    <script src="js/jquery-3.1.0.slim.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script src="js/bootstrap-datetimepicker.min.js"></script>
-    <script src="js/vue.2.0.RC.js"></script>
-    <!--CodeMirror-->
-    <script src="js/codemirror.js"></script>
-    <script src="js/javascript.js"></script>
-    <script src="js/active-line.js"></script>
-
     <script>
-//#region ---------------------------------------- Initialise screen functions
+        //#region ---------------------------------------- Initialise screen functions
         //TODO: Time of Day in triggers reverts to a different time when manually typing in the time without timepicker
         //TODO: WHen selecting a channel in a trigger/action and using the filter, when pressing the filter button the screen aborts
         //TODO: When automation database is empty, triggers and actions give an error message when selecting the tab. Need to test the install state and adjust so it doesnt error with a fresh DB
@@ -1619,9 +1602,9 @@
 
             consoleScreenEnter();                                                       // Starting tab
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Console screen functions
+        //#region ---------------------------------------- Console screen functions
         function consoleScreenEnter() {
             var logArea = document.getElementById("logs");
             document.getElementById("editOptions").style.display = "none";
@@ -1648,7 +1631,7 @@
             } else {
                 parent.send("CONSOLE", "", "STOP DEBUG");
                 debugBut.innerText = "Verbose On";
-                debugBut.className = debugBut.className.replace(" active","");
+                debugBut.className = debugBut.className.replace(" active", "");
                 logArea.innerHTML = logArea.innerHTML + "&#13;&#10;" + "Verbose mode: OFF";
             }
         }
@@ -1669,9 +1652,9 @@
         function consoleScreenExit() {
             parent.send("CONSOLE", "", "STOP");
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- General settings screen functions
+        //#region ---------------------------------------- General settings screen functions
         function generalScreenEnter() {
             $("#genDevheightInp").val(localStorage.getItem("impHeight"));
             $("#genDevwidthInp").val(localStorage.getItem("impWidth"));
@@ -1688,9 +1671,10 @@
         }
 
 
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Queries settings screen functions
+        //#region ---------------------------------------- Queries settings screen functions
+        var queryResultVM;
         function queriesScreenEnter() {
             loadNames("QUERIES");
             pressBut("queryTypeQuestionSel", "What");
@@ -1698,6 +1682,19 @@
             setQueryTimeFields("queryTimeframeSel", "Current");
             document.getElementById("editOptions").style.display = "inline";
             clearClass("sortIcon", "icon-sort");
+            queryResultVM = new Vue({
+                el: '#queryVueTable',
+                data: {
+                    items: []
+                },
+                computed: {
+                    displayDate: function (index) {
+                        // `this` points to the vm instance
+                        var tt = index
+                        return this.items[0].time + ' ' + this.items[0].time
+                    }
+                }
+            });
         }
 
         function objQuery() {
@@ -1739,20 +1736,6 @@
             this.value = value;
         }
 
-        var queryResultVM = new Vue({
-            el: '#queryVueTable',
-            data: {
-                items: []
-            },
-            computed: {
-                displayDate: function (index) {
-                    // `this` points to the vm instance
-                    var tt = index
-                    return this.items[0].time + ' ' + this.items[0].time
-                }
-            }
-        });
-
         function keyFilter(me) {
             var colName = me.parentNode.parentNode.innerText.trim();
             queryResultVM.items = filterBy(queryResults, colName, document.getElementById("queryCol" + colName).value.toUpperCase());
@@ -1792,7 +1775,7 @@
                     if (!isNaN(+queryResultVM.items[0][columnLC])) {
                         queryResultVM.items.sort(function (a, b) { return a[columnLC] - b[columnLC] });     // numbers
                     } else {
-                        queryResultVM.items.sort(function (a, b) { return a[columnLC].localeCompare(b[columnLC])});
+                        queryResultVM.items.sort(function (a, b) { return a[columnLC].localeCompare(b[columnLC]) });
                     }
                     break;
                 case -1:
@@ -1854,6 +1837,15 @@
             }
         }
 
+        // Save results as a csv text file
+        function queryButExp() {
+            var csv = ["time,category,className,channel,type,value\r\n"];
+            for (var lp = 0; lp < queryResults.length; lp++) {
+                csv.push(queryResults[lp].timeDate + "," + queryResults[lp].category + "," + queryResults[lp].class + "," + queryResults[lp].channel + "," + queryResults[lp].type + "," + queryResults[lp].value + "\r\n");
+            }
+            saveAs(new Blob(csv, { type: "text/plain;charset=utf-8" }), "query.csv")
+        }
+
         function queryButRun() {
             var formatJSON = queryJSON();
             if (formatJSON == "[]") return;
@@ -1876,7 +1868,7 @@
                             timespan = timespan * 3600000;
                             break;
                         case "DAYS":
-                            timespan = timespan * 86400000;            
+                            timespan = timespan * 86400000;
                             break;
                         case "WEEKS":
                             timespan = timespan * 604800000;
@@ -1957,23 +1949,23 @@
         }
 
 
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Triggers settings screen functions
+        //#region ---------------------------------------- Triggers settings screen functions
         function triggersScreenEnter() {
             loadNames("TRIGGERS")
             document.getElementById("editOptions").style.display = "inline";
         }
 
         // Radio behaviour for time intervals (fortnightly will imply monthly)
-   /*     function radio(active) {
-            if ($("#" + active).prop('checked') == true) {
-                $("#trigChkYear").prop('checked', false)
-                $("#trigChkFortnight").prop('checked', false)
-                $("#trigChkMonth").prop('checked', false)
-                $("#" + active).prop('checked', true)
-            }
-        }  */
+        /*     function radio(active) {
+                 if ($("#" + active).prop('checked') == true) {
+                     $("#trigChkYear").prop('checked', false)
+                     $("#trigChkFortnight").prop('checked', false)
+                     $("#trigChkMonth").prop('checked', false)
+                     $("#" + active).prop('checked', true)
+                 }
+             }  */
 
         // Populate the Trigger object from the fields. If from date/time field is empty, then send epoc date, if to date/time is empty then means for all future (send back empty string)
         function objTrig() {
@@ -2047,9 +2039,9 @@
                 "trigChkInactive": $('#trigChkInactive').prop('checked').toString().trim()
             }];
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Events settings screen functions
+        //#region ---------------------------------------- Events settings screen functions
         function eventsScreenEnter() {
             loadNames("EVENTS")
             document.getElementById("editOptions").style.display = "inline";
@@ -2108,9 +2100,9 @@
             }];
         }
 
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Actions settings screen functions
+        //#region ---------------------------------------- Actions settings screen functions
         function actionsScreenEnter() {
             loadNames("ACTIONS")
             document.getElementById("editOptions").style.display = "inline";
@@ -2134,9 +2126,9 @@
                 "actionDelay": $('#actionDelay').val().trim()
             }];
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Transforms settings screen functions
+        //#region ---------------------------------------- Transforms settings screen functions
         function transformsScreenEnter() {
             loadNames("TRANSFUNCS")
             document.getElementById("editOptions").style.display = "inline";
@@ -2163,7 +2155,7 @@
                 "transFuncFunctions": transformSels
             }];
         }
-//#endregion
+        //#endregion
 
         //////////////////////////////////////////////////// Transform Functions
         // Start Value 22                                                       Starting value a numeric value for the operation (eg. 4.5)
@@ -2310,14 +2302,14 @@
             }
         }
 
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Store settings screen functions
+        //#region ---------------------------------------- Store settings screen functions
         function storeScreenEnter() {
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Programs settings screen functions
+        //#region ---------------------------------------- Programs settings screen functions
         function programsScreenEnter() {
             myCodeMirror.setValue("");
             loadNames("WIDGETS")
@@ -2367,19 +2359,19 @@
                 "programCode": myCodeMirror.getValue()
             }];
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Security settings screen functions
+        //#region ---------------------------------------- Security settings screen functions
         function securityScreenEnter() {
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Plugins settings screen functions
+        //#region ---------------------------------------- Plugins settings screen functions
         function pluginsScreenEnter() {
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Miscellaneous functions
+        //#region ---------------------------------------- Miscellaneous functions
         function togglePanel(toggle1, toggle2, icon) {
             $("." + toggle1).collapse("toggle")
             $("." + toggle2).collapse("toggle");
@@ -2597,7 +2589,7 @@
         function formatDateTime(JSDateTime, dateTime) {
             if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
             var convStr = JSDateTime.replace(/\u200E/g, "").trim();       // remove hidden unicode left-to-right mark
-            switch (dateTime.toUpperCase()) {                 
+            switch (dateTime.toUpperCase()) {
                 case "DATE":                                // assumes midnight
                     var splitDate = convStr.trim().split("/")
                     if (splitDate.length == 1) splitDate = convStr.trim().split("-");
@@ -2774,9 +2766,9 @@
             for (var i = 0; i < elements.length; i++) elements[i].innerHTML = val;
         }
 
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Data record edits
+        //#region ---------------------------------------- Data record edits
         function delRec() {
             parent.status("Processing delete...")
             switch (getActiveTab().toUpperCase()) {
@@ -2951,9 +2943,9 @@
                 default:
             }
         }
-//#endregion
+        //#endregion
 
-//#region ---------------------------------------- Networking functions
+        //#region ---------------------------------------- Networking functions
         function loadNames(tableName) {
             parent.send("AUTOMATION", "GET:NAMES(" + tableName + ")", tableName)
         }
@@ -2994,7 +2986,7 @@
                                         break;
                                     case "SCRIPTS":
                                         var myArr = JSON.parse(msg.Data)
-                                        myArr.unshift({"Name" : "None", "Desc" : ""})
+                                        myArr.unshift({ "Name": "None", "Desc": "" })
                                         popPulldown("actionScriptNameList", JSON.stringify(myArr), "Name", false)
                                         popPulldown("trigScriptNameList", JSON.stringify(myArr), "Name", false)
                                         break;
@@ -3100,7 +3092,7 @@
                                 var myAction = JSON.parse(msg.Data);
                                 $('#actionDesc').val(myAction[0].ActionDescription);
                                 if (myAction[0].ActionScript === "") pressBut("actionScriptName", "None")
-                                    else pressBut("actionScriptName", myAction[0].ActionScript);
+                                else pressBut("actionScriptName", myAction[0].ActionScript);
                                 $('#actionScriptParam').val(myAction[0].ActionScriptParam);
                                 pressBut("actionCategory", getCat(parseInt(myAction[0].ActionCategory)));
                                 if (myAction[0].ActionInstance === "" && myAction[0].ActionClass === "") $('#actionVal').text("None")
@@ -3116,7 +3108,7 @@
                                 var myTrig = JSON.parse(msg.Data);
                                 $('#trigDesc').val(myTrig[0].TrigDescription);
                                 if (myTrig[0].TrigScript === "") pressBut("trigScriptName", "None");
-                                    else pressBut("trigScriptName", myTrig[0].TrigScript);
+                                else pressBut("trigScriptName", myTrig[0].TrigScript);
                                 var trigFired = new Date(myTrig[0].TrigLastFired).toLocaleString().replace(/\u200E/g, "").trim();
                                 if (trigFired == "Invalid Date") trigFired = "never";
                                 var fromDate = new Date(myTrig[0].TrigDateFrom).toLocaleDateString().replace(/\u200E/g, "").trim();
@@ -3126,7 +3118,7 @@
                                 var fromTime = removeSec(myTrig[0].TrigTimeFrom);
                                 if (myTrig[0].TrigTimeFrom == "1970-01-01T00:00Z") fromTime = "";            // Unix epoch = no time
                                 var toTime = removeSec(myTrig[0].TrigTimeTo);
-                                if (myTrig[0].TrigTimeTo == "1970-01-01T00:00Z") toTime = "";            
+                                if (myTrig[0].TrigTimeTo == "1970-01-01T00:00Z") toTime = "";
                                 var timeOfDay = removeSec(myTrig[0].TrigTimeofDay);
                                 if (myTrig[0].TrigTimeofDay == "1970-01-01T00:00Z") timeOfDay = "";
 
@@ -3367,8 +3359,17 @@
                     //alert("Don't understand server message class: " + msg.ClassName + " scope: " + msg.Scope + " data: " + msg.Data)
             }
         }
-//#endregion
+        //#endregion
 
     </script>
+    <script defer src="js/jquery-3.1.0.slim.min.js"></script>
+    <script defer src="js/bootstrap.min.js"></script>
+    <script defer src="js/bootstrap-datetimepicker.min.js"></script>
+    <script defer src="js/vue.2.0.RC.js"></script>
+    <script defer src="js/FileSaver.min.js"></script>
+    <!--CodeMirror-->
+    <script defer src="js/codemirror.js"></script>
+    <script defer src="js/javascript.js"></script>
+    <script defer src="js/active-line.js"></script>
 </body>
 </html>

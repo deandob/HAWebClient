@@ -183,8 +183,21 @@
         </svg>
     </div>
 
-    <script src="../js/d3.min.js"></script>
+    <script src="../js/d3.rolled.min.js"></script>
     <script>
+        // packaging: https://tungs.github.io/browser-roller/d3Roller.html   use Globals, then minify
+        //d3-array.bisector,.max,.min,.range,.ticks,.extent
+        //d3-axis.axisBottom,.axisLeft,.axisRight (not used now)
+        //d3-collection.map (not used now)
+        //d3-drag.drag
+        //d3-interpolate.interpolate
+        //d3-path.path
+        //d3-scale.scaleTime,.scaleLinear
+        //d3-selection.select,.selection,.selectAll
+        //d3-shape.curvelinear,.curvestepafter,.curvestep,.curvemonotonex
+        //d3-transition.transition
+        //d3-zoom.zoom
+
         // Initialize widget framework API
         var fw;                                                                 // widget framework object
         function widgetLoad(myName) {
@@ -192,8 +205,9 @@
         }
 
         //TODO: buttons for different timescales (1 hour, 1 day, 1 month)
-        //// Widget specific functions
-        var zoomRect, gX, gYoldDomain, historyHrs, xAxis, yAxis, x, y, width, height, clipPath, title, yLabel, xLabel, bground, drag, tooltip, callout, ttTimeout, loaded = false;
+        var zoomRect, gX, gYoldDomain, historyHrs, xAxis, yAxis, x, y, width, height, clipPath, title, yLabel, xLabel, bground, drag, tooltip, callout, ttTimeout
+        var designing = false;
+        var loaded = false;
         var dsToLoad = 0;
         var maxVal = 1;
         var minVal = 0;
@@ -278,9 +292,9 @@
             return "OK";
         }
 
-        // Widget specific startup actions in design. Return "OK" if startup OK else return an error string
-        function designStart(mode) {
-            return dashStart();
+        // Widget specific startup actions when first created by dropping in design mode. Return "OK" if startup OK else return an error string
+        function newWidget(mode) {
+            return dashstart(mode);
         }
 
         // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
@@ -303,7 +317,8 @@
         
         function startDesign() {            // called when switching to design mode
             tooltip.style.setProperty("opacity", "0");
-            /////////////////zoom.x()            // disable zoom
+            designing = true;
+            //////////////zoom.x()            // disable zoom
             for (var i = 0; i < 5; i++) {
                 chart.select("#seriesLine" + i).remove()
                 chart.select("#seriesArea" + i).remove()
@@ -311,11 +326,77 @@
         }
 
         function endDesign() {              // called when switching from design mode
+            designing = false;
             ///////////////zoom.x(x)           // enable zoom
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
-            scaleChart(scaleX, scaleY);
+            width = fw.iniWidth * scaleX - margin.left - margin.right;
+            height = fw.iniHeight * scaleY - margin.top - margin.bottom;
+            fw.widgetID.width.baseVal.value = width;
+
+            if (fw.state === "toolbox") {
+                width = fw.iniWidth * scaleX;
+                height = fw.iniHeight * scaleY;
+            }
+
+            //windowPoints = width / POINTSfw.GAP    // number of points to display in the view window
+
+            clipPath
+                .attr("width", width)
+                .attr("height", height)
+
+            x
+                .domain([new Date(new Date().valueOf() - 1000 * 3600 * historyHrs), new Date])       // assumes seconds
+                .range([0, width])
+                .nice(d3.timeSecond);
+
+            oldDomain = x.domain();
+
+            y
+                .domain([minVal, maxVal])
+                .range([height, 0]);
+
+
+            xAxis
+                .scale(x)
+                //.tickFormat(d3.time.format("%H:%M.%S"))  
+                //.ticks(d3.time.seconds, 10)              
+                .tickSize(-height)
+                .ticks(7 * scaleX)                  // adjust number of ticks based on size of graph
+
+            yAxis
+                .scale(y)
+                .tickSize(-width);
+
+            title
+                .attr("x", width / 2)
+                .attr("y", 0 - (margin.top / 2))
+                .text(chartTitle);
+
+            yLabel
+                .text(yTitle)
+                .attr("transform", "rotate(-90, -40, 0) translate(-" + ((height / 2) + margin.top) + ")");
+
+            xLabel
+                .text(xTitle)
+                .attr("x", width / 2)
+                .attr("y", margin.bottom - 5);
+
+            bground
+                .attr("width", width)
+                .attr("height", height)
+
+            if (!designing) {    // NOT WORKING AS ALWAYS FALSE
+                /////////////////chart.call(zoom.x(x));      // enable x axis zoom
+                chart.call(x);
+                chart.call(drag);           // enable drag events
+            }
+
+            chart.selectAll(".x.axis").attr("transform", "translate(0," + height + ")").call(xAxis)
+            chart.selectAll(".y.axis").call(yAxis)
+
+            adjustLegend();
         }
 
         // Called from framework for incoming channel events
@@ -406,7 +487,7 @@
         // setup for tooltip hover
         var mouseTimer;
         function mouseMove(ev) {
-            if (!fw.designing && loaded) {
+            if (!designing && loaded) {
                 if (showTooltip === true) {
                     tooltipHover(ev)
                 } else {
@@ -472,77 +553,6 @@
             tooltip.removeEventListener("transitionend", fadeFinish, true);
         }
 
-        // Adjust all chart elements that have height or width settings
-        function scaleChart(scaleX, scaleY) {
-            width = fw.iniWidth * scaleX - margin.left - margin.right;
-            height = fw.iniHeight * scaleY - margin.top - margin.bottom;
-            fw.widgetID.width.baseVal.value = width;
-
-            if (fw.toolbox == true) {
-                width = fw.iniWidth * scaleX;
-                height = fw.iniHeight * scaleY;
-            }
-
-            //windowPoints = width / POINTSfw.GAP    // number of points to display in the view window
-
-            clipPath
-                .attr("width", width)
-                .attr("height", height)
-
-            x
-                .domain([new Date(new Date().valueOf() - 1000 * 3600 * historyHrs), new Date])       // assumes seconds
-                .range([0, width])
-                .nice(d3.timeSecond);
-
-            oldDomain = x.domain();
-
-            y
-                .domain([minVal, maxVal])
-                .range([height, 0]);
-
-
-            xAxis
-                .scale(x)
-                //.tickFormat(d3.time.format("%H:%M.%S"))  
-                //.ticks(d3.time.seconds, 10)              
-                .tickSize(-height)
-                .ticks(7 * scaleX)                  // adjust number of ticks based on size of graph
-
-            yAxis
-                .scale(y)
-                .tickSize(-width);
-
-            title
-                .attr("x", width / 2)
-                .attr("y", 0 - (margin.top / 2))
-                .text(chartTitle);
-
-            yLabel
-                .text(yTitle)
-                .attr("transform", "rotate(-90, -40, 0) translate(-" + ((height / 2) + margin.top) + ")");
-
-            xLabel
-                .text(xTitle)
-                .attr("x", width / 2)
-                .attr("y", margin.bottom - 5);
-
-            bground
-                .attr("width", width)
-                .attr("height", height)
-
-            if (fw.toolbox == false) {    // NOT WORKING AS ALWAYS FALSE
-                /////////////////chart.call(zoom.x(x));      // enable x axis zoom
-                chart.call(x);
-                chart.call(drag);           // enable drag events
-            }
-
-            chart.selectAll(".x.axis").attr("transform", "translate(0," + height + ")").call(xAxis)
-            chart.selectAll(".y.axis").call(yAxis)
-
-            adjustLegend();
-
-        }
-
         function adjustLegend() {
             if (typeof legend === 'undefined') return;
             legend.selectAll("rect").remove();
@@ -577,19 +587,19 @@
                         maxVal = +feedVal * 1.2;
                         y.domain([minVal, maxVal])
                         yAxis.scale(y)
-                        //////////////////if (fw.designing == false) zoomed()
+                        //////////////////if (!designing) zoomed()
                     }
                     if (+feedVal * 0.8 < minVal) {
                         minVal = +feedVal * 0.8;
                         y.domain([minVal, maxVal])
                         yAxis.scale(y)
-                        /////////////////if (fw.designing == false) zoomed()
+                        /////////////////if (!designing) zoomed()
                     }
 
                     series[i].data.push({ "x": new Date(), "y": +feedVal });
                     if (series[i].data.length >= MAXPOINTS) series[i].data.pop();       //remove the old value if array is too large
 
-                    if (fw.designing == false) {
+                    if (!designing) {
                         render(0, i);
                         //////////////////adjustZoom(series[i].data[series[i].data.length - 1].x);                 // slide graph to the show the new value
                     }
@@ -648,7 +658,7 @@
 
         // Zoom event
         function zoomed() {
-            if (fw.designing == false) {
+            if (!designing) {
                 var tt = xAxis.scale(d3.event.transform.rescaleX(x))
                 x.domain([x.domain()[0], oldDomain[1]])
                 x.domain(d3.extent(data, function (d) { return d.date; }));
@@ -724,7 +734,7 @@
         //TODO: smarter loads for back & forward
 
         function stop_drag() {
-            if (!fw.designing) {
+            if (!designing) {
                 chart.style("cursor", "default");
                 checkLoadMore();
             }
