@@ -119,16 +119,6 @@ a.nounderline
     overflow-x:hidden;
     box-shadow:3px 3px 7px 3px rgb(220, 220, 220);
 }
-.toolboxScroll {
-    top: 100px; 
-    bottom: 5px;
-    width: 130px;
-    position: absolute; 
-    left: 5px; 
-    transition: left 0.5s ease-out; 
-    overflow-y:scroll; 
-    overflow-x:hidden;
-}
 
 .checkbox {
     margin-left: 20px;
@@ -175,7 +165,7 @@ a.nounderline
 
 /*Changed margin-right from -1px to -2px as IE has a bug that shows a line through the active tab if -1px*/
 .tabs-left > .nav-tabs > li > a {
-  margin-right: -1px;
+  margin-right: -2px;
   -webkit-border-radius: 4px 0 0 4px;
      -moz-border-radius: 4px 0 0 4px;
           border-radius: 4px 0 0 4px;

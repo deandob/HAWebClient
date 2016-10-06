@@ -45,6 +45,7 @@
             border: 3px solid #fbeed5;
             color: #fbeed5;
         }
+
         .yellowSlider {
             background-color: #fbeed5;
         }
@@ -53,6 +54,7 @@
             border: 3px solid #e3e3e3;
             color: #e3e3e3;
         }
+
         .whiteSlider {
             background-color: #e3e3e3;
         }
@@ -61,6 +63,7 @@
             border: 3px solid #e3e3e3;
             color: #e3e3e3;
         }
+
         .greySlider {
             background-color: #e3e3e3;
         }
@@ -69,6 +72,7 @@
             border: 3px solid #bce8f1;
             color: #e3e3e3;
         }
+
         .blueSlider {
             background-color: #e3e3e3;
         }
@@ -77,6 +81,7 @@
             border: 3px solid #b94a48;
             color: #b94a48;
         }
+
         .redSlider {
             background-color: #b94a48;
         }
@@ -85,13 +90,13 @@
             border: 3px solid #b6c9a6;
             color: #b6c9a6;
         }
+
         .greenSlider {
             background-color: #b6c9a6;
         }
-
     </style>
 
-    <span id="TBtooltip" data-default="ON/OFF Toggle channel"  />
+    <span id="TBtooltip" data-default="ON/OFF Toggle channel" />
     <span id="attrib0" data-type="channel" data-name="Channel" data-default="" />
     <span id="attrib1" data-type="dropdown" data-name="grey, green, red, yellow, blue, white" data-default="red" />
     <span id="attrib2" data-type="input" data-name="Tooltip" data-default="" />
@@ -148,9 +153,6 @@
         function startDesign() {            // called when switching to design mode
         }
 
-        function endDesign() {            // called when switching to design mode
-        }
-
         function scale(scaleX, scaleY) {    // manage scaling
             fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 6) + "px");             // compensate for border
             fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY) - 6 + "px");
@@ -181,7 +183,7 @@
             switch (scope.toLowerCase()) {
                 case "value":                     // current state when starting
                     if (parseInt(data) > 0) slider.style.setProperty("left", parseInt(fw.widgetID.style.getPropertyValue("width")) / 2 + 2 + "px");
-                        else slider.style.setProperty("left", "4px");
+                    else slider.style.setProperty("left", "4px");
                     break;
             }
         }

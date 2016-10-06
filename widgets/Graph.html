@@ -72,10 +72,10 @@
     <span id="attrib19" data-type="dropdown" data-name="Linear, StepAfter, Step, MonotoneX, Moving Average" data-default="Linear" />
     <span id="ontop" data-default="true" />
 
-        <div id="callout" class="triangle" style="position: absolute; left: -200px; top:0px; z-index: 101; opacity: 1; transition: opacity 0.15s ease-in-out 0.15s"></div>
-        <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 0.8; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.15s ease-in-out 0.15s">Loading...</div>
+    <div id="callout" class="triangle" style="position: absolute; left: -200px; top:0px; z-index: 101; opacity: 1; transition: opacity 0.15s ease-in-out 0.15s"></div>
+    <div id="tooltip" class="tooltip" style="position: absolute; left: 50%; top: 50%; z-index: 100; opacity: 0.8; text-align: center; border-radius: 3px; box-shadow: 4px 4px 6px #cccccc; padding: 5px 4px; transition: opacity 0.15s ease-in-out 0.15s">Loading...</div>
 
-        
+
     <div id="group">
         <svg id="widget" width="500" height="500" style="position: absolute; left: 0px; top: 0px;">
             <style type="text/css">
@@ -206,7 +206,6 @@
 
         //TODO: buttons for different timescales (1 hour, 1 day, 1 month)
         var zoomRect, gX, gYoldDomain, historyHrs, xAxis, yAxis, x, y, width, height, clipPath, title, yLabel, xLabel, bground, drag, tooltip, callout, ttTimeout
-        var designing = false;
         var loaded = false;
         var dsToLoad = 0;
         var maxVal = 1;
@@ -314,20 +313,14 @@
 
         function endEdit() {                // called when editing finishes
         }
-        
+
         function startDesign() {            // called when switching to design mode
             tooltip.style.setProperty("opacity", "0");
-            designing = true;
             //////////////zoom.x()            // disable zoom
             for (var i = 0; i < 5; i++) {
                 chart.select("#seriesLine" + i).remove()
                 chart.select("#seriesArea" + i).remove()
             }
-        }
-
-        function endDesign() {              // called when switching from design mode
-            designing = false;
-            ///////////////zoom.x(x)           // enable zoom
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
@@ -360,8 +353,8 @@
 
             xAxis
                 .scale(x)
-                //.tickFormat(d3.time.format("%H:%M.%S"))  
-                //.ticks(d3.time.seconds, 10)              
+                //.tickFormat(d3.time.format("%H:%M.%S"))
+                //.ticks(d3.time.seconds, 10)
                 .tickSize(-height)
                 .ticks(7 * scaleX)                  // adjust number of ticks based on size of graph
 
@@ -387,7 +380,7 @@
                 .attr("width", width)
                 .attr("height", height)
 
-            if (!designing) {    // NOT WORKING AS ALWAYS FALSE
+            if (fw.state === "dashboard") {    // NOT WORKING AS ALWAYS FALSE
                 /////////////////chart.call(zoom.x(x));      // enable x axis zoom
                 chart.call(x);
                 chart.call(drag);           // enable drag events
@@ -404,12 +397,12 @@
             return processFeed(channel, data);              // current values
         }
 
-        // Called from framework for initial channel status 
+        // Called from framework for initial channel status
         function ini(channel, scope, data) {
             return;
         }
 
-        // Result set in JSON of any channel history request 
+        // Result set in JSON of any channel history request
         function history(channel, scope, data) {
             load(channel, data);
         }
@@ -466,7 +459,7 @@
             .attr("class", "label")
             .attr("text-anchor", "middle");
 
-        var legend; 
+        var legend;
 
         // Setup data array
         var series = [];
@@ -487,19 +480,19 @@
         // setup for tooltip hover
         var mouseTimer;
         function mouseMove(ev) {
-            if (!designing && loaded) {
+            if (fw.state !== "design" && loaded) {
                 if (showTooltip === true) {
                     tooltipHover(ev)
                 } else {
                     clearTimeout(mouseTimer);
                     mouseTimer = setTimeout(tooltipHover, 1500, ev);
                 }
-            } 
+            }
         }
 
         // Show tooltip when hovering over line
         var showTooltip = false;
-        var seriesIndex;                 
+        var seriesIndex;
         var bisectDate = d3.bisector(function (d) { return d.x; }).left
         function tooltipHover(ev) {
             var x0 = x.invert(ev.clientX - 57);
@@ -587,19 +580,19 @@
                         maxVal = +feedVal * 1.2;
                         y.domain([minVal, maxVal])
                         yAxis.scale(y)
-                        //////////////////if (!designing) zoomed()
+                        if (fw.state !== "design") zoomed()
                     }
                     if (+feedVal * 0.8 < minVal) {
                         minVal = +feedVal * 0.8;
                         y.domain([minVal, maxVal])
                         yAxis.scale(y)
-                        /////////////////if (!designing) zoomed()
+                        if (fw.state !== "design") zoomed()
                     }
 
                     series[i].data.push({ "x": new Date(), "y": +feedVal });
                     if (series[i].data.length >= MAXPOINTS) series[i].data.pop();       //remove the old value if array is too large
 
-                    if (!designing) {
+                    if (fw.state !== "design") {
                         render(0, i);
                         //////////////////adjustZoom(series[i].data[series[i].data.length - 1].x);                 // slide graph to the show the new value
                     }
@@ -620,7 +613,7 @@
                             var JSTime = new Date((rec[0] - 621355968000000000) / 10000)         // Convert from .NET Date to JS Date by subtracting UnixEpoc and dividing by PC ticks
                             series[i].data.unshift({ "x": JSTime, "y": +rec[1] })
                             //TODO: Only works if scrolling backwards, lose recent records if array is too big and not repopulated
-                            
+
                             if (series[i].data.length >= MAXPOINTS) series[i].data.pop();       //remove the old value if array is too large
                         }
                         if (d3.max(series[i].data, function (d) { return d.y }) > maxVal) maxVal = d3.max(series[i].data, function (d) { return d.y })
@@ -658,7 +651,7 @@
 
         // Zoom event
         function zoomed() {
-            if (!designing) {
+            if (fw.state !== "design") {
                 var tt = xAxis.scale(d3.event.transform.rescaleX(x))
                 x.domain([x.domain()[0], oldDomain[1]])
                 x.domain(d3.extent(data, function (d) { return d.date; }));
@@ -734,7 +727,7 @@
         //TODO: smarter loads for back & forward
 
         function stop_drag() {
-            if (!designing) {
+            if (fw.state !== "design") {
                 chart.style("cursor", "default");
                 checkLoadMore();
             }

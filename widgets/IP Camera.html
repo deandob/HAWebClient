@@ -50,7 +50,6 @@
             stroke: #D0D0D0;
             stroke-opacity: 0.3;
         }
-
     </style>
 
     <span id="TBtooltip" data-default="View live and recorded camera video" />
@@ -291,13 +290,6 @@
             drawAllMasks()
         }
 
-        function endDesign() {
-            var svgs = document.getElementsByClassName("masks")
-            for (var svg = svgs.length - 1; svg >= 0; svg--) svgs[svg].parentNode.removeChild(svgs[svg]);       // remove SVG masks from the bottom of the DOM
-            fw.widgetID.play()
-            zoom.x(x)           // enable zoom
-        }
-
         function scale(scaleX, scaleY) {    // manage scaling
             fw.widgetID.setAttribute("width", fw.iniWidth * scaleX);              // scale the video object
             fw.widgetID.setAttribute("height", fw.iniHeight * scaleY);
@@ -325,8 +317,8 @@
             xAxis
                 .scale(x)
                 .orient("bottom")
-                //.tickFormat(d3.time.format("%H:%M.%S"))  
-                //.ticks(d3.time.seconds, 10)              
+                //.tickFormat(d3.time.format("%H:%M.%S"))
+                //.ticks(d3.time.seconds, 10)
                 .tickSize(-10);
 
             bground
@@ -351,16 +343,16 @@
 
         // Setup and manage masks. Click and drag to create a new mask, click inside an existing mask to delete it
         function designClicked(event) {                // User clicks widget in design mode to set frame
-                for (var msk in masks) {       // If clicked within an existing mask, delete that mask
-                    if (event.clientX > (masks[msk].x1 * imgWidth) && event.clientX < (masks[msk].x2 * imgWidth) && event.clientY > (masks[msk].y1 * imgHeight) && event.clientY < (masks[msk].y2 * imgHeight)) {
-                        document.getElementById("mask" + msk).parentNode.removeChild(document.getElementById("mask" + msk));      // Remove SVG & adjust SVG mask IDs and mask array
-                        masks.splice(msk, 1)       // remove from masks array
-                        for (var maskLeft = parseInt(msk) + 1; maskLeft <= masks.length; maskLeft++) document.getElementById("mask" + maskLeft).setAttribute("id", "mask" + (maskLeft - 1))
-                        fw.channelSend(channelName, "mask", JSON.stringify(masks))
-                        return;
-                    }
+            for (var msk in masks) {       // If clicked within an existing mask, delete that mask
+                if (event.clientX > (masks[msk].x1 * imgWidth) && event.clientX < (masks[msk].x2 * imgWidth) && event.clientY > (masks[msk].y1 * imgHeight) && event.clientY < (masks[msk].y2 * imgHeight)) {
+                    document.getElementById("mask" + msk).parentNode.removeChild(document.getElementById("mask" + msk));      // Remove SVG & adjust SVG mask IDs and mask array
+                    masks.splice(msk, 1)       // remove from masks array
+                    for (var maskLeft = parseInt(msk) + 1; maskLeft <= masks.length; maskLeft++) document.getElementById("mask" + maskLeft).setAttribute("id", "mask" + (maskLeft - 1))
+                    fw.channelSend(channelName, "mask", JSON.stringify(masks))
+                    return;
                 }
             }
+        }
 
         function mouseMove(event) {
             mouseCurrX = event.clientX;
@@ -580,29 +572,29 @@
             }
         }
         //function playbackFailed(e) {
-            //    // video playback failed - show a message saying why
-            //    //switch (e.target.error.code) {
-            //    if (widgetID.error !== null) {
-            //        switch (widgetID.error.code) {
-            //            case widgetID.error.MEDIA_ERR_ABORTED:
-            //                alert('You aborted the video playback.');
-            //                break;
-            //            case widgetID.error.MEDIA_ERR_NETWORK:
-            //                alert('A network error caused the video download to fail part-way.');
-            //                break;
-            //            case widgetID.error.MEDIA_ERR_DECODE:
-            //                alert('The video playback was aborted due to a corruption problem or because the video used features your browser did not support.');
-            //                break;
-            //            case widgetID.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-            //                alert('The video could not be loaded, either because the server or network failed or because the format is not supported.');
-            //                break;
-            //            default:
-            //                alert('An unknown error occurred.');
-            //                break;
-            //        }
-            //    } else { alert('null'); }
+        //    // video playback failed - show a message saying why
+        //    //switch (e.target.error.code) {
+        //    if (widgetID.error !== null) {
+        //        switch (widgetID.error.code) {
+        //            case widgetID.error.MEDIA_ERR_ABORTED:
+        //                alert('You aborted the video playback.');
+        //                break;
+        //            case widgetID.error.MEDIA_ERR_NETWORK:
+        //                alert('A network error caused the video download to fail part-way.');
+        //                break;
+        //            case widgetID.error.MEDIA_ERR_DECODE:
+        //                alert('The video playback was aborted due to a corruption problem or because the video used features your browser did not support.');
+        //                break;
+        //            case widgetID.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
+        //                alert('The video could not be loaded, either because the server or network failed or because the format is not supported.');
+        //                break;
+        //            default:
+        //                alert('An unknown error occurred.');
+        //                break;
+        //        }
+        //    } else { alert('null'); }
 
-            //}
+        //}
     </script>
 </body>
 </html>

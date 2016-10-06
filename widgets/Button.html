@@ -43,6 +43,7 @@
             background-color: #fcf8e3;
             color: #c09853;
         }
+
             .yellow:hover {
                 border: 2px solid #f3e6cd;
                 background-color: #f4f0dd;
@@ -54,6 +55,7 @@
             background-color: #ffffff;
             color: #999;
         }
+
             .white:hover {
                 border: 2px solid #dbdbdb;
                 background-color: #f5f5f5;
@@ -65,6 +67,7 @@
             background-color: #f5f5f5;
             color: #999;
         }
+
             .grey:hover {
                 border: 2px solid #d0d0d0;
                 background-color: #e5e5e5;
@@ -76,6 +79,7 @@
             background-color: #d1e5ef;
             color: #3a87ad;
         }
+
             .blue:hover {
                 border: 2px solid #b4e0ea;
                 background-color: #d9edf7;
@@ -87,6 +91,7 @@
             background-color: #f2dede;
             color: #b94a48;
         }
+
             .red:hover {
                 border: 2px solid #e6cdcf;
                 background-color: #eed6d6;
@@ -98,6 +103,7 @@
             background-color: #dff0d8;
             color: #468847;
         }
+
             .green:hover {
                 border: 2px solid #cee2be;
                 background-color: #cfe0c8;
@@ -107,6 +113,7 @@
         .btnShadow {
             box-shadow: 4px 4px 6px #cccccc;
         }
+
             .btnShadow:active {
                 position: absolute;
                 margin-left: 1px;
@@ -117,6 +124,7 @@
         .btnNoShadow {
             box-shadow: none;
         }
+
             .btnNoShadow:active {
                 position: absolute;
                 margin-left: 1px;
@@ -143,7 +151,7 @@
 
     <script>
         // Initialize widget framework API
-        var fw;                                                                 
+        var fw;
         function widgetLoad(myName) {
             fw = new parent.widgetAPI(myName);                                  // widget framework object
         }
@@ -180,10 +188,6 @@
         function startDesign() {            // called when switching to design mode
             fw.widgetID.contentEditable = "true"
             fw.widgetID.className = fw.widgetID.className.replace(" noSelect", "")
-        }
-
-        function endDesign() {            // called when switching to design mode
-            fw.widgetID.contentEditable = "false"
         }
 
         function scale(scaleX, scaleY) {    // manage scaling

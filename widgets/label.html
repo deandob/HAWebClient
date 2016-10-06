@@ -111,11 +111,13 @@
             color: #777777;
             display: inline-block;
         }
+
             .buttonStyle:hover {
                 background: -webkit-gradient( linear, left top, left bottom, color-stop(5%, #dfdfdf), color-stop(100%, #ededed) );
                 background: -ms-linear-gradient( top, #dfdfdf 5%, #ededed 100% );
                 background-color: #dfdfdf;
             }
+
             .buttonStyle:active {
                 position: relative;
                 top: 1px;
@@ -209,17 +211,12 @@
             fw.func("setAttrib", 0, fw.widgetID.innerHTML);         // save
             fw.widgetID.setAttribute("class", "noSelect");
             //fw.func("setTooltip", "")
-            widgetStart();
+            dashStart();
         }
 
         function startDesign() {            // called when switching to design mode
             fw.widgetID.contentEditable = "true";
             fw.widgetID.innerHTML = fw.attribs[0].value;
-        }
-
-        function endDesign() {            // called when switching to design mode
-            fw.widgetID.contentEditable = "false";
-            setText(fw.widgetID.innerHTML, oldChVal);
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
@@ -239,7 +236,7 @@
             setText(fw.attribs[0].value, data);
         }
 
-        // Called from framework for initial channel status 
+        // Called from framework for initial channel status
         function ini(channel, scope, data) {
             feed(channel, scope, data);
         }

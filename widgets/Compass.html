@@ -4,11 +4,11 @@
     <title>Compass Widget</title>
 </head>
 <body id="body">
-    <style > 
+    <style>
         body {
             overflow: hidden;
         }
-    </style >
+    </style>
 
     <span id="TBtooltip" data-default="Current and Average Wind Direction" />
     <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
@@ -99,9 +99,6 @@
         function startDesign() {                    // called when switching to design mode
         }
 
-        function endDesign() {                      // called when switching to design mode
-        }
-
         // Called from framework for incoming channel events
         function feed(channel, scope, data) {
             if (channel === fw.attribs[0].value.split("/")[2]) return rotateDial(data);
@@ -110,7 +107,7 @@
 
         function endEdit(param0) {                                  // called when editing finishes
             if (fw.attribs[1].value !== "") document.getElementById("svgAvg").style.setProperty("display", "inline")
-                else document.getElementById("svgAvg").style.setProperty("display", "none")                             // Only display average marker if channel is set
+            else document.getElementById("svgAvg").style.setProperty("display", "none")                             // Only display average marker if channel is set
         }
 
         // Called from framework for initial channel status

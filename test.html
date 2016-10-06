@@ -107,7 +107,7 @@
         var _widgetName = document.getElementById("widget").getAttribute("data-test");
         //parent.widgetTest();
 
-        function toolboxStart() {           // called when loaded in toolbox
+        function toolStart() {           // called when loaded in toolbox
             _widgetID.style.setProperty("width", parseInt(_widgetID.style.getPropertyValue("width")) + "px");              // fill toolbox width (no 3D border needed)
             _widgetID.style.setProperty("height", parseInt(_widgetID.style.getPropertyValue("width")) + "px");
         }
@@ -124,10 +124,6 @@
 
         function startDesign() {            // called when switching to design mode
             header.contentEditable = "true"
-        }
-
-        function endDesign() {            // called when switching to design mode
-            header.contentEditable = "false"
         }
 
         function scale(scaleX, scaleY) {    // manage scaling

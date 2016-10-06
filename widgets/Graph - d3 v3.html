@@ -265,10 +265,6 @@
             }
         }
 
-        function endDesign() {              // called when switching from design mode
-            zoom.x(x)           // enable zoom
-        }
-
         function scale(scaleX, scaleY) {    // manage scaling
             scaleChart(scaleX, scaleY);
         }
@@ -370,7 +366,7 @@
         // setup for tooltip hover
         var mouseTimer;
         function mouseMove(ev) {
-            if (!_designing && loaded) {
+            if (fw.state !== "design" && loaded) {
                 if (showTooltip === true) {
                     tooltipHover(ev)
                 } else {
@@ -442,7 +438,7 @@
             height = fw.iniHeight * scaleY - margin.top - margin.bottom;
             fw.widgetID.width.baseVal.value = width;
 
-            if (_toolbox == true) {
+            if (fw.state == "toolbox") {
                 width = fw.iniWidth * scaleX;
                 height = fw.iniHeight * scaleY;
             }
@@ -496,7 +492,7 @@
                 .attr("width", width)
                 .attr("height", height)
 
-            if (_toolbox == false) {
+            if (fw.state !== "toolbox") {
                 chart.call(zoom.x(x));      // enable x axis zoom
                 chart.call(drag);           // enable drag events
             }
@@ -541,19 +537,19 @@
                         maxVal = +feedVal * 1.2;
                         y.domain([minVal, maxVal])
                         yAxis.scale(y)
-                        if (_designing == false) zoomed()
+                        if (fw.state !== "design" == false) zoomed()
                     }
                     if (+feedVal * 0.8 < minVal) {
                         minVal = +feedVal * 0.8;
                         y.domain([minVal, maxVal])
                         yAxis.scale(y)
-                        if (_designing == false) zoomed()
+                        if (fw.state !== "design" == false) zoomed()
                     }
 
                     series[i].data.push({ "x": new Date(), "y": +feedVal });
                     if (series[i].data.length >= MAXPOINTS) series[i].data.pop();       //remove the old value if array is too large
 
-                    if (_designing == false) {
+                    if (fw.state !== "design" == false) {
                         render(0, i);
                         adjustZoom(series[i].data[series[i].data.length - 1].x);                 // slide graph to the show the new value
                     }
@@ -608,7 +604,7 @@
 
         // Zoom event
         function zoomed() {
-            if (_designing == false) {
+            if (fw.state !== "design") {
                 chart.select(".y.axis").call(yAxis);
                 if (x.domain()[1].valueOf() > Date.now()) {                // dont allow panning into the future
                     if (oldDomain[1] - oldDomain[0] !== x.domain()[1] - x.domain()[0]) {
@@ -679,7 +675,7 @@
         //TODO: smarter loads for back & forward
 
         function stop_drag() {
-            if (!_designing) {
+            if (fw.state !== "design") {
                 chart.style("cursor", "default");
                 checkLoadMore();
             }

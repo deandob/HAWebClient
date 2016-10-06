@@ -48,7 +48,6 @@
             stroke: #808080;
             stroke-opacity: 0.3;
         }
-
     </style>
 
     <span id="TBtooltip" data-default="View events on a timeline" />
@@ -106,11 +105,7 @@
             zoom.x()            // disable zoom
         }
 
-        function endDesign() {
-            zoom.x(x)           // enable zoom
-        }
-
-        // Result set in JSON of any channel history request 
+        // Result set in JSON of any channel history request
         function history(channel, scope, data) {
             processFeed(channel, data);
         }
@@ -119,7 +114,7 @@
             return processFeed(channel, data);              // current values
         }
 
-        // Called from framework for initial channel status 
+        // Called from framework for initial channel status
         function ini(channel, scope, data) {
             return;
         }
@@ -138,8 +133,8 @@
             xAxis
                 .scale(x)
                 .orient("bottom")
-                //.tickFormat(d3.time.format("%H:%M.%S"))  
-                //.ticks(d3.time.seconds, 10)              
+                //.tickFormat(d3.time.format("%H:%M.%S"))
+                //.ticks(d3.time.seconds, 10)
                 .ticks(3.5 * scaleX)                  // adjust number of ticks based on size of graph
 
             bground
@@ -194,9 +189,9 @@
         title = chart.append("text")
             .attr("class", "title")
             .attr("text-anchor", "middle")
-     
+
         // track current time on timeline
-        currTime.push(new Date())                           
+        currTime.push(new Date())
         chart.selectAll("circle.currtime")
             .data(currTime)
             .enter()

@@ -4,20 +4,31 @@
     <title>Wind Speed Widget</title>
 </head>
 <body id="body">
-    <style > 
+    <style>
         body {
             overflow: hidden;
         }
-@keyframes startrot {
-    from {transform: rotate(0deg);}
-    to   {transform: rotate(359deg);}
-}
-@keyframes controt {
-    from {transform: rotate(0deg);}
-    to   {transform: rotate(359deg);}
-}
 
-    </style >
+        @keyframes startrot {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(359deg);
+            }
+        }
+
+        @keyframes controt {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(359deg);
+            }
+        }
+    </style>
 
     <span id="TBtooltip" data-default="Current and Average Wind Speed" />
     <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
@@ -42,18 +53,18 @@
 
                 </g>
                 <g id="scale">
-                    <circle r="5" cy="42" cx="50" fill="rgb(100, 100, 100)"  />
-                    <path id="TBBlades1" d="m54,38q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" fill="rgb(200, 200, 200)"/>
-                    <path id="TBBlades2" d="m74,72q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" transform="rotate(120 70 53)" fill="rgb(200, 200, 200)"/>
-                    <path id="TBBlades3" d="m34,72q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" transform="rotate(-120 30 53)" fill="rgb(200, 200, 200)"/>
+                    <circle r="5" cy="42" cx="50" fill="rgb(100, 100, 100)" />
+                    <path id="TBBlades1" d="m54,38q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" fill="rgb(200, 200, 200)" />
+                    <path id="TBBlades2" d="m74,72q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" transform="rotate(120 70 53)" fill="rgb(200, 200, 200)" />
+                    <path id="TBBlades3" d="m34,72q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" transform="rotate(-120 30 53)" fill="rgb(200, 200, 200)" />
                     <path id="tower" d="m54,48l3,47c0,0 -2,3 -7,3c-5,0 -7,-3 -7,-3l3,-47c1,0.5 2.5,0.5 4,1c1,0 3,0 4,-1z" fill="rgb(100, 100, 100)" />
                 </g>
             </g>
         </svg>
         <svg id="blades" style="position: absolute; left: 0px; top: 0px; z-index:3; transform-origin: 50px 42px">
-            <path d="m54,38q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" fill="rgb(200, 200, 200)" id="blade1"/>
-            <path d="m74,72q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" transform="rotate(120 70 53)" fill="rgb(200, 200, 200)" id="blade2"/>
-            <path d="m34,72q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" transform="rotate(-120 30 53)" fill="rgb(200, 200, 200)" id="blade3"/>
+            <path d="m54,38q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" fill="rgb(200, 200, 200)" id="blade1" />
+            <path d="m74,72q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" transform="rotate(120 70 53)" fill="rgb(200, 200, 200)" id="blade2" />
+            <path d="m34,72q3,-10 -3,-37q-1,-1 -2,0q-6,27 -3,37q4,-3 8,0" transform="rotate(-120 30 53)" fill="rgb(200, 200, 200)" id="blade3" />
         </svg>
     </div>
 
@@ -135,10 +146,6 @@
 
         function startDesign() {                    // called when switching to design mode
             bladesID.style.setProperty("animation-play-state", "paused")
-        }
-
-        function endDesign() {                      // called when switching to design mode
-            bladesID.style.setProperty("animation-play-state", "running")
         }
 
         // Called from framework for incoming channel events

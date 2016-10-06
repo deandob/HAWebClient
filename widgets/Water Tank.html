@@ -14,14 +14,14 @@
     <span id="TBtooltip" data-default="Water Tank Level" />
     <span id="ontop" data-default="true" />
 
-    <div id="group" >
+    <div id="group">
         <svg id="widget" width="100" height="100" style="position: absolute; left: 0px; top: 0px; z-index:4">
             <g id="svgGroup" style="position: absolute; left: 0px; top: 0px;">
                 <g id="noScale">
                 </g>
                 <g id="scale">
                     <ellipse ry="6.27954" rx="40.733" cy="88.134" cx="50.267" stroke-width="0" stroke="#4796e5" fill="#4796e5" />
-                    <rect height="77.1728" width="96.9383" y="9.7538" x="1.56271" stroke-opacity="0" stroke="#000000" fill-opacity="0.2" fill="#000000"/>
+                    <rect height="77.1728" width="96.9383" y="9.7538" x="1.56271" stroke-opacity="0" stroke="#000000" fill-opacity="0.2" fill="#000000" />
                     <path d="m2,87c0,15 96,15 96,0" stroke="#4c4c4c" fill-opacity="0.2" fill="#000000" />
                     <path d="m2,74c0,15 96,15 96,0" stroke="#4c4c4c" fill="transparent" />
                     <path d="m2,61c0,15 96,15 96,0" stroke="#4c4c4c" fill="transparent" />
@@ -33,7 +33,7 @@
                         <line y2="46.0464" x2="99.0101" y1="47.9107" x1="98.2983" stroke="#4c4c4c" fill="none" />
                     </g>
                     <g>
-                        <line y2="50.6209" x2="99.0351" y1="48.4852" x1="98.324" stroke="#4c4c4c" fill="none"/>
+                        <line y2="50.6209" x2="99.0351" y1="48.4852" x1="98.324" stroke="#4c4c4c" fill="none" />
                         <line y2="59.96" x2="99.0091" y1="50.3093" x1="99.0091" stroke="#4c4c4c" fill="none" />
                         <line y2="59.6209" x2="99.0351" y1="61.4852" x1="98.324" stroke="#4c4c4c" fill="none" />
                     </g>
@@ -89,7 +89,7 @@
                         <line y2="85.9845" x2="2.29536" y1="76.3338" x1="2.29536" stroke="#4c4c4c" fill="none" />
                         <line y2="85.6454" x2="2.32137" y1="87.5097" x1="1.60936" stroke="#4c4c4c" fill="none" />
                     </g>
-                    <path d="m1.99704,2.60239c0,9.8366 96.21108,9.8366 96.21108,0" transform="rotate(179.75 50.1026 6.29112)" stroke="#4c4c4c" fill-opacity="0.2" fill="#000000"/>                                      
+                    <path d="m1.99704,2.60239c0,9.8366 96.21108,9.8366 96.21108,0" transform="rotate(179.75 50.1026 6.29112)" stroke="#4c4c4c" fill-opacity="0.2" fill="#000000" />
                 </g>
             </g>
         </svg>
@@ -151,15 +151,11 @@
             return true;
         }
 
-        function endDesign() {                                  // called when switching from design mode
-            return true;
-        }
-
         function clicked() {
             //adjustLevel(80);
         }
 
-        function toolboxStart() {           // called when loaded in toolbox
+        function toolStart() {           // called when loaded in toolbox
         }
 
         function scale(scaleX, scaleY) {                        // manage scaling
@@ -195,9 +191,9 @@
             if (oldVal !== newVal) {
                 var ratio = +newVal * 0.76;
 
-                numID.textContent = newVal.toString() + "%";                 
+                numID.textContent = newVal.toString() + "%";
                 numID.setAttribute("x", (document.getElementById("widget").clientWidth / 2 - numID.getBBox().width / 2));       // Adjust number to be center
-                
+
                 waterell.style.setProperty('transition', 'top ' + Math.abs(+newVal - oldVal) / 77 + 's cubic-bezier(0.44, 0, 0.68, 1.20)');
                 waterrec.style.setProperty('transition', 'height ' + Math.abs(+newVal - oldVal) / 77 + 's cubic-bezier(0.44, 0, 0.68, 1.20), top ' + Math.abs(+newVal - oldVal) / 77 + 's cubic-bezier(0.44, 0, 0.68, 1.20)');
                 waterell.style.setProperty("top", (-1 * ratio * fw.scaleY) + "px");              // range max: 9 , min: 86
@@ -208,6 +204,6 @@
             }
         }
 
-</script>
+    </script>
 </body>
 </html>

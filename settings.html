@@ -1695,6 +1695,7 @@
                     }
                 }
             });
+            setPickers();
         }
 
         function objQuery() {
@@ -1953,8 +1954,9 @@
 
         //#region ---------------------------------------- Triggers settings screen functions
         function triggersScreenEnter() {
-            loadNames("TRIGGERS")
+            loadNames("TRIGGERS");
             document.getElementById("editOptions").style.display = "inline";
+            setPickers();
         }
 
         // Radio behaviour for time intervals (fortnightly will imply monthly)
@@ -2043,8 +2045,9 @@
 
         //#region ---------------------------------------- Events settings screen functions
         function eventsScreenEnter() {
-            loadNames("EVENTS")
+            loadNames("EVENTS");
             document.getElementById("editOptions").style.display = "inline";
+            setPickers();
         }
 
         // Delete the selected event item
@@ -2130,8 +2133,9 @@
 
         //#region ---------------------------------------- Transforms settings screen functions
         function transformsScreenEnter() {
-            loadNames("TRANSFUNCS")
+            loadNames("TRANSFUNCS");
             document.getElementById("editOptions").style.display = "inline";
+            setPickers();
         }
 
         // Populate the Transform object from fields
@@ -2657,69 +2661,6 @@
             $(".tip").tooltip({ delay: { show: parent.tooltipDelay } });
         }
 
-        // setup datetime pickers
-        $(function () {
-            $('#dtpQueryFromTime').datetimepicker({
-                language: 'en',
-                pickDate: false,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpQueryToTime').datetimepicker({
-                language: 'en',
-                pickDate: false,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpQueryFromDate').datetimepicker({
-                language: 'en',
-                pickTime: false
-            });
-            $('#dtpQueryToDate').datetimepicker({
-                language: 'en',
-                pickTime: false
-            });
-
-            $('#dtpFromDate').datetimepicker({
-                language: 'en',
-                pickTime: false
-            });
-            $('#dtpFromTime').datetimepicker({
-                language: 'en',
-                pickDate: false,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpToDate').datetimepicker({
-                language: 'en',
-                pickTime: false
-            });
-            $('#dtpToTime').datetimepicker({
-                language: 'en',
-                pickDate: false,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpTimeofDay').datetimepicker({
-                language: 'en',
-                pickDate: false,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpEventFrom').datetimepicker({
-                language: 'en',
-                pickDate: true,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-            $('#dtpEventTo').datetimepicker({
-                language: 'en',
-                pickDate: true,
-                pick12HourFormat: true,
-                pickSeconds: false
-            });
-        });
-
         // Clear all fields
         function clearRecs() {
             clearRecVal("textInput", "");
@@ -2766,6 +2707,68 @@
             for (var i = 0; i < elements.length; i++) elements[i].innerHTML = val;
         }
 
+        // setup datetime pickers
+        function setPickers() {
+                $('#dtpQueryFromTime').datetimepicker({
+                    language: 'en',
+                    pickDate: false,
+                    pick12HourFormat: true,
+                    pickSeconds: false
+                });
+                $('#dtpQueryToTime').datetimepicker({
+                    language: 'en',
+                    pickDate: false,
+                    pick12HourFormat: true,
+                    pickSeconds: false
+                });
+                $('#dtpQueryFromDate').datetimepicker({
+                    language: 'en',
+                    pickTime: false
+                });
+                $('#dtpQueryToDate').datetimepicker({
+                    language: 'en',
+                    pickTime: false
+                });
+
+                $('#dtpFromDate').datetimepicker({
+                    language: 'en',
+                    pickTime: false
+                });
+                $('#dtpFromTime').datetimepicker({
+                    language: 'en',
+                    pickDate: false,
+                    pick12HourFormat: true,
+                    pickSeconds: false
+                });
+                $('#dtpToDate').datetimepicker({
+                    language: 'en',
+                    pickTime: false
+                });
+                $('#dtpToTime').datetimepicker({
+                    language: 'en',
+                    pickDate: false,
+                    pick12HourFormat: true,
+                    pickSeconds: false
+                });
+                $('#dtpTimeofDay').datetimepicker({
+                    language: 'en',
+                    pickDate: false,
+                    pick12HourFormat: true,
+                    pickSeconds: false
+                });
+                $('#dtpEventFrom').datetimepicker({
+                    language: 'en',
+                    pickDate: true,
+                    pick12HourFormat: true,
+                    pickSeconds: false
+                });
+                $('#dtpEventTo').datetimepicker({
+                    language: 'en',
+                    pickDate: true,
+                    pick12HourFormat: true,
+                    pickSeconds: false
+                });
+        }
         //#endregion
 
         //#region ---------------------------------------- Data record edits

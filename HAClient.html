@@ -7,7 +7,7 @@
     <title>Home Automation Client</title>
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <meta name="description" content="Home Automation Framework">
-    <meta id="version" content="0.92">
+    <meta id="version" content="0.99">
     <meta name="author" content="">
 
     <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -30,9 +30,9 @@
             <div class="collapse navbar-collapse" id="navCollapse">
                 <ul class="nav navbar-nav">
                     <li class="divider-vertical"></li>
-                    <li id="dashButton" class="active" style="display: none"><a onclick="adjustNavBar('Dashboard')" class="tip" data-original-title="View and control home automation" data-placement="bottom"><i class="icon-home icon-large"></i> Dashboard</a></li>
+                    <li id="dashButton" class="active" style="display:none"><a onclick="adjustNavBar('Dashboard')" class="tip" data-original-title="View and control home automation" data-placement="bottom"><i class="icon-home icon-large"></i> Dashboard</a></li>
                     <li class="divider-vertical"></li>
-                    <li id="settingsButton" class="pointer" style="display: none"><a onclick="adjustNavBar('Settings')" class="tip" data-original-title="Setup events, triggers and system settings" data-placement="bottom"><i class="icon-cog icon-large"></i> Settings</a></li>
+                    <li id="settingsButton" class="pointer" style="display:none"><a onclick="adjustNavBar('Settings')" class="tip" data-original-title="Setup events, triggers and system settings" data-placement="bottom"><i class="icon-cog icon-large"></i> Settings</a></li>
                     <li class="divider-vertical"></li>
                     <li id="designButton" class="pointer" style="display:none"><a onclick="adjustNavBar('Design')" class="tip" data-original-title="Manage home automation widgets" data-placement="bottom"><i class="icon-pencil icon-large"></i> Design</a></li>
                     <li class="divider-vertical"></li>
@@ -55,9 +55,7 @@
             </div>
         </div>
     </div>
-
     <iframe id="iFrame" src="dashboard.html" style="border:none;" width="100%"></iframe>
-
     <footer class="navbar navbar-fixed-bottom">
         <div style="position: absolute; padding:8px 5px 15px 15px; height: 38px; border:1px solid #bce8f1; background-color:#d9edf7; color: #3a87ad; border-radius:4px; bottom: 10px; right: 10px; left: 10px">
             <span id="serverStatus" class="pull-left">Starting Home Automation Client...</span>
@@ -110,15 +108,18 @@
             </div>
         </div>
     </div>
-
     <script>
         "use strict";
         var profilelog = "";
         var startProfile = new Date().valueOf();
 
-        var ws, clientName;
+        var ws, clientName
+        var debugURL = "";
         var wsPort = 1066;
         var serverName = document.domain;
+        var deviceWidth = screen.availWidth;
+        var deviceHeight = screen.availHeight;
+
         var params = document.URL.split("?");
         if (params.length > 1) params = params[1].split("=");
         switch (params[0].toLowerCase()) {         // command line options after URL '?'
@@ -141,9 +142,9 @@
                 clientName = params[1].toUpperCase();
                 serverName = localStorage.getItem("serverName");
                 deviceHeight = +localStorage.getItem("impHeight");
-                if (deviceHeight === null) deviceHeight = screen.availHeight;
+                if (!deviceHeight) deviceHeight = screen.availHeight;
                 deviceWidth = +localStorage.getItem("impWidth");
-                if (deviceWidth === null) deviceWidth = screen.availWidth;
+                if (!deviceWidth) deviceWidth = screen.availWidth;
                 break;
             case "debug":
                 debugURL = "?" + Math.random()          // pass any parameter in the URL line to turn on debugging (force cache reloading) and specify remote websockets server
@@ -155,11 +156,11 @@
         }
         startNet();
 
-        if (typeof clientName === "undefined") {
+        if (clientName === undefined) {
             clientName = localStorage.getItem("clientName");
-            if (clientName == null) clientName = "";
+            if (!clientName) clientName = "";
         }
-        var netState = "starting"
+        var netState = "starting";
         var msg;
 
         var func = {
@@ -184,14 +185,11 @@
         }
 
         var user = "";
-        var deviceWidth = screen.availWidth;
-        var deviceHeight = screen.availHeight;
-        var debugURL = "";
         var categories;
         var TOOLTIPDELAY = 1500;                            // Delay before showing tooltip when hovering
         var connection = "local";
         var locale;
-        var netName = ""
+        var netName = "";
 
         localStorage.setItem("serverName", serverName);
         var iFrame = document.getElementById("iFrame");
@@ -201,57 +199,52 @@
             deviceWidth = screen.availWidth;
         });
 
-        //TODO: Fix custom style sheet main
+        window.addEventListener("keydown", function (e) {
+            iFrame.contentWindow.keyPress(e.keyCode);               // pass keystrokes to iframe for processing
+        });
+
         //TODO: User logon & server data
         //TODO: Load custom bootstrap configuration with Open Sans fonts, 15pt etc.
-        //TODO: Timezone always reflects the server timezone not the client, as well as DST
+        //TODO: Timezone always reflects the server timezone not the client, as well as DST. Time always in ISO1806 format
         //TODO: Add extra bootstrap column classes to stack differently on smaller devices
-        //TODO: Field for general settings web files location so that widgets can be retrieved
 
         iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
         document.getElementById("versionTxt").innerText = "Version: " + document.getElementById("version").content;
 
         // Activate the main framework functions and adjust button visibility
         function adjustNavBar(button) {
-            if (clientName !== "") {
-                iFrame.removeEventListener("load", designOff);
-                iFrame.removeEventListener("load", designOn);
-                iFrame.setAttribute("src", button + ".html" + debugURL);
+            if (clientName !== "" && netState.indexOf("session") != -1) {
                 if (button === "Design") {
                     document.getElementById("designButton").className = "active";
-                    document.getElementById("toolboxDropdown").style.setProperty("display", "none");
+                    document.getElementById("toolboxDropdown").style.setProperty("display", "inline");
                     if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
                         iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
-                        iFrame.addEventListener("load", designOn);
+                        iFrame.addEventListener("load", function () { iFrame.contentWindow.SetDesign(); });
                     } else {
-                        designOn();
+                        iFrame.contentWindow.setDesign();
                     }
                 } else {
+                    iFrame.setAttribute("src", button + ".html" + debugURL);
                     document.getElementById("toolboxDropdown").style.setProperty("display", "none");
+                    document.getElementById("designButton").className = "pointer";
                 }
                 if (button === "Dashboard") {
-                    document.getElementById("dashButton").className = "active"
-                    if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
-                        iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
-                        iFrame.addEventListener("load", designOff);
-                    }
-                } else document.getElementById("dashButton").className = "pointer";
-                if (button === "Queries") document.getElementById("queryButton").className = "active"
+                    send("NETWORK", "CONNECT", "")          // Establish initial generic machine session
+                    document.getElementById("dashButton").className = "active";
+                }
+                else document.getElementById("dashButton").className = "pointer";
+                if (button === "Queries") document.getElementById("queryButton").className = "active";
                 else document.getElementById("queryButton").className = "pointer";
-                if (button === "Settings") document.getElementById("settingsButton").className = "active"
+                if (button === "Settings") document.getElementById("settingsButton").className = "active";
                 else document.getElementById("settingsButton").className = "pointer";
-                if (button === "Help") document.getElementById("helpButton").className = "active"
+                if (button === "Help") document.getElementById("helpButton").className = "active";
                 else document.getElementById("helpButton").className = "pointer";
                 status(button + " Mode");
             }
-        }
-
-        function designOn() {
-            iFrame.contentWindow.toggleDesign("on");
-        }
-
-        function designOff() {
-            iFrame.contentWindow.toggleDesign("off");
+            if (button === "Help") {
+                document.getElementById("helpButton").className = "active";
+                status("Help Mode");
+            }  else document.getElementById("helpButton").className = "pointer";
         }
 
         // Login
@@ -275,7 +268,7 @@
         // show modal dialog. Global modalFunction used to define callback routine
         var modalFunction;
         function modalDialog(type, title, text, button, callback, param) {
-            if (text == undefined) text = "";
+            if (text === undefined) text = "";
             if (type === "logon") {
                 document.getElementById("formLogin").style.setProperty("display", "inline");
                 document.getElementById("formInput").style.setProperty("display", "none");
@@ -288,7 +281,7 @@
             document.getElementById("modalTitle").innerHTML = title;
             document.getElementById("modalText").innerHTML = text;
             document.getElementById("cancelButton").style.setProperty("display", "none");
-            if (button != null) {           // only show cancel button if no button text is specified (OK by default). If text = continue then don't show cancel
+            if (button) {           // only show cancel button if no button text is specified (OK by default). If text = continue then don't show cancel
                 document.getElementById("modalButton").innerHTML = button;
                 if (button.toLowerCase() != "continue") document.getElementById("cancelButton").style.setProperty("display", "inline");
             } else {
@@ -408,18 +401,20 @@
                                                 case "SERVER":
                                                     switch (msg.Scope.toUpperCase()) {
                                                         case "CONNECT":             // user session connected
-                                                            var connData = JSON.parse(msg.Data)
-                                                            clientName = connData.ClientName
+                                                            //var connData = JSON.parse(msg.Data)
+                                                            clientName = msg.Data.ClientName;
                                                             if (localStorage.getItem("clientName") != clientName && params[0].toLowerCase() != "clientname") localStorage.setItem("clientName", clientName);       // save clientName from server (local javascript can't get client name) but not if using another clientname (from the http query string)
-                                                            netName = connData.ServerName;
-                                                            locale = connData.Locale;
+                                                            netName = msg.Data.ServerName;
+                                                            locale = msg.Data.Locale;
                                                             document.getElementById("headerTitle").innerHTML = "&nbsp;" + netName
                                                             netState = "localsession"
                                                             document.getElementById("displayUser").innerHTML = "<strong>" + clientName + "</strong>";
-                                                            document.getElementById("dashButton").style.setProperty("display", "inline");
-                                                            document.getElementById("settingsButton").style.setProperty("display", "inline");
-                                                            document.getElementById("designButton").style.setProperty("display", "inline");
-                                                            document.getElementById("queryButton").style.setProperty("display", "inline");
+                                                            if (deviceWidth > 1024) {
+                                                                document.getElementById("dashButton").style.setProperty("display", "inline");
+                                                                document.getElementById("settingsButton").style.setProperty("display", "inline");
+                                                                document.getElementById("designButton").style.setProperty("display", "inline");
+                                                                document.getElementById("queryButton").style.setProperty("display", "inline");
+                                                            }
                                                             document.getElementById("logonButton").style.setProperty("visibility", "visible");
                                                             status("Connected to server " + serverName + ".");
                                                             msg.ClassName = "INITLOAD";
@@ -530,6 +525,7 @@
                 templMsg.instance = channelInfo[2];
                 templMsg.scope = scope;
                 templMsg.data = data;
+                ;
                 ws.send(buildJSON(templMsg));                                // Send to Server
             } catch (exception) { alert("Network Send Error was reported : " + exception); }
         }

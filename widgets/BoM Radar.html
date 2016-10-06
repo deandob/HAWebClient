@@ -49,6 +49,7 @@
             background-color: #dff0d8;
             color: #468847;
         }
+
             .green:hover {
                 border: 2px solid #cee2be;
                 background-color: #cfe0c8;
@@ -58,6 +59,7 @@
         .btnShadow {
             box-shadow: 4px 4px 6px #cccccc;
         }
+
             .btnShadow:active {
                 position: absolute;
                 left: 1px;
@@ -241,9 +243,7 @@
 
         }
 
-        function toolboxStart() {           // called when loaded in toolbox
-            fw.widgetID.height.baseVal.value = 100
-            fw.widgetID.width.baseVal.value = 100
+        function toolStart() {           // called when loaded in toolbox
             document.getElementById("imgBackground").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.background.png");
             document.getElementById("imgRange").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.range.png");
             document.getElementById("imgLegend").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR.legend.0.png");
@@ -297,7 +297,7 @@
                     break;
                 default:
             }
-            widgetStart()
+            dashStart()
         }
 
         // Called from framework for incoming channel events
@@ -328,7 +328,7 @@
             clearTimeout(timer);
         }
 
-        // Radar info here: http://www.bom.gov.au/inside/itb/dm/idcodes/tables/current/radar_products.shtml 
+        // Radar info here: http://www.bom.gov.au/inside/itb/dm/idcodes/tables/current/radar_products.shtml
 
     </script>
 </body>

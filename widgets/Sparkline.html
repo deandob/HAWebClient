@@ -127,20 +127,14 @@
             return "Sparklines display a simple graph to provide visual indications of trends. Select a source channel to display and also specify the timeframe to graph.";
         }
 
-        function toolboxStart() {           // called when loaded in toolbox
+        function toolStart() {           // called when loaded in toolbox
             load("", dummyData);
         }
-        
+
         function startDesign() {            // called when switching to design mode
             oldSer = series;
             series = [];
             load("", dummyData);
-        }
-
-        function endDesign() {              // called when switching from design mode
-            series = oldSer;
-            if (oldSer !== []) render();
-            path.setAttribute("class", fw.attribs[1].value);          // set color
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
@@ -154,12 +148,12 @@
             render();
         }
 
-        // Called from framework for initial channel status 
+        // Called from framework for initial channel status
         function ini(channel, scope, data) {
             return;
         }
 
-        // Result set in JSON of any channel history request 
+        // Result set in JSON of any channel history request
         function history(channel, scope, data) {
             //alert(fw.attribs[0].value + "   " + channel)
             load(channel, data)

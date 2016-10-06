@@ -45,6 +45,7 @@
             border: 3px solid #fbeed5;
             color: #fbeed5;
         }
+
         .yellowSlider {
             background-color: #fbeed5;
         }
@@ -53,6 +54,7 @@
             border: 3px solid #e3e3e3;
             color: #e3e3e3;
         }
+
         .whiteSlider {
             background-color: #e3e3e3;
         }
@@ -61,6 +63,7 @@
             border: 3px solid #e3e3e3;
             color: #e3e3e3;
         }
+
         .greySlider {
             background-color: #e3e3e3;
         }
@@ -69,6 +72,7 @@
             border: 3px solid #bce8f1;
             color: #e3e3e3;
         }
+
         .blueSlider {
             background-color: #e3e3e3;
         }
@@ -77,6 +81,7 @@
             border: 3px solid #b94a48;
             color: #b94a48;
         }
+
         .redSlider {
             background-color: #b94a48;
         }
@@ -85,10 +90,10 @@
             border: 3px solid #b6c9a6;
             color: #b6c9a6;
         }
+
         .greenSlider {
             background-color: #b6c9a6;
         }
-
     </style>
 
     <span id="TBtooltip" data-default="Input data to Channel" />
@@ -101,8 +106,8 @@
     <div id="group">
         <div id="widget" class="" style="width: 100px; height: 40px; position: absolute; left: 0px; top: 0px; z-index: 100">
             <form role="form" onsubmit="submitInp(); return false;">
-                    <input type="text" id="textInput" placeholder="Value" style="width: 60px; height: 17px; border-radius: 2px">
-                    <button type="submit" style="width: 30px; position: absolute; left: 62px">&rarr;</button>
+                <input type="text" id="textInput" placeholder="Value" style="width: 60px; height: 17px; border-radius: 2px">
+                <button type="submit" style="width: 30px; position: absolute; left: 62px">&rarr;</button>
             </form>
         </div>
     </div>
@@ -136,7 +141,7 @@
             fw.channelSend(fw.attribs[0].value, fw.attribs[3].value, textInput.value);
         }
 
-        function toolboxStart() {           // called when loaded in toolbox
+        function toolStart() {           // called when loaded in toolbox
         }
 
         function startEdit() {              // called when editing started
@@ -147,9 +152,6 @@
         }
 
         function startDesign() {            // called when switching to design mode
-        }
-
-        function endDesign() {            // called when switching to design mode
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
