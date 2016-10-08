@@ -173,7 +173,7 @@
         }
 
         var templMsg = {
-            client: clientName,               // NEED TO CONVERT TO .NET FORMAT
+            client: clientName,               
             func: func.action,
             level: 3,
             network: 1,
@@ -205,8 +205,6 @@
 
         //TODO: User logon & server data
         //TODO: Load custom bootstrap configuration with Open Sans fonts, 15pt etc.
-        //TODO: Timezone always reflects the server timezone not the client, as well as DST. Time always in ISO1806 format
-        //TODO: Add extra bootstrap column classes to stack differently on smaller devices
 
         iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
         document.getElementById("versionTxt").innerText = "Version: " + document.getElementById("version").content;
@@ -214,11 +212,19 @@
         // Activate the main framework functions and adjust button visibility
         function adjustNavBar(button) {
             if (clientName !== "" && netState.indexOf("session") != -1) {
+                if (button === "Dashboard") {
+                    document.getElementById("navFrame").replaceChild(iFrame, iFrame);                           // Force iFrame to reset as network response can be faster than iFrame load & dashboard init msg goes to old frame
+                    startMQTTSess();                                                                            // reinitialise dashboard
+                    document.getElementById("dashButton").className = "active";
+                } else {
+                    iFrame.contentWindow.endWidgetSess();
+                    document.getElementById("dashButton").className = "pointer";
+                }
                 if (button === "Design") {
                     document.getElementById("designButton").className = "active";
                     document.getElementById("toolboxDropdown").style.setProperty("display", "inline");
                     if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
-                        iFrame.setAttribute("src", "dashboard.html" + debugURL);     // Force cache refresh
+                        iFrame.setAttribute("src", "dashboard.html" + debugURL);                                // Design uses dashboard
                         iFrame.addEventListener("load", function () { iFrame.contentWindow.SetDesign(); });
                     } else {
                         iFrame.contentWindow.setDesign();
@@ -228,11 +234,6 @@
                     document.getElementById("toolboxDropdown").style.setProperty("display", "none");
                     document.getElementById("designButton").className = "pointer";
                 }
-                if (button === "Dashboard") {
-                    send("NETWORK", "CONNECT", "")          // Establish initial generic machine session
-                    document.getElementById("dashButton").className = "active";
-                }
-                else document.getElementById("dashButton").className = "pointer";
                 if (button === "Queries") document.getElementById("queryButton").className = "active";
                 else document.getElementById("queryButton").className = "pointer";
                 if (button === "Settings") document.getElementById("settingsButton").className = "active";
@@ -346,9 +347,15 @@
             if (text === "show") alert("profile => " + profilelog);
         }
 
+        function startMQTTSess() {
+            //MQTT connect <16><length><0><4><77><81><84><84><4>connflags><keepalive MSB=0><keepalive LSB=100><str len MSB><str len LSB><<clientname>><str len MSB><str len LSB><<username>><str len MSB><str len LSB><<password>>
+            send("NETWORK", "CONNECT", "");          // Establish initial generic machine session
+        }
+
         /////////////////////////////////////// Network
         function startNet() {
             try {
+                //TODO: Use wss for secure websockets
                 ws = new WebSocket("ws://" + serverName + ":" + wsPort + "/HAclient");
             } catch (exception) {
                 alert("ERROR: Cannot start web services, either due to a network error or using an older HTML5 incompatible browser")
@@ -356,7 +363,7 @@
             try {
                 ws.onopen = function () {
                     profiler("wsopen");
-                    send("NETWORK", "CONNECT", "")          // Establish initial generic machine session
+                    startMQTTSess()
                     netState = "connected"
                     status("Connected to Server. Establishing session...")
                     user = "local_machine"
@@ -367,7 +374,7 @@
                     try {
                         var msg = JSON.parse(evt.data);
                     } catch (e) {
-                        status("invalid message received");
+                        status("WARNING - Invalid message received from Server");
                         return;
                     }
                     //TODO: Check for relevant network number
@@ -401,7 +408,6 @@
                                                 case "SERVER":
                                                     switch (msg.Scope.toUpperCase()) {
                                                         case "CONNECT":             // user session connected
-                                                            //var connData = JSON.parse(msg.Data)
                                                             clientName = msg.Data.ClientName;
                                                             if (localStorage.getItem("clientName") != clientName && params[0].toLowerCase() != "clientname") localStorage.setItem("clientName", clientName);       // save clientName from server (local javascript can't get client name) but not if using another clientname (from the http query string)
                                                             netName = msg.Data.ServerName;

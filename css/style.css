@@ -111,7 +111,7 @@ a.nounderline
     display:inline; 
     padding-left: 0px; 
     transition: left 0.5s ease-out; 
-    z-index:100; 
+    z-index:1; 
     border-width: 1px; 
     border-style:solid; 
     border-color:rgb(220, 220, 220); 

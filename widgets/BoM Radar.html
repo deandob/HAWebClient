@@ -195,6 +195,9 @@
 
         // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
         function toolStart(mode) {
+            document.getElementById("imgBackground").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.background.png");
+            document.getElementById("imgRange").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.range.png");
+            document.getElementById("imgLegend").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR.legend.0.png");
             return "OK"
         }
 
@@ -241,13 +244,6 @@
                 } else checkLatestLp++;
             }
 
-        }
-
-        function toolStart() {           // called when loaded in toolbox
-            document.getElementById("imgBackground").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.background.png");
-            document.getElementById("imgRange").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR664.range.png");
-            document.getElementById("imgLegend").setAttribute("xlink:href", "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR.legend.0.png");
-            return true;
         }
 
         function menuUpdate() {
