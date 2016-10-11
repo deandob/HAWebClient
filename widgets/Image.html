@@ -47,7 +47,7 @@
 
         // Widget specific startup actions when first created by dropping in design mode. Return "OK" if startup OK else return an error string
         function newWidget(mode) {
-            return dashStart();
+            return toolStart();
         }
 
         // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
@@ -60,10 +60,10 @@
 
         img.onload = function () {
             imgHeight = this.naturalHeight                                              // Image aspect ratio and native dimensions
-            imgWidth = this.naturalWidth
+            imgWidth = this.naturalWidth            // TEMPORARY FOR TESTING
             document.getElementById("widget").appendChild(img)
-            if (fw.state != "toolbox") fw.widgetID.style.setProperty("border", fw.attribs[1].value + "px solid #808080")
-            scale(imgScaleX, imgScaleY)
+            if (fw.state !== "toolbox") fw.widgetID.style.setProperty("border", fw.attribs[1].value + "px solid #808080")
+            scale(fw.scaleX, fw.scaleY)
         }
 
         function startEdit() {              // called when editing started
@@ -71,7 +71,7 @@
         }
 
         function endEdit(param0) {                // called when editing finishes
-            widgetStart("endEdit")
+            dashStart("endEdit")
             return true
         }
 
@@ -90,14 +90,15 @@
             }
         }
 
-        var imgScaleX = 0, imgScaleY = 0, imgHeight, imgWidth;
+        //var imgScaleX = 0, imgScaleY = 0, imgHeight, imgWidth;
+        var imgHeight, imgWidth;                    // TEMPORARY ONLY FOR TESTING
         function scale(scaleX, scaleY) {    // manage scaling
-            imgScaleX = scaleX
-            imgScaleY = scaleY
             fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 10) + "px");
-            fw.widgetID.style.setProperty("height", (imgHeight * fw.iniHeight * scaleY / imgWidth - 10) + "px");
+            //fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY - 10) + "px");
+            fw.widgetID.style.setProperty("height", (imgHeight * fw.iniHeight * scaleY / imgWidth - 10) + "px");            // THIS CAN"T BE RIGHT DIVIDE BY IMGWIDTH. FIX AFTER SCALING FIXED
             fw.func("adjustSize", "width", fw.iniWidth * scaleX)
-            fw.func("adjustSize", "height", imgHeight * fw.iniHeight * scaleY / imgHeight)
+            //fw.func("adjustSize", "height", imgHeight * fw.iniHeight * scaleY / imgHeight)
+            fw.func("adjustSize", "height", fw.iniHeight * scaleY)
             return true
         }
 

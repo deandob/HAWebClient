@@ -172,7 +172,7 @@
         var editData = {};                                                          // Global for tracking edit state
         var dragData = {};                                                          // Global for tracking dragging state
 
-        // API object that widgets use to interact with framework
+        // API object injected into widgets for interaction with framework
         var widgetAPI = function (widgetName) {
             this.widgetName = widgetName;
             this.widgetNum = parseInt(widgetName.replace("objWidget", "").replace("TB", ""));
@@ -781,7 +781,6 @@
                         objWidget.type = "text/html";
                         objWidget.data = "widgets/" + widgetTemplates[widgetNum] + parent.debugURL      // location of widget (and not from cache if debugging)
                         objWidget.setAttribute("data-type", widgetNameType[0]);
-                        objWidget.setAttribute("data-widgetName", "objWidgetTB" + widgetNum);           // MIGHT NOT BE NEEDED
                         objWidget.id = "objWidgetTB" + widgetNum;
                         var title = document.createElement("p");
                         title.innerHTML = "<span>" + widgetNameType[0] + "</span><br /><br />";
@@ -802,20 +801,12 @@
                 var widgetHeight = Math.min(TBWIDGETWIDTH, parseInt(loadDoc.getElementById("widget").getAttribute("height")) || parseInt(loadDoc.getElementById("widget").style.getPropertyValue("height")));
                 e.currentTarget.width = widgetWidth;
                 e.currentTarget.height = widgetHeight;
-
-                //if (widgetID.width) widgetID.width.baseVal.value = widgetWidth
-                //if (widgetID.height) widgetID.height.baseVal.value = widgetHeight
-                //if (widgetID.style.getPropertyValue("width")) widgetID.style.setProperty("width", widgetWidth) + "px"
-                //if (widgetID.style.getPropertyValue("height")) widgetID.style.setProperty("height", widgetHeight) + "px"
-                //loadDoc.getElementById("scale").gScale.setAttribute("transform", "scale(" + widgets[loadNum].scaleX + "," + widgets[loadNum].scaleY + ")");
                 loadDoc.defaultView.widgetLoad(e.currentTarget.id);                       // Run the widget API startup (must be done from parent to pass name)
                 loadDoc.defaultView.fw.iniWidth = widgetWidth;
                 loadDoc.defaultView.fw.iniHeight = widgetHeight;
                 if (typeof loadDoc.defaultView.scale == "function") loadDoc.defaultView.scale(1, 1);
-                widgetID.style.setProperty("cursor", "move");
-                //loadDoc.getElementById("scale").setAttribute("transform", "scale(" + widgets[loadNum].scaleX + "," + widgets[loadNum].scaleY + ")");
-                loadDoc.defaultView.widgetLoad(e.currentTarget.id);                       // Run the widget API startup (must be done from parent to pass name)
                 if (typeof loadDoc.defaultView.toolStart === "function") loadDoc.defaultView.toolStart();
+                widgetID.style.setProperty("cursor", "move");
                 widgetListeners(loadDoc);
                 $("#" + e.currentTarget.id).tooltip({ title: loadDoc.getElementById("TBtooltip").getAttribute("data-default"), delay: { show: 2000 } });
             } catch (err) {
@@ -824,15 +815,15 @@
             }
         }
 
-        // Load the widgets onto the canvas
+        // Create widgets
         function loadWidget(myFrag, widgetNum) {
             var objWidget = document.createElement("object");
             objWidget.type = "text/html";
-            objWidget.data = "widgets/" + widgets[widgetNum].type + "." + widgets[widgetNum].ext + parent.debugURL     // location of widget
+            objWidget.data = "widgets/" + widgets[widgetNum].type + "." + widgets[widgetNum].ext + parent.debugURL      // location of widget
             objWidget.className = "widget";
             objWidget.id = "objWidget" + widgetNum;
             objWidget.addEventListener("load", widgetLoaded, false);
-            myFrag.appendChild(objWidget);          // build widgets onto fragment
+            myFrag.appendChild(objWidget);                                                                              // build widgets onto fragment
         }
 
         // finish widget setup once the widget is loaded
@@ -842,46 +833,43 @@
             var loadDoc = loadObj.contentDocument;
             var widgetID = loadDoc.getElementById("widget");
             try {
-                if (!widgets[loadNum].iniHeight) {        // setup initial settings when the widget is first created
+                if (design) {                                                          // setup initial settings when the widget is first created
                     widgets[loadNum].iniHeight = parseInt(widgetID.getAttribute("height")) || parseInt(widgetID.style.getPropertyValue("height"));
                     widgets[loadNum].iniWidth = parseInt(widgetID.getAttribute("width")) || parseInt(widgetID.style.getPropertyValue("width"));
-                    for (var i = 0; true; i++) {                                  // read the data attributes from the SPAN tags to populate attrib array
+                    for (var i = 0; true; i++) {                                                            // read the data attributes from the SPAN tags to populate attrib array
                         var attribID = loadDoc.getElementById("attrib" + i);
                         if (!attribID) break;
                         widgets[loadNum].attribs.push(new widgetAttrib(attribID.getAttribute("data-name"), attribID.getAttribute("data-type"), attribID.getAttribute("data-default")));
                     }
                     if (loadDoc.getElementById("ontop").getAttribute("data-default") === "true") widgets[loadNum].zOrder = 100;
-                }
-
-                widgetID.setAttribute("data-widgetName", loadObj.id);             // set a data attribute on the widget that points to the parent object as object that created the event isn't recorded in the event.currenttarget
-                widgetID.setAttribute("data-type", widgets[loadNum].type);      // widget type = classname for messages
-                loadObj.setAttribute("style", "position:absolute;overflow:hidden;left:" + widgets[loadNum].locX + "px;top:" + widgets[loadNum].locY + "px;z-index:" + widgets[loadNum].zOrder);
-                loadObj.width = widgets[loadNum].scaleX * parseInt(widgets[loadNum].iniWidth);
-                loadObj.height = widgets[loadNum].scaleY * parseInt(widgets[loadNum].iniHeight);
-                widgetLoadedCnt += 1;
-                loadDoc.defaultView.widgetLoad(loadObj.id);                       // Run the widget API startup (must be done from parent to pass name)
-                var startRet = "OK";
-
-                if (design) {           // dragging a widget from the toolbox, new widget created
                     dragData.widgetObj = loadObj;
                     widgetID.style.setProperty("cursor", "move");
                     widgetListeners(loadDoc);
-                } else {
-                    if (typeof loadDoc.defaultView.dashStart === "function") var startRet = loadDoc.defaultView.dashStart();
                 }
+
+                loadDoc.defaultView.widgetLoad(loadObj.id);                                                 // Run the widget API startup (must be done from parent to pass name)
+                if (design && typeof loadDoc.defaultView.startDesign === "function") loadDoc.defaultView.startDesign();
+
+                widgetID.setAttribute("data-widgetName", loadObj.id);                                       // set a data attribute on the widget that points to the parent object as object that created the event isn't recorded in the event.currenttarget
+                widgetID.setAttribute("data-type", widgets[loadNum].type);                                  // widget type = classname for messages
+                loadObj.setAttribute("style", "position:absolute;overflow:hidden;left:" + widgets[loadNum].locX + "px;top:" + widgets[loadNum].locY + "px;z-index:" + widgets[loadNum].zOrder);
+                loadObj.width = widgets[loadNum].scaleX * parseInt(widgets[loadNum].iniWidth);
+                loadObj.height = widgets[loadNum].scaleY * parseInt(widgets[loadNum].iniHeight);
+
+                widgetLoadedCnt += 1;
+                var startRet = "OK";
+                if (typeof loadDoc.defaultView.dashStart === "function") var startRet = loadDoc.defaultView.dashStart();
 
                 if (startRet.toUpperCase() !== "OK") throw "Widget failed startup - " + startRet;
                 var gScale = loadDoc.getElementById("scale");
                 if (gScale && +widgets[loadNum].scaleX != 1 && +widgets[loadNum].scaleY != 1) gScale.setAttribute("transform", "scale(" + widgets[loadNum].scaleX + "," + widgets[loadNum].scaleY + ")");
                 if (typeof loadDoc.defaultView.scale == "function") loadDoc.defaultView.scale(+widgets[loadNum].scaleX, +widgets[loadNum].scaleY);
 
-                if (widgetToLoadCnt === widgetLoadedCnt) {                                      // Finished loading all the widgets on the screen
-                    document.getElementById("fade").style.setProperty("display", "none");    // finally show the widgets!
-                    document.getElementById("widgetContainer").style.setProperty("left", "0px");    // finally show the widgets!
-                    setTimeout(afterRender, 50);
+                if (widgetToLoadCnt === widgetLoadedCnt) {                                                  // Finished loading all the widgets on the screen
+                    setTimeout(afterRender, 0);
                 }
             } catch (err) {
-                if (parent.debugURL !== "") throw err.stack || err;                        // let debugger catch the error if debugging
+                if (parent.debugURL !== "") throw err.stack || err;                                         // let debugger catch the error if debugging
                 alert("WARNING - Problems loading widget #" + loadNum + " (" + widgets[loadNum].type + "). Widget won't be useable. Details: " + err);         // else show the user a nice error box
                 //TODO: remove widget from canvas
             }
@@ -889,6 +877,8 @@
 
         // Display screen as fast as possible, put non essential tasks to finish widget loading here
         function afterRender() {
+            document.getElementById("fade").style.setProperty("display", "none");                   // finally show the widgets!
+            document.getElementById("widgetContainer").style.setProperty("left", "0px");
             parent.status("Ready");
             parent.enableTooltip();
             parent.send("SETTINGS", "GET:CATEGORIES()", "");
@@ -922,21 +912,23 @@
             } else {
                 if (typeof event.currentTarget.clicked == "function") event.currentTarget.clicked(event);       // run the click event in the widget
             }
+            event.preventDefault();                                 // stop HTML5 drag drop
+            return false;
         }
 
         // Handle mouse moving over widget depending on mode
         function mouseMove(event) {
-            if (dragData.widgetName) {                              // Adjust the widget position if dragging
-                if (dragData.widgetName === "new") {                // drag new widget from toolbox, create it first
+            if (dragData.widgetName) {                                              // Adjust the widget position if dragging
+                if (dragData.widgetName === "new") {                                // drag new widget from toolbox, create it first
                     dragData.widgetName = event.target.ownerDocument.defaultView.fw.widgetName
                     var widgetNum = parseInt(dragData.widgetName.replace("objWidget", "").replace("TB", ""));
                     dragData.startX = -event.screenX;
-                    dragData.startY = document.getElementById(dragData.widgetName).offsetTop - event.screenY;
+                    dragData.startY = document.getElementById(dragData.widgetName).offsetTop - document.getElementById("widgetToolbox").scrollTop - event.screenY;
                     dragData.widgetName = "objWidget" + widgets.length;
                     dragData.newWidget = true;
                     widgets.push(new widget(TBwidgets[widgetNum].type, TBwidgets[widgetNum].ext, selScreenNum, event.screenX, event.screenY));
                     var frag = document.createDocumentFragment();
-                    loadWidget(frag, widgets.length - 1)       // create new widget if dragging from widget template & don't run widget startup routine as attribs have not been set
+                    loadWidget(frag, widgets.length - 1)                            // create new widget if dragging from widget template & don't run widget startup routine as attribs have not been set
                     document.getElementById("mainBody").appendChild(frag);          // Add object to body so it can be dragged over everything
                 } else {
                     if (dragData.widgetObj) {
@@ -955,18 +947,18 @@
                 var widgetNum = parseInt(dragData.widgetName.replace("objWidget", ""));
                 if ((widgets[widgetNum].locX === parseInt(dragData.widgetObj.style.left)) && (widgets[widgetNum].locY === parseInt(dragData.widgetObj.style.top))) {
                     //                    if ((widgets[widgetNum].scaleX === dragData.scaleX) && (widgets[widgetNum].scaleY === dragData.scaleY)) {
-                    if (editData.widgetNum && !editData.scaling) {        // toggle edit mode only if the widget has not moved / scaling
+                    if (editData.widgetNum && !editData.scaling) {                                                                                  // toggle edit mode only if the widget has not moved / scaling
                             resetEdit(dragData.widgetName);
                         } else {
                             setEdit(dragData.widgetName);
                         }
                 }
                 if (dragData.newWidget) {
-                    if (dragData.widgetObj.offsetLeft < TBWIDTH) dragData.widgetObj.style.setProperty("left", TBWIDTH + "px");                 // Move widget over to canvas if dropped on the toolbox
+                    if (dragData.widgetObj.offsetLeft < TBWIDTH) dragData.widgetObj.style.setProperty("left", TBWIDTH + "px");                      // Move widget over to canvas if dropped on the toolbox
                     dragData.widgetObj.style.setProperty("left", parseInt(dragData.widgetObj.style.getPropertyValue("left")) - TBWIDTH + "px");     // adjust for widgetcontainer offset
                     dragData.widgetObj.contentDocument.getElementById("widget").style.setProperty("cursor", "default");
-                    document.getElementById("widgetsDiv").appendChild(dragData.widgetObj);            // Move from body to widget container
-                    //TODO turn design mode on widget
+                    document.getElementById("widgetsDiv").appendChild(dragData.widgetObj);                                                          // Move from body to widget container
+                    //TODO What to do with new widget function??
                     //if (typeof dragData.widgetObj.contentDocument.defaultView.newWidget === "function") dragData.widgetObj.contentDocument.defaultView.newWidget();         // widget created routine in widget
                 }
                 widgets[widgetNum].locX = parseInt(dragData.widgetObj.style.left);
@@ -1003,6 +995,7 @@
                     default:
                 }
             }
+            return false;
         }
 
         function recvHost(msg) {
@@ -1328,7 +1321,7 @@
         function widgetResizeStart(event) {
             var dragID = event.currentTarget.getAttribute("id");
             //var widgetName = event.currentTarget.ownerSVGElement.getAttribute("data-widgetName") || event.currentTarget.ownerDocument.getElementById("widget").getAttribute("data-widgetName");
-            var widgetName = event.currentTarget.ownerDocument.getElementById("widget").getAttribute("data-widgetName");
+            var widgetName = event.currentTarget.ownerDocument.getElementById("widget").getAttribute("data-widgetName");                // SEE IF THERE IS A BETTER WAY TO GET THIS SO ATTRIBUTE data-widgetname CAN BE DELETED
             var widgetNum = parseInt(widgetName.slice(9));
             var widgetDoc = document.getElementById(widgetName).contentDocument;
             editData.dragID = dragID;
