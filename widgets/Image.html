@@ -7,7 +7,7 @@
     <title>Image Widget</title>
 
 </head>
-<body id="body">
+<body id="body" ondragstart="return false">
     <style>
         body {
             overflow: hidden;
@@ -33,9 +33,9 @@
         }
 
         var imageLoc = "../images/"
-        var img = new Image()
-        img.style.setProperty("width", "100%")
-        img.style.setProperty("height", "100%")
+        var img = new Image();
+        img.style.setProperty("width", "100%");
+        img.style.setProperty("height", "100%");
 
         // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
         function dashStart(mode) {

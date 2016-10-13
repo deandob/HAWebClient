@@ -401,9 +401,6 @@
                                                 default:
                                             }
                                             break;
-                                            //                                        case "QUERY":
-
-                                            //                                          break;
                                         case "NETWORK":
                                             switch (msg.Instance.toUpperCase()) {
                                                 case "SERVER":
@@ -431,11 +428,7 @@
                                                         case "AUTHENTICATED":             // user session connected
                                                             user = msg.Data;
                                                             netState = "usersession"
-                                                            //iFrame.setAttribute("src", "dashboard.html" + debugURL)
                                                             document.getElementById("displayUser").innerHTML = "Welcome <strong>" + user + "</strong>";
-                                                            //document.getElementById("dashButton").style.setProperty("display", "inline");
-                                                            //document.getElementById("settingsButton").style.setProperty("display", "inline");
-                                                            //document.getElementById("designButton").style.setProperty("display", "inline");
                                                             status("Ready. Logged in as " + user);
                                                             break;
                                                         case "DISCONNECT":
@@ -477,11 +470,8 @@
 
                 // Server usually responds before Iframe has loaded, so wait.
                 function waitForIframe(msg) {
-                    if (typeof iFrame.contentWindow.recvHost === "function") {
-                        iFrame.contentWindow.recvHost(msg);
-                    } else {
-                        setTimeout(waitForIframe, 5, msg);
-                    }
+                    if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHost(msg);
+                    else setTimeout(waitForIframe, 5, msg);
                 }
 
                 ws.onerror = function (evt) {
@@ -504,9 +494,7 @@
         };
 
         function checkSession() {
-            if (netState === "connected") {                                 // No session established after 3 seconds
-                ws.close();                                                 // close to restart
-            }
+            if (netState === "connected") ws.close();                                 // No session established after 3 seconds, close to restart
         }
 
         function send(className, scope, data) {
@@ -523,6 +511,7 @@
             }
         }
 
+        //TODO: Can consilidate with send
         function channelSend(fullChName, scope, data) {
             try {
                 var channelInfo = fullChName.split("/")
@@ -532,7 +521,6 @@
                 templMsg.instance = channelInfo[2];
                 templMsg.scope = scope;
                 templMsg.data = data;
-                ;
                 ws.send(buildJSON(templMsg));                                // Send to Server
             } catch (exception) { alert("Network Send Error was reported : " + exception); }
         }

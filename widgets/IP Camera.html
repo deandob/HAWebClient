@@ -231,7 +231,6 @@
                 }
             }
 
-            // BUG: Sometimes the wrong attribute will be loaded (eg. text widget attribs). Data-widgetname not getting set correctly. Maybe closure issue in fw when changing screens??
             // - When the camera widget is on a different screen, then reload, it reloads the widgets from the second screen not from the default first. Somethign not right with ini code
             channelName = fw.attribs[0].value
             cameraName = channelName.split("/")[2]
