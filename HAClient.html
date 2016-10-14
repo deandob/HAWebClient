@@ -174,7 +174,7 @@
         }
 
         var templMsg = {
-            client: clientName,               
+            client: clientName,
             func: func.action,
             level: 3,
             network: 1,
@@ -187,10 +187,11 @@
 
         var user = "";
         var categories;
-        var TOOLTIPDELAY = 1500;                            // Delay before showing tooltip when hovering
+        var TOOLTIPDELAY = 1500;                                    // Delay before showing tooltip when hovering
         var connection = "local";
         var locale;
         var netName = "";
+        var mode = "Dashboard";
 
         localStorage.setItem("serverName", serverName);
         var iFrame = document.getElementById("iFrame");
@@ -210,43 +211,48 @@
         iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
         document.getElementById("versionTxt").innerText = "Version: " + document.getElementById("version").content;
 
+        //TODO: CANT JUMP FROM SETTINGS TO DESIGN, NEED TO RELOAD DASHBOARD & LOOK FOR A FLAG TO SWITCH TO DESIGN MODE
+
         // Activate the main framework functions and adjust button visibility
         function adjustNavBar(button) {
-            if (clientName !== "" && netState.indexOf("session") != -1) {
-                if (button === "Dashboard") {
-                    document.getElementById("navFrame").replaceChild(iFrame, iFrame);                           // Force iFrame to reset as network response can be faster than iFrame load & dashboard init msg goes to old frame
-                    startMQTTSess();                                                                            // reinitialise dashboard
-                    document.getElementById("dashButton").className = "active";
-                } else {
-                    iFrame.contentWindow.endWidgetSess();
-                    document.getElementById("dashButton").className = "pointer";
-                }
-                if (button === "Design") {
-                    document.getElementById("designButton").className = "active";
-                    document.getElementById("toolboxDropdown").style.setProperty("display", "inline");
-                    if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
-                        iFrame.setAttribute("src", "dashboard.html" + debugURL);                                // Design uses dashboard
-                        iFrame.addEventListener("load", function () { iFrame.contentWindow.SetDesign(); });
+            if (button !== mode) {                                                                                  // Don't adjust mode if the active button is pressed
+                if (clientName !== "" && netState.indexOf("session") !== -1) {
+                    if (button === "Design") {
+                        document.getElementById("designButton").className = "active";
+                        document.getElementById("toolboxDropdown").style.setProperty("display", "inline");
+                        if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
+                            iFrame.setAttribute("src", "dashboard.html" + debugURL);                                // Design uses dashboard, reload it if not active
+                            setTimeout(startMQTTSess, 100);                                                         // Give dashboard a change to load
+                        } else {
+                            iFrame.contentWindow.setDesign();
+                        }
                     } else {
-                        iFrame.contentWindow.setDesign();
+                        iFrame.setAttribute("src", button + ".html" + debugURL);
+                        document.getElementById("toolboxDropdown").style.setProperty("display", "none");
+                        document.getElementById("designButton").className = "pointer";
                     }
-                } else {
-                    iFrame.setAttribute("src", button + ".html" + debugURL);
-                    document.getElementById("toolboxDropdown").style.setProperty("display", "none");
-                    document.getElementById("designButton").className = "pointer";
+                    if (button === "Dashboard") {
+                        setTimeout(startMQTTSess, 100);
+                        document.getElementById("dashButton").className = "active";
+                    } else {
+                        if (mode === "Dashboard") iFrame.contentWindow.endWidgetSess();
+                        document.getElementById("dashButton").className = "pointer";
+                    }
+                    if (button === "Queries") document.getElementById("queryButton").className = "active";
+                    else document.getElementById("queryButton").className = "pointer";
+                    if (button === "Settings") document.getElementById("settingsButton").className = "active";
+                    else document.getElementById("settingsButton").className = "pointer";
+                    if (button === "Help") document.getElementById("helpButton").className = "active";
+                    else document.getElementById("helpButton").className = "pointer";
+                    status(button + " Mode");
+                    mode = button;
                 }
-                if (button === "Queries") document.getElementById("queryButton").className = "active";
-                else document.getElementById("queryButton").className = "pointer";
-                if (button === "Settings") document.getElementById("settingsButton").className = "active";
-                else document.getElementById("settingsButton").className = "pointer";
-                if (button === "Help") document.getElementById("helpButton").className = "active";
-                else document.getElementById("helpButton").className = "pointer";
-                status(button + " Mode");
+                if (button === "Help") {
+                    document.getElementById("helpButton").className = "active";
+                    status("Help Mode");
+                    mode = "help";
+                } else document.getElementById("helpButton").className = "pointer";
             }
-            if (button === "Help") {
-                document.getElementById("helpButton").className = "active";
-                status("Help Mode");
-            }  else document.getElementById("helpButton").className = "pointer";
         }
 
         // Login

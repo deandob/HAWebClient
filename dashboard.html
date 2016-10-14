@@ -877,6 +877,7 @@
             parent.send("SETTINGS", "GET:CATEGORIES()", "");
             var myWidgets = document.getElementsByClassName("widget");
             for (var i = 0; i < myWidgets.length; i++) widgetListeners(myWidgets[i].contentDocument.defaultView);
+            if (!design && parent.mode === "Design") setDesign();                                                   // Go into design mode if just reloaded after pressing design button
         }
 
         function widgetListeners(myWidget) {
@@ -907,43 +908,38 @@
             } else {
                 if (typeof event.currentTarget.clicked == "function") event.currentTarget.clicked(event);       // run the click event in the widget
             }
-            //event.preventDefault();                                                                             // stop HTML5 drag drop
-            //return false;
+            event.preventDefault();                                                                             // stop HTML5 drag drop
         }
-
-        //TODO: Editing text in the widget if we are clicking which just toggles edit mode
 
         // Handle mouse moving over widget depending on mode (drag new widget from toolbox, drag existing widget)
         function mouseMove(event) {
             if (dragData.widgetName) {                                                                          // Adjust the widget position if dragging
                 if (dragData.widgetName === "new") {                                                            // drag new widget from toolbox, create it first
-                    var myWidgetName = event.target.ownerDocument.defaultView.fw.widgetName;
-                    var myWidgetNum = parseInt(myWidgetName.replace("objWidgetTB", ""));
+                    var TBWidgetNum = parseInt(event.target.ownerDocument.defaultView.fw.widgetName.replace("objWidgetTB", ""));
                     dragData.startX = -event.screenX;
-                    dragData.startY = document.getElementById(myWidgetName).offsetTop - document.getElementById("widgetToolbox").scrollTop - event.screenY;
+                    dragData.startY = document.getElementById("objWidgetTB" + TBWidgetNum).offsetTop - document.getElementById("widgetToolbox").scrollTop - event.screenY;
                     dragData.newWidget = true;
-                    dragData.widgetName = "objWidget" + widgets.length;
                     dragData.widgetNum = widgets.length;
+                    dragData.widgetName = "objWidget" + dragData.widgetNum;
 
-                    widgets.push(new widget(TBwidgets[myWidgetNum].type, TBwidgets[myWidgetNum].ext, selScreenNum, event.screenX, event.screenY));
+                    widgets.push(new widget(TBwidgets[TBWidgetNum].type, TBwidgets[TBWidgetNum].ext, selScreenNum, event.screenX, event.screenY));
                     var frag = document.createDocumentFragment();
-                    loadWidget(frag, widgets.length - 1);                                                       // create new widget if dragging from widget template & don't run widget startup routine as attribs have not been set
+                    loadWidget(frag, dragData.widgetNum);                                                       // create new widget if dragging from widget template & don't run widget startup routine as attribs have not been set
                     document.getElementById("mainBody").appendChild(frag);                                      // Add object to body so it can be dragged over everything
                 } else {
-                    if (dragData.widgetObj && !editData.scaling) {                                              // only drag if not rescaling & if I'm a new widget from the toolbox I have been created
+                    if (dragData.widgetObj) {                                                                   // only drag if not rescaling & if I'm a new widget from the toolbox I have been created
                         dragData.widgetObj.style.setProperty("left", Math.round((dragData.startX + event.screenX) / DESIGNGRID) * DESIGNGRID + "px");
                         dragData.widgetObj.style.setProperty("top", Math.round((dragData.startY + event.screenY) / DESIGNGRID) * DESIGNGRID + "px");
                     }
                 }
             } else if (typeof event.currentTarget.mouseMove == "function") event.currentTarget.mouseMove(event); // Send mousemove to widget if it wants it
-            //return false;
         }
 
         // Handle widget mouse up depending on mode (edit mode set here not on mousedown as we could be dragging with mousedown)
         function mouseUp(event) {
             if (dragData.widgetName) {
                 if (!editData.scaling && widgets[dragData.widgetNum].locX === parseInt(dragData.widgetObj.style.left) && widgets[dragData.widgetNum].locY === parseInt(dragData.widgetObj.style.top)) {
-                    if (setEdit(dragData.widgetName) === -1) resetEdit(dragData.widgetName, "force");                                               // Toggle edit mode if widget hasn't been dragged
+                    if (setEdit(dragData.widgetName) === -1) resetEdit(dragData.widgetName);                                                        // Toggle edit mode if widget hasn't been dragged
                 }
                 if (dragData.newWidget) {
                     if (dragData.widgetObj.offsetLeft < TBWIDTH) dragData.widgetObj.style.setProperty("left", TBWIDTH + "px");                      // Move widget over to canvas if dropped on the toolbox
@@ -957,16 +953,15 @@
                 widgets[dragData.widgetNum].locY = parseInt(dragData.widgetObj.style.top);
                 dragData = {};
             }
-            //return false;
         }
 
         ////////////////////////////////////////// widget edit state
 
         function setEdit(widgetName) {
-            if (editData.widgetName === widgetName) return -1;                                                                              // Don't run setEdit on the same widget if it is already being edited
-            if (editData.widgetNum) resetEdit(editData.widgetName, "force");                                                                // turn off edit mode for any widget currently being edited
+            if (editData.widgetName === widgetName) return -1;                                                  // Don't run setEdit on the same widget if it is already being edited
+            if (editData.widgetNum) resetEdit(editData.widgetName);                                             // turn off edit mode for any widget currently being edited
 
-            editData.widgetNum = parseInt(widgetName.slice(9));                                                                             // Setup various DOM pointers
+            editData.widgetNum = parseInt(widgetName.slice(9));                                                 // Setup various DOM pointers
             editData.widgetName = widgetName;
             editData.objWidget = document.getElementById(widgetName);
             editData.widgetDoc = editData.objWidget.contentDocument;
@@ -1003,11 +998,9 @@
             return svgDrag;
         }
 
-        //TODO: DOes force work?
-
-        function resetEdit(widgetName, force) {
+        function resetEdit(widgetName) {
             document.getElementById("widgetOptionMenu").style.setProperty("display", "none");                                               // cancel widget option menu if open
-            if (typeof editData.widgetView.endEdit === "function") if (editData.widgetView.endEdit(force) === -1) return -1                 // call widget end edit routine, if it returns -1, then don't reset edit state
+            if (typeof editData.widgetView.endEdit === "function") if (editData.widgetView.endEdit() === -1) return -1                      // call widget end edit routine, if it returns -1, then don't reset edit state
 
             editData.widgetView.fw.state = "design";
             editData.objWidget.style.setProperty("outline", "none");
@@ -1020,25 +1013,22 @@
         /////////////////////////////////////////////// widget resize
 
         function widgetResizeStart(event) {
-            var dragID = event.currentTarget.getAttribute("id");
-            editData.widgetName = event.currentTarget.ownerDocument.defaultView.fw.widgetName;           //????????? editData??
-            editData.widgetNum = parseInt(editData.widgetName.slice(9));
-            editData.dragID = dragID;
+            editData.dragID = event.currentTarget.getAttribute("id");
             editData.startX = event.screenX - (widgets[editData.widgetNum].scaleX - 1) * widgets[editData.widgetNum].iniWidth;              // mouse absolute position in the widgetcontainer
             editData.startY = event.screenY - (widgets[editData.widgetNum].scaleY - 1) * widgets[editData.widgetNum].iniHeight;
             editData.initialWidth = editData.widgetView.innerWidth / widgets[editData.widgetNum].scaleX;
             editData.initialHeight = editData.widgetView.innerHeight / widgets[editData.widgetNum].scaleY;
 
-            if (dragID === "dragX") editData.widgetEl.style.setProperty("cursor", "e-resize");
-            if (dragID === "dragY") editData.widgetEl.style.setProperty("cursor", "n-resize");
-            if (dragID === "dragXY") editData.widgetEl.style.setProperty("cursor", "se-resize");
+            if (editData.dragID === "dragX") editData.widgetEl.style.setProperty("cursor", "e-resize");
+            if (editData.dragID === "dragY") editData.widgetEl.style.setProperty("cursor", "n-resize");
+            if (editData.dragID === "dragXY") editData.widgetEl.style.setProperty("cursor", "se-resize");
 
             var allWidgets = document.querySelectorAll(".widget");
             for (var i = 0; i < allWidgets.length; i++) addScaleListeners(allWidgets[i].contentDocument);                                   // As <objects> swallow events, need to put listeners on each widget on the canvas to allow mouse to move over another widget when resizing
             addScaleListeners(editData.widgetDoc);
             addScaleListeners(document.getElementById("cvsDesign"));
             editData.scaling = true;
-            return false;
+            event.stopPropagation();                                                                                                        // Don't bubble up to widget mousedown event
         }
 
         function addScaleListeners(obj) {
@@ -1049,47 +1039,45 @@
         // only allow either X dragging, Y dragging, or proportional XY dragging
         function mouseMoveDrag(event) {
             if (editData.scaling) {
-                try {
-                    var sizeChange
-                    if (editData.dragID !== "dragY") {
-                        var newWidth = Math.round((editData.initialWidth + event.screenX - editData.startX) / DESIGNGRID) * DESIGNGRID;     // only allow grid gap increments
-                        editData.objWidget.width = newWidth;
-                        sizeChange = "Width: " + parseInt(newWidth * 100 / editData.initialWidth) + "%"
-                        widgets[editData.widgetNum].scaleX = newWidth / editData.initialWidth;
+                var sizeChange;
+                if (editData.dragID !== "dragY") {
+                    var newWidth = Math.round((editData.initialWidth + event.screenX - editData.startX) / DESIGNGRID) * DESIGNGRID;     // only allow grid gap increments
+                    if (newWidth <= 0) return false;                                                                                    // Don't scale negative
+                    editData.objWidget.width = newWidth;
+                    sizeChange = "Width: " + parseInt(newWidth * 100 / editData.initialWidth) + "%";
+                    widgets[editData.widgetNum].scaleX = newWidth / editData.initialWidth;
 
-                        editData.widgetEl.setAttribute("width", newWidth + GRABSIZE / 2);
-                        editData.widgetDoc.getElementById("dragXY").setAttribute("x", newWidth - GRABSIZE);
-                        editData.widgetDoc.getElementById("dragX").setAttribute("x", newWidth - GRABSIZE);
-                        editData.widgetDoc.getElementById("dragY").setAttribute("x", (newWidth - GRABSIZE) / 2);
-                    }
-                    if (editData.dragID !== "dragX") {
-                        var newHeight = Math.round((editData.initialHeight + event.screenY - editData.startY) / DESIGNGRID) * DESIGNGRID;
-                        sizeChange = "Height: " + parseInt(newHeight * 100 / editData.initialHeight) + "%";
-
-                        if (editData.dragID === "dragXY") {
-                            newHeight = widgets[editData.widgetNum].scaleX * editData.initialHeight;                                        // For XY drag, only scale with X to preserve widget proportions
-                            sizeChange = "Size: " + parseInt(newWidth * 100 / editData.initialWidth) + "%";                                 
-                        }
-                        editData.objWidget.height = newHeight;
-                        widgets[editData.widgetNum].scaleY = newHeight / editData.initialHeight;
-
-                        editData.widgetEl.setAttribute("height", newHeight + GRABSIZE / 2);
-                        editData.widgetDoc.getElementById("dragXY").setAttribute("y", newHeight - GRABSIZE);
-                        editData.widgetDoc.getElementById("dragX").setAttribute("y", (newHeight - GRABSIZE) / 2);
-                        editData.widgetDoc.getElementById("dragY").setAttribute("y", newHeight - GRABSIZE);
-                    }
-                    editData.widgetView.scale(widgets[editData.widgetNum].scaleX, widgets[editData.widgetNum].scaleY);
-                    parent.status(sizeChange)
+                    editData.widgetEl.setAttribute("width", newWidth + GRABSIZE / 2);
+                    editData.widgetDoc.getElementById("dragXY").setAttribute("x", newWidth - GRABSIZE);
+                    editData.widgetDoc.getElementById("dragX").setAttribute("x", newWidth - GRABSIZE);
+                    editData.widgetDoc.getElementById("dragY").setAttribute("x", (newWidth - GRABSIZE) / 2);
                 }
-                catch (e) { }                                                                                                               // ignore errors
+                if (editData.dragID !== "dragX") {
+                    var newHeight = Math.round((editData.initialHeight + event.screenY - editData.startY) / DESIGNGRID) * DESIGNGRID;
+                    sizeChange = "Height: " + parseInt(newHeight * 100 / editData.initialHeight) + "%";
+
+                    if (editData.dragID === "dragXY") {
+                        newHeight = widgets[editData.widgetNum].scaleX * editData.initialHeight;                                        // For XY drag, only scale with X to preserve widget proportions
+                        sizeChange = "Size: " + parseInt(newWidth * 100 / editData.initialWidth) + "%";
+                    }
+                    if (newHeight <= 0) return false;                                                                                   // Don't scale negative
+                    editData.objWidget.height = newHeight;
+                    widgets[editData.widgetNum].scaleY = newHeight / editData.initialHeight;
+
+                    editData.widgetEl.setAttribute("height", newHeight + GRABSIZE / 2);
+                    editData.widgetDoc.getElementById("dragXY").setAttribute("y", newHeight - GRABSIZE);
+                    editData.widgetDoc.getElementById("dragX").setAttribute("y", (newHeight - GRABSIZE) / 2);
+                    editData.widgetDoc.getElementById("dragY").setAttribute("y", newHeight - GRABSIZE);
+                }
+                editData.widgetView.scale(widgets[editData.widgetNum].scaleX, widgets[editData.widgetNum].scaleY);
+                parent.status(sizeChange);
             }
-            return false;
         }
 
         function widgetResizeEnd(event) {
             editData.scaling = false;
             var allWidgets = document.querySelectorAll(".widget");
-            for (var i = 0; i < allWidgets.length; i++) removeScaleListeners(allWidgets[i].contentDocument); 
+            for (var i = 0; i < allWidgets.length; i++) removeScaleListeners(allWidgets[i].contentDocument);
 
             removeScaleListeners(editData.widgetDoc);
             removeScaleListeners(document.getElementById("cvsDesign"));
@@ -1097,7 +1085,6 @@
             removeScaleListeners(document.getElementById("cvsDesign"));
 
             editData.widgetEl.style.setProperty("cursor", "default");
-            return false;
         }
 
         function removeScaleListeners(obj) {
@@ -1105,13 +1092,13 @@
             obj.removeEventListener("mouseup", widgetResizeEnd, false);
         }
 
-        //#endregion
+//#endregion
 
         ///////////////////////////////////////////// widget events
 
         // Click the canvas blank areas (not widgets)
         function canvasClick() {
-            if (design && editData.widgetNum) resetEdit("objWidget" + editData.widgetNum, "force");        // turn off editing for any widget being edited
+            if (design && editData.widgetNum) resetEdit("objWidget" + editData.widgetNum);        // turn off editing for any widget being edited
             return false;
         }
 
@@ -1121,12 +1108,14 @@
             return false;
         }
 
+        // TODO: NOT FIRING..............
+
         // Process global keypresses, only relevant for design mode as there is no focus for widgets
         function keyPress(keyCode) {
             if (design) {
                 switch (keyCode) {
                     case 27:                    // ESC
-                        resetEdit("objWidget" + editData.widgetNum, "force");
+                        resetEdit("objWidget" + editData.widgetNum);
                         break;
                     case 37:                    // Left arrow
                         break;
