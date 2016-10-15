@@ -86,9 +86,9 @@
         }
 
         function _nameLoaded() {
-            _widgetName = document.getElementById("widget").getAttribute("data-widgetName");               // Name of widget in parent DOM 'objWidgetX'
+            _widgetName = document.getElementById("widget").getAttribute("data-widgetName");               // Name of widget in parent DOM 'widgetObjX'
 
-            //var tt= document.getElementById("widget");               // Name of widget in parent DOM 'objWidgetX'
+            //var tt= document.getElementById("widget");               // Name of widget in parent DOM 'widgetObjX'
             if (_widgetName === null) {
                 setTimeout(_nameLoaded, 0)                                                                   // not ready, wait and try again
             } else {

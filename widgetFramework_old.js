@@ -12,13 +12,13 @@ var _cacheIni = [];
 ////////////////////////////////////////////////////setTimeout(_nameLoaded, 1)
 
 function _nameLoaded() {
-    _widgetName = document.getElementById("widget").getAttribute("data-widgetName");               // Name of widget in parent DOM 'objWidgetX'
+    _widgetName = document.getElementById("widget").getAttribute("data-widgetName");               // Name of widget in parent DOM 'widgetObjX'
     
-    //var tt= document.getElementById("widget");               // Name of widget in parent DOM 'objWidgetX'
+    //var tt= document.getElementById("widget");               // Name of widget in parent DOM 'widgetObjX'
     if (_widgetName === null) {
         setTimeout(_nameLoaded, 0)                                                                   // not ready, wait and try again
     } else {
-        _widgetNum = parseInt(_widgetName.replace("objWidget", "").replace("TB", ""))
+        _widgetNum = parseInt(_widgetName.replace("widgetObj", "").replace("TB", ""))
         if (parent.design === true) {                                                               // In design mode?
             _designing = true;
             if (_widgetName.indexOf("TB") === -1) {                                                 // canvas widget in design mode
@@ -186,7 +186,7 @@ function _fw_help() {
 function _fwFunc(funcName, param0, param1, param2) {
     if (typeof parent.widgetRequest === "function") {
         var result = parent.widgetRequest(_widgetName, funcName, param0, param1, param2);
-        if (_widgetName.substr(0, 11) !== "objWidgetTB") _attribs = parent.widgets[_widgetNum].attribs;        // reload attributes in case attribs are updated
+        if (_widgetName.substr(0, 11) !== "widgetObjTB") _attribs = parent.widgets[_widgetNum].attribs;        // reload attributes in case attribs are updated
         return result;
     }
 }

@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Home Automation Client</title>
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico" />
     <meta name="description" content="Home Automation Framework">
-    <meta id="version" content="0.99">
-    <meta name="author" content="">
-
+    <meta id="version" content="1.0">
+    <meta name="author" content="Dean Dobson">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="theme-color" content="#ffffff">
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/icons.css">
     <link rel="stylesheet" href="css/style.css">
@@ -187,7 +191,7 @@
 
         var user = "";
         var categories;
-        var TOOLTIPDELAY = 1500;                                    // Delay before showing tooltip when hovering
+        var TOOLTIPDELAY = 1500;                                                                                    // Delay before showing tooltip when hovering
         var connection = "local";
         var locale;
         var netName = "";
@@ -196,22 +200,17 @@
         localStorage.setItem("serverName", serverName);
         var iFrame = document.getElementById("iFrame");
 
-        window.addEventListener("resize", function (event) {
-            iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
+        window.addEventListener("resize", function (e) {
+            iFrame.height = window.innerHeight - 110;                                                               // compensate for bootstrap navbar
             deviceWidth = screen.availWidth;
         });
 
-        window.addEventListener("keydown", function (e) {
-            iFrame.contentWindow.keyPress(e.keyCode);               // pass keystrokes to iframe for processing
-        });
+        document.addEventListener("keydown", function (e) {
+            if (typeof iFrame.contentWindow.keyPress === "function") iFrame.contentWindow.keyPress(e);              // pass keystrokes to iframe for processing if focus is on parent
+        }, true);
 
-        //TODO: User logon & server data
-        //TODO: Load custom bootstrap configuration with Open Sans fonts, 15pt etc.
-
-        iFrame.height = window.innerHeight - 110;               // compensate for bootstrap navbar
+        iFrame.height = window.innerHeight - 110;                                                                   // compensate for bootstrap navbar
         document.getElementById("versionTxt").innerText = "Version: " + document.getElementById("version").content;
-
-        //TODO: CANT JUMP FROM SETTINGS TO DESIGN, NEED TO RELOAD DASHBOARD & LOOK FOR A FLAG TO SWITCH TO DESIGN MODE
 
         // Activate the main framework functions and adjust button visibility
         function adjustNavBar(button) {

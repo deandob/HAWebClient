@@ -140,6 +140,10 @@
             return true;
         }
 
+        function keyPress(keyCode) {                            // handle key presses
+            return true;
+        }
+
         function feed(channel, scope, data) {                   // Called for incoming channel events
             switch (scope.toLowerCase()) {
                 case "value":
