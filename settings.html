@@ -1559,6 +1559,7 @@
         //TODO: When automation database is empty, triggers and actions give an error message when selecting the tab. Need to test the install state and adjust so it doesnt error with a fresh DB
         //TODO: Replace javascript with jquery
         //TODO: If you edit a setting then move off the screen without saving it should ask you if you want to move or not.
+        //TODO: Implement dirty check
 
         // datetime picker https://github.com/Eonasdan/bootstrap-datetimepicker
         //One off time & date = EventFrom date + time + one off
@@ -1579,6 +1580,8 @@
         var condStr = ["equals", "greater", "less", "not", "contains", "like", "change"];
         var myCodeMirror;
         var toolboxCB;          // global for callback routine from toolbox load calls
+        var g = {}                                                                      // global for flags
+        g.dirty = false;                                                                // check for saving changes
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {

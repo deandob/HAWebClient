@@ -196,6 +196,7 @@
         var locale;
         var netName = "";
         var mode = "Dashboard";
+        var modalFunction;                                                                                          // Object to track modal callback
 
         localStorage.setItem("serverName", serverName);
         var iFrame = document.getElementById("iFrame");
@@ -216,35 +217,39 @@
         function adjustNavBar(button) {
             if (button !== mode) {                                                                                  // Don't adjust mode if the active button is pressed
                 if (clientName !== "" && netState.indexOf("session") !== -1) {
-                    if (button === "Design") {
-                        document.getElementById("designButton").className = "active";
-                        document.getElementById("toolboxDropdown").style.setProperty("display", "inline");
-                        if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
-                            iFrame.setAttribute("src", "dashboard.html" + debugURL);                                // Design uses dashboard, reload it if not active
-                            setTimeout(startMQTTSess, 100);                                                         // Give dashboard a change to load
+                    if (iFrame.contentWindow.g.dirty === true) {
+                        modalDialog("dirty", "Unsaved Changes", "Unsaved changes have not been saved and will be lost if you continue", "OK", button);
+                    } else {
+                        if (button === "Design") {
+                            document.getElementById("designButton").className = "active";
+                            document.getElementById("toolboxDropdown").style.setProperty("display", "inline");
+                            if (iFrame.src.toString().toLowerCase().indexOf("dashboard") == -1) {
+                                iFrame.setAttribute("src", "dashboard.html" + debugURL);                                // Design uses dashboard, reload it if not active
+                                setTimeout(startMQTTSess, 100);                                                         // Give dashboard a change to load
+                            } else {
+                                iFrame.contentWindow.setDesign();
+                            }
                         } else {
-                            iFrame.contentWindow.setDesign();
+                            iFrame.setAttribute("src", button + ".html" + debugURL);
+                            document.getElementById("toolboxDropdown").style.setProperty("display", "none");
+                            document.getElementById("designButton").className = "pointer";
                         }
-                    } else {
-                        iFrame.setAttribute("src", button + ".html" + debugURL);
-                        document.getElementById("toolboxDropdown").style.setProperty("display", "none");
-                        document.getElementById("designButton").className = "pointer";
+                        if (button === "Dashboard") {
+                            setTimeout(startMQTTSess, 100);
+                            document.getElementById("dashButton").className = "active";
+                        } else {
+                            if (mode === "Dashboard") iFrame.contentWindow.endWidgetSess();
+                            document.getElementById("dashButton").className = "pointer";
+                        }
+                        if (button === "Queries") document.getElementById("queryButton").className = "active";
+                        else document.getElementById("queryButton").className = "pointer";
+                        if (button === "Settings") document.getElementById("settingsButton").className = "active";
+                        else document.getElementById("settingsButton").className = "pointer";
+                        if (button === "Help") document.getElementById("helpButton").className = "active";
+                        else document.getElementById("helpButton").className = "pointer";
+                        status(button + " Mode");
+                        mode = button;
                     }
-                    if (button === "Dashboard") {
-                        setTimeout(startMQTTSess, 100);
-                        document.getElementById("dashButton").className = "active";
-                    } else {
-                        if (mode === "Dashboard") iFrame.contentWindow.endWidgetSess();
-                        document.getElementById("dashButton").className = "pointer";
-                    }
-                    if (button === "Queries") document.getElementById("queryButton").className = "active";
-                    else document.getElementById("queryButton").className = "pointer";
-                    if (button === "Settings") document.getElementById("settingsButton").className = "active";
-                    else document.getElementById("settingsButton").className = "pointer";
-                    if (button === "Help") document.getElementById("helpButton").className = "active";
-                    else document.getElementById("helpButton").className = "pointer";
-                    status(button + " Mode");
-                    mode = button;
                 }
                 if (button === "Help") {
                     document.getElementById("helpButton").className = "active";
@@ -257,7 +262,7 @@
         // Login
         function login() {
             if (netState != "starting") {
-                modalDialog("logon", "User Login", "Enter username and password to login", "Login")
+                modalDialog("logon", "User Login", "Enter username and password to login", "Login");
             } else {
                 alert("Unable to connect to server. Try later.");
             }
@@ -272,8 +277,8 @@
         //    .fail(function () { modalDialog(helpType + " Widget Help", "No help text available"); });
         //}
 
+        //TODO: Better document how modals work
         // show modal dialog. Global modalFunction used to define callback routine
-        var modalFunction;
         function modalDialog(type, title, text, button, callback, param) {
             if (text === undefined) text = "";
             if (type === "logon") {
@@ -304,8 +309,8 @@
 
         // callback from modal form OK button push.
         function modalOK() {
-            $("#myModal").modal("hide");
             var param = document.getElementById("modalInput").value;
+            $("#myModal").modal("hide");
             if (param === "") param = modalFunction.param;
             switch (modalFunction.type) {
                 case "logon":
@@ -313,6 +318,10 @@
                     var password = "xx"
                     //send("NETWORK", "LOGIN", password)        // Establish a user session
                     user = "";
+                    break;
+                case "dirty":
+                    iFrame.contentWindow.g.dirty = false;
+                    adjustNavBar(modalFunction.func);
                     break;
                 default:
                     if (window[modalFunction.func] === undefined) {

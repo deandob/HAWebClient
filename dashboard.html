@@ -91,18 +91,13 @@
     <script>
         "use strict";
 
-        //TODO: Consolidate all the toolbox divs into 1
         //TODO: Test for edit options icons for small screens, top should not be working
         //TODO: Chrome widgets INI not setting correctly for dial
         //TODO: Chrome not hiding the initial screen -5000 so messy rendering
-        //TODO: Better naming standards for ID's etc. so that you can tell the class types (eg. text in HTML is 'myIDTxt'
         //TODO: User logon & server data
         //TODO: Customise bootstap for just the components used
         //TODO: Make the UI touch friendly (eg. scaling dragging in the designer)
         //TODO: be consistent with typeof xxx == "undefined" where xxx == undefined is better
-
-        //BUG: When on a screen that isn't the first screen, and hit the browser refresh, the widgetFW code loads the widget from the first page but tries to apply it to the old page.
-
 
         parent.profiler("dashloaded")
 
@@ -164,12 +159,15 @@
         var selScreenNum;                                                           // selected screen
         var barList;                                                                // top or side lists
         var widgetToLoadCnt, widgetLoadedCnt;                                       // Counter for when the last widget has finished loading.
-        var design = false, loadedTB = false;                                       // flags
         var widgetSubscribe = "";                                                   // list of subscriptions
 
+        var g = {}                                                                  // used for global boolean flags
+        g.design = false                                                            // design mode flag
+        g.loadedTB = false;                                                         // toolbox already loaded
+        g.dirty = false;                                                            // changed without saving
 
-        var editData = {};                                                          // Global for tracking edit state
-        var dragData = {};                                                          // Global for tracking dragging state
+        var editData = {};                                                          // Global object for tracking edit state
+        var dragData = {};                                                          // Global object for tracking dragging state
 
         document.addEventListener("keydown", keyPress, true);                       // capture keypresses
 
@@ -187,7 +185,7 @@
                 this.scaleY = widgets[this.widgetNum].scaleY;
                 this.iniHeight = widgets[this.widgetNum].iniHeight;
                 this.iniWidth = widgets[this.widgetNum].iniWidth;
-                if (design) this.state = "design";
+                if (g.design) this.state = "design";
             }
 
             // Access general framework functions from dashboard
@@ -225,38 +223,42 @@
         // Display the widget menu based on the attributes available
         function showWidgetMenu(widgetName) {
             var widgetProp;
-            setEdit(widgetName);                                // turn on editing
             var docFrag = document.createDocumentFragment();
             var menuItem = document.createElement("li")
             var menu = document.getElementById("widgetOptionMenu");
             var list = document.getElementById("widgetOptionList");
             var divider = document.getElementById("widgetOptionMenuDivider");
-            while (list.firstChild != divider) list.removeChild(list.firstChild);       // clear list up to the divider
-            menuItem.innerHTML = "<h5 class='text-center'><b>Configure Widget</b></h5>";
-            docFrag.appendChild(menuItem)
             var dropSel = [];
             var channelNum = 0;
+
+            setEdit(widgetName);                                                                                                        // turn on editing
+
+            while (list.firstChild != divider) list.removeChild(list.firstChild);                                                       // clear list up to the divider
+            menuItem.innerHTML = "<h5 class='text-center'><b>Configure Widget</b></h5>";
+            docFrag.appendChild(menuItem)
+
             for (var i = 0; i < widgets[editData.widgetNum].attribs.length; i++) {
                 menuItem = document.createElement("li")
                 widgetProp = widgets[editData.widgetNum].attribs[i].name;
                 var innerHTML = "";
-                switch (widgets[editData.widgetNum].attribs[i].type) {     // build the widget property menu based on attributes for the widget
+
+                switch (widgets[editData.widgetNum].attribs[i].type) {                                                                  // build the widget property menu based on attributes for the widget
                     case "dropdown":
-                        var options = widgetProp.split(",")             // options separated by commas
-                        var selectName = "select" + dropSel.length      // create an array in case there are multiple dropdowns
+                        var options = widgetProp.split(",")                                                                             // options separated by commas
+                        var selectName = "select" + dropSel.length                                                                      // create an array in case there are multiple dropdowns
                         innerHTML = "<a tabindex='-1' href='#'><select id='" + selectName + "' data-type='dropdown' class='span2'>"
                         for (var j = 0; j < options.length; j++) {
                             innerHTML += "<option>" + options[j].trim() + "</option>";
-                            if (options[j].trim() == widgets[editData.widgetNum].attribs[i].value) dropSel.push(j);
+                            if (options[j].trim() === widgets[editData.widgetNum].attribs[i].value) dropSel.push(j);
                         }
                         innerHTML += "</select></a>"
                         break;
                     case "checkbox":
                         var checked = "";
-                        if (widgets[editData.widgetNum].attribs[i].value == true) checked = "checked";
+                        if (widgets[editData.widgetNum].attribs[i].value === true) checked = "checked";
                         innerHTML = "<a tabindex='-1' href='#'><label class='checkbox'><input type='checkbox' " + checked + " data-type='checkbox' />" + widgetProp + "</label></a>";
                         break;
-                    case "channel":         // if the channel name is blank, don't display it (hidden channel)
+                    case "channel":                                                                                                     // if the channel name is blank, don't display it (hidden channel)
                         var chName = widgets[editData.widgetNum].attribs[i].value;
                         if (chName === "") chName = "none"
                         if (widgetProp !== "") innerHTML = "<a tabindex='-1' id='channelItem" + channelNum + "' href='#' data-selected='" + widgets[editData.widgetNum].attribs[i].value + "' data-type='channel' onclick='toggleToolbox(\"channelToolbox\", \"open\", " + channelNum + ")'>" + widgetProp + ": " + chName + "</a>"
@@ -268,7 +270,7 @@
                     case "input":
                         innerHTML = "<a tabindex='-1' href='#'>" + widgets[editData.widgetNum].attribs[i].name + "&nbsp;&nbsp;<input type='text' class='form-control input-sm' value='" + widgets[editData.widgetNum].attribs[i].value + "' data-type='input' placeholder='" + widgets[editData.widgetNum].attribs[i].value + "'></a>"
                         break;
-                    case "data":        // store widget variables (hidden on option menu)
+                    case "data":                                                                                                        // store widget variables (hidden on option menu)
                         innerHTML = "<a data-type='data' style='display: none;'>" + widgets[editData.widgetNum].attribs[i].value + "</a>"
                         break;
                     default:
@@ -276,72 +278,63 @@
                 menuItem.innerHTML = innerHTML;
                 docFrag.appendChild(menuItem)
             }
+
             list.insertBefore(docFrag, divider)
-            for (var i = 0; i < dropSel.length; i++) {      // set the default setting for each dropdown in the menu
+
+            for (var i = 0; i < dropSel.length; i++) {                                                                                  // set the default setting for each dropdown in the menu
                 document.getElementById("select" + i).selectedIndex = dropSel[i];
             }
+
             menu.style.setProperty("display", "inline");
-            var widgetLeft = parseInt(editData.widgetObj.offsetLeft);
-            var widgetWidth = parseInt(editData.widgetObj.width);
-            var widgetHeight = parseInt(editData.widgetObj.height);
-            var widgetTop = parseInt(editData.widgetObj.offsetTop);
-            if (widgets[editData.widgetNum].zOrder == 100)
-                document.getElementById("zorder").checked = true
-            else
-                document.getElementById("zorder").checked = false
-            // adjust menu position based on location of widget so menu stays on the screen
-            menu.style.setProperty("left", widgetLeft + ((widgetLeft < window.innerWidth / 2) ? (widgetWidth + 5) : (-1 * (list.clientWidth))) + "px")
-            menu.style.setProperty("top", widgetTop + (((widgetTop >= window.innerHeight / 2) ? (-1 * (list.clientHeight)) : 0)) + "px")
+
+            if (widgets[editData.widgetNum].zOrder === 100) document.getElementById("zorder").checked = true;
+            else document.getElementById("zorder").checked = false;
+
+            menu.style.setProperty("left", parseInt(editData.widgetObj.offsetLeft) + ((parseInt(editData.widgetObj.offsetLeft) < window.innerWidth / 2) ? (parseInt(editData.widgetObj.width) + 5) : (-1 * (list.clientWidth))) + "px");
+            menu.style.setProperty("top", parseInt(editData.widgetObj.offsetTop) + (((parseInt(editData.widgetObj.offsetTop) >= window.innerHeight / 2) ? (-1 * (list.clientHeight)) : 0)) + "px");  // adjust menu position based on location of widget so menu stays on the screen
         }
 
         // Helper for menu to select files. click the hidden file input tag and display selected file
         function fileInputHelper() {
             document.getElementById("selectedFile").click();
-            var selFile = document.getElementById("selectedFile").files[0]
             document.getElementById("menuFile").innerHTML = document.getElementById("selectedFile").files[0].name + "&nbsp;&nbsp<input id='selectedFile' type='file' accept='image/*' size='1' data-type='file' style='display: none'/><button onclick='fileInputHelper()'>File</button>"
-            document.getElementById("selectedFile").files[0] = selFile  // re-attach the selected file to the element as it gets destroyed when replacing the HTML
+            document.getElementById("selectedFile").files[0] = document.getElementById("selectedFile").files[0]                                    // re-attach the selected file to the element as it gets destroyed when replacing the HTML
         }
 
-        var widgetOptionCounter;
         function closeWidgetMenu(option) {
-            if ((option === "save") || (option === "update")) {
-                var list = document.getElementById("widgetOptionList");
-                widgetOptionCounter = 0;
-                walkList(list);                              // recursive save all the menu settings based on nodes with widget data-type attribute
-                parent.status("Changes to widget '" + widgets[editData.widgetNum].type + "' saved.");
-                var myWidget = document.getElementById(editData.widgetName);
-                if (typeof myWidget.contentDocument.defaultView.menuUpdate == "function") myWidget.contentDocument.defaultView.menuUpdate();      // call menu update routine in widget
+            if (option === "save") {
+                walkList(document.getElementById("widgetOptionList"), 0);                                                                           // recursive save all the menu settings based on nodes with widget data-type attribute
+                if (typeof editData.widgetView.menuUpdate === "function") editData.widgetView.menuUpdate();                                         // call menu update routine in widget
             }
             if (option === "cancel") parent.status("Changes to widget '" + widgets[editData.widgetNum].type + "' cancelled.");
             if (option === "save") resetEdit(editData.widgetName);
-            document.getElementById("widgetOptionMenu").style.setProperty("display", "none"); // hide option menu
+            document.getElementById("widgetOptionMenu").style.setProperty("display", "none");                                                       // hide option menu
         }
 
         // Save widget attribute data based on the values set in the widget option menu
-        function walkList(node) {
+        function walkList(node, optionCnt) {
             var children = node.childNodes;
-            for (var i = 0; i < children.length; i++) walkList(children[i]);      // recursive find lowest sibling
-            if (node.attributes != null) {
-                var attrib = node.attributes["data-type"];
-                if (attrib != null) {
-                    switch (attrib.nodeValue) {     // build the widget property menu based on attributes for the widget
+            for (var i = 0; i < children.length; i++) optionCnt = walkList(children[i], optionCnt);      // recursive find lowest sibling
+            if (node.attributes && node.attributes["data-type"]) {
+                    switch (node.attributes["data-type"].nodeValue) {     // build the widget property menu based on attributes for the widget
                         case "zorder":
-                            if (node.checked) { widgets[editData.widgetNum].zOrder = 100 } else { widgets[editData.widgetNum].zOrder = 10 }
-                            document.getElementById(editData.widgetName).style.setProperty("z-index", widgets[editData.widgetNum].zOrder)
+                            if (node.checked) widgets[editData.widgetNum].zOrder = 100;
+                            else widgets[editData.widgetNum].zOrder = 10;
+                            editData.widgetObj.style.setProperty("z-index", widgets[editData.widgetNum].zOrder);
                             break;
                         case "checkbox":
-                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.checked
+                            widgets[editData.widgetNum].attribs[optionCnt].value = node.checked;
                             break;
                         case "channel":
-                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.getAttribute("data-selected");
+                            widgets[editData.widgetNum].attribs[optionCnt].value = node.getAttribute("data-selected");
                             break;
                         case "dropdown":
-                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.value.trim().toLowerCase()
+                            widgets[editData.widgetNum].attribs[optionCnt].value = node.value.trim().toLowerCase();
                             break;
                         case "file":
                             if (node.files[0] !== undefined) {
-                                var oFReader = new FileReader()
-                                var widgetNum = editData.widgetNum      // editData gets destroyed before onload runs
+                                var oFReader = new FileReader();
+                                var widgetNum = editData.widgetNum                          // editData gets destroyed before onload runs ?????????????????????????????????????????????
                                 oFReader.onload = function (oFREvent) {
                                     if (oFREvent.target.result.toString().length > 139999) {
                                         alert("ERROR: File Size of " + parseInt(oFREvent.target.result.toString().length * 0.00074) + "K Bytes for image file '" + node.files[0].name + "' is too large. Select an image of size less than 100K Bytes instead.");
@@ -350,26 +343,27 @@
                                     }
                                 };
                                 oFReader.readAsDataURL(node.files[0]);          // Read in as base64
-                                widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.files[0].name
+                                widgets[editData.widgetNum].attribs[optionCnt].value = node.files[0].name
                             }
                             break;
                         case "input":
-                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.value;
+                            widgets[editData.widgetNum].attribs[optionCnt].value = node.value;
                             break;
                         case "data":
-                            widgets[editData.widgetNum].attribs[widgetOptionCounter].value = node.innerHTML;
+                            widgets[editData.widgetNum].attribs[optionCnt].value = node.innerHTML;
+                            break;
                         default:
                     }
-                    widgetOptionCounter = widgetOptionCounter + 1;
+                    optionCnt += 1;
+                    g.dirty = true;
                 }
-            }
+                return optionCnt;
         }
-
-        //TODO: ':' is an invalid character in a channel name, as is )(
 
         function deleteWidget() {
             if (editData.widgetName) {
                 parent.status("Deleted widget #" + editData.widgetNum + " (" + widgets[editData.widgetNum].type + ")");
+                g.dirty = true;
                 widgets.splice(editData.widgetNum, 1)                       // remove widget from widget array
                 closeWidgetMenu("deleted");
                 editData.widgetObj.parentNode.removeChild(editData.widgetObj);                                                            // remove widget
@@ -379,14 +373,14 @@
 
         //////////////////////////////////////////// Design mode
         function setDesign() {
-            if (!design) {
-                if (loadedTB === false) {        // Initialise for the design environment (only run once)
+            if (!g.design) {
+                if (g.loadedTB === false) {        // Initialise for the design environment (only run once)
                     parent.send("WIDGETS", "TOOLBOX", "");                  // retrieve the available toolbox widget names from server
                     drawlines(parent.deviceWidth, parent.deviceHeight);
                     setTimeout(loadIcons, 50);
-                    loadedTB = true;
+                    g.loadedTB = true;
                 }
-                design = true;
+                g.design = true;
                 parent.status("Designer Mode");
                 document.getElementById("cvsDesign").style.setProperty("display", "inline");
                 document.getElementById("sideScreenEditor").style.setProperty("display", "inline");
@@ -395,7 +389,7 @@
                 for (var i = 0; i < nodes.length; i++) nodes[i].setAttribute("contenteditable", "true");                    // Able to edit span text
                 var allWidgets = document.querySelectorAll(".widget");
                 for (var i = 0; i < allWidgets.length; i++) {                                                               // Loop through all widgets on screen and run the startdesign routine in the widget
-                    if (typeof allWidgets[i].contentDocument.defaultView.startDesign == "function") allWidgets[i].contentDocument.defaultView.startDesign();
+                    if (typeof allWidgets[i].contentDocument.defaultView.startDesign === "function") allWidgets[i].contentDocument.defaultView.startDesign();
                     allWidgets[i].contentDocument.defaultView.fw.state = "design";
                 }
             }
@@ -451,7 +445,7 @@
             canvas_ctx.lineWidth = 1;
             var cnt = 3;
             for (var x = 1; x < maxWidth; x = x + DESIGNGRID) {
-                if (cnt == 3) {
+                if (cnt === 3) {
                     canvas_ctx.strokeStyle = "rgb(207, 221, 232)";
                     cnt = -1;
                 }
@@ -460,11 +454,11 @@
                 canvas_ctx.lineTo(x - 0.5, maxHeight - 0.5);
                 canvas_ctx.stroke();
                 cnt = cnt + 1;
-                if (cnt == 0) canvas_ctx.strokeStyle = "rgb(221, 235, 246)";
+                if (cnt === 0) canvas_ctx.strokeStyle = "rgb(221, 235, 246)";
             }
             var cnt = 3;
             for (var y = 1; y < maxHeight ; y = y + DESIGNGRID) {
-                if (cnt == 3) {
+                if (cnt === 3) {
                     canvas_ctx.strokeStyle = "rgb(207, 221, 232)";
                     cnt = -1;
                 }
@@ -473,7 +467,7 @@
                 canvas_ctx.lineTo(maxWidth - 0.5, y - 0.5);
                 canvas_ctx.stroke();
                 cnt = cnt + 1;
-                if (cnt == 0) canvas_ctx.strokeStyle = "rgb(221, 235, 246)";
+                if (cnt === 0) canvas_ctx.strokeStyle = "rgb(221, 235, 246)";
             }
         }
 
@@ -611,8 +605,9 @@
                         return;
                     }
                 }
-                parent.status("Screens saved.")
-                parent.send("SCREENS", "SAVE", JSON.stringify(screens))
+                g.dirty = false;
+                parent.status("Screens saved.");
+                parent.send("SCREENS", "SAVE", JSON.stringify(screens));
                 var saveWidgets = [];                                                                                               // compress widgets to save bandwidth/speed
                 for (var i in widgets) {
                     var widgetAttribs = [];
@@ -637,7 +632,7 @@
         function tabIconClick(e) {
             selScreenNum = parseInt(e.parentNode.id.split("-")[1]);
             selectedTab(selScreenNum);
-            if (design) {
+            if (g.design) {
                 tabIconSelected = e.parentNode.id;
                 toggleToolbox("iconToolbox", "open");
             }
@@ -661,7 +656,7 @@
         function endWidgetSess() {
             var screenWidgets = document.getElementById("widgetsDiv").children;
             for (var widgetNum = 0; widgetNum < screenWidgets.length; widgetNum++) {                                                // Run any end session functions in widgets
-                if (!design && typeof screenWidgets[widgetNum].contentDocument.defaultView.endSession === "function") screenWidgets[widgetNum].contentDocument.defaultView.endSession()
+                if (!g.design && typeof screenWidgets[widgetNum].contentDocument.defaultView.endSession === "function") screenWidgets[widgetNum].contentDocument.defaultView.endSession()
             }
             parent.send("WIDGETS", "UNSUB", widgetSubscribe);
         }
@@ -771,7 +766,7 @@
                 loadDoc.defaultView.widgetLoad(e.currentTarget.id);                                                                 // Run the widget API startup (must be done from parent to pass name)
                 loadDoc.defaultView.fw.iniWidth = widgetWidth;
                 loadDoc.defaultView.fw.iniHeight = widgetHeight;
-                if (typeof loadDoc.defaultView.scale == "function") loadDoc.defaultView.scale(1, 1);
+                if (typeof loadDoc.defaultView.scale === "function") loadDoc.defaultView.scale(1, 1);
                 if (typeof loadDoc.defaultView.toolStart === "function") loadDoc.defaultView.toolStart();
                 loadDoc.getElementById("widget").style.setProperty("cursor", "move");
                 widgetListeners(loadDoc);
@@ -826,7 +821,7 @@
             var loadDoc = loadObj.contentDocument;
             var widgetID = loadDoc.getElementById("widget");
             try {
-                if (design) {                                                                                       // setup initial settings when the widget is first created
+                if (g.design) {                                                                                       // setup initial settings when the widget is first created
                     widgets[loadNum].iniHeight = parseInt(widgetID.getAttribute("height")) || parseInt(widgetID.style.getPropertyValue("height"));
                     widgets[loadNum].iniWidth = parseInt(widgetID.getAttribute("width")) || parseInt(widgetID.style.getPropertyValue("width"));
                     for (var i = 0; true; i++) {                                                                    // read the data attributes from the SPAN tags to populate attrib array
@@ -841,7 +836,7 @@
                 }
 
                 loadDoc.defaultView.widgetLoad(loadObj.id);                                                         // Run the widget API startup (must be done from parent to pass name)
-                if (design && typeof loadDoc.defaultView.startDesign === "function") loadDoc.defaultView.startDesign();
+                if (g.design && typeof loadDoc.defaultView.startDesign === "function") loadDoc.defaultView.startDesign();
 
                 widgetID.setAttribute("data-type", widgets[loadNum].type);                                          // widget type = classname for messages
                 loadObj.setAttribute("style", "position:absolute;overflow:hidden;left:" + widgets[loadNum].locX + "px;top:" + widgets[loadNum].locY + "px;z-index:" + widgets[loadNum].zOrder);
@@ -855,7 +850,7 @@
                 if (startRet.toUpperCase() !== "OK") throw "Widget failed startup - " + startRet;
                 var gScale = loadDoc.getElementById("scale");
                 if (gScale && +widgets[loadNum].scaleX != 1 && +widgets[loadNum].scaleY != 1) gScale.setAttribute("transform", "scale(" + widgets[loadNum].scaleX + "," + widgets[loadNum].scaleY + ")");
-                if (typeof loadDoc.defaultView.scale == "function") loadDoc.defaultView.scale(+widgets[loadNum].scaleX, +widgets[loadNum].scaleY);
+                if (typeof loadDoc.defaultView.scale === "function") loadDoc.defaultView.scale(+widgets[loadNum].scaleX, +widgets[loadNum].scaleY);
 
                 if (widgetToLoadCnt === widgetLoadedCnt) {                                                          // Finished loading all the widgets on the screen
                     setTimeout(afterRender, 0);
@@ -877,7 +872,7 @@
             parent.send("SETTINGS", "GET:CATEGORIES()", "");
             var myWidgets = document.getElementsByClassName("widget");
             for (var i = 0; i < myWidgets.length; i++) widgetListeners(myWidgets[i].contentDocument.defaultView);
-            if (!design && parent.mode === "Design") setDesign();                                                   // Go into design mode if just reloaded after pressing design button
+            if (!g.design && parent.mode === "Design") setDesign();                                                   // Go into design mode if just reloaded after pressing design button
         }
 
         function widgetListeners(myWidget) {
@@ -892,7 +887,7 @@
 
         // Handle mouse click over widget depending on mode
         function mouseDown(event) {
-            if (design) {
+            if (g.design) {
                 if (event.which === 3) {                                                                        // right click
                     showWidgetMenu(event.target.ownerDocument.defaultView.fw.widgetName);                       // in design mode, show the widget menu
                     if (typeof event.currentTarget.designRHClicked === "function") event.currentTarget.designRHClicked(event);        // run the click event in the widget
@@ -906,7 +901,7 @@
                     } else dragData.widgetName = "new";                                                         // Dragging new widget from toolbox
                 }
             } else {
-                if (typeof event.currentTarget.clicked == "function") event.currentTarget.clicked(event);       // run the click event in the widget
+                if (typeof event.currentTarget.clicked === "function") event.currentTarget.clicked(event);       // run the click event in the widget
             }
             event.preventDefault();                                                                             // stop HTML5 drag drop
         }
@@ -930,9 +925,10 @@
                     if (dragData.widgetObj) {                                                                   // only drag if not rescaling & if I'm a new widget from the toolbox I have been created
                         dragData.widgetObj.style.setProperty("left", Math.round((dragData.startX + event.screenX) / DESIGNGRID) * DESIGNGRID + "px");
                         dragData.widgetObj.style.setProperty("top", Math.round((dragData.startY + event.screenY) / DESIGNGRID) * DESIGNGRID + "px");
+                        g.dirty = true;
                     }
                 }
-            } else if (typeof event.currentTarget.mouseMove == "function") event.currentTarget.mouseMove(event); // Send mousemove to widget if it wants it
+            } else if (typeof event.currentTarget.mouseMove === "function") event.currentTarget.mouseMove(event); // Send mousemove to widget if it wants it
         }
 
         // Handle widget mouse up depending on mode (edit mode set here not on mousedown as we could be dragging with mousedown)
@@ -948,6 +944,7 @@
                     document.getElementById("widgetsDiv").appendChild(dragData.widgetObj);                                                          // Move from body to widget container
                     setEdit(dragData.widgetName);
                     if (typeof dragData.widgetObj.contentDocument.defaultView.newWidget === "function") dragData.widgetObj.contentDocument.defaultView.newWidget();         // widget created routine in widget
+                    g.dirty = true;
                 }
                 widgets[dragData.widgetNum].locX = parseInt(dragData.widgetObj.style.left);
                 widgets[dragData.widgetNum].locY = parseInt(dragData.widgetObj.style.top);
@@ -1085,6 +1082,7 @@
             removeScaleListeners(document.getElementById("cvsDesign"));
 
             editData.widgetEl.style.setProperty("cursor", "default");
+            g.dirty = true;
         }
 
         function removeScaleListeners(obj) {
@@ -1098,19 +1096,19 @@
 
         // Click the canvas blank areas (not widgets)
         function canvasClick() {
-            if (design && editData.widgetNum) resetEdit(editData.widgetName);        // turn off editing for any widget being edited
+            if (g.design && editData.widgetNum) resetEdit(editData.widgetName);        // turn off editing for any widget being edited
             return false;
         }
 
         // Double click the widget
         function widgetDblClick(event) {
-            if (typeof event.currentTarget.dblClicked == "function") event.currentTarget.dblClicked(event);
+            if (typeof event.currentTarget.dblClicked === "function") event.currentTarget.dblClicked(event);
             return false;
         }
 
         // Process global keypresses, handle for designer and send to widgets if they want it
         function keyPress(e) {
-            if (design && editData.widgetName) {
+            if (g.design && editData.widgetName) {
                 switch (e.keyCode) {
                     case 13:                    // Enter
                         break;
@@ -1124,18 +1122,22 @@
                     case 37:                    // Left arrow
                         editData.widgetObj.style.setProperty("left", (widgets[editData.widgetNum].locX - DESIGNGRID) + "px");       // move editing widget left by a grid space
                         widgets[editData.widgetNum].locX -= DESIGNGRID;
+                        g.dirty = true;
                         break;
                     case 38:                    // Up arrow
                         editData.widgetObj.style.setProperty("top", (widgets[editData.widgetNum].locY - DESIGNGRID) + "px");        // move editing widget up by a grid space
                         widgets[editData.widgetNum].locY -= DESIGNGRID;
+                        g.dirty = true;
                         break;
                     case 39:                    // Right arrow
                         editData.widgetObj.style.setProperty("left", (widgets[editData.widgetNum].locX + DESIGNGRID) + "px");       // move editing widget right by a grid space
                         widgets[editData.widgetNum].locX += DESIGNGRID;
+                        g.dirty = true;
                         break;
                     case 40:                    // Down arrow
                         editData.widgetObj.style.setProperty("top", (widgets[editData.widgetNum].locY + DESIGNGRID) + "px");        // move editing widget down by a grid space
                         widgets[editData.widgetNum].locY += DESIGNGRID;
+                        g.dirty = true;
                         break;
                     default:
                 }
@@ -1196,7 +1198,7 @@
                         for (var attrib in widgets[widgetNum].attribs) {
                             if (widgets[widgetNum].attribs[attrib].type === "channel") {
                                 if (widgets[widgetNum].attribs[attrib].value.toUpperCase() === (msg.Category.toUpperCase() + "/" + msg.ClassName.toUpperCase() + "/" + msg.Instance.toUpperCase())) {
-                                    if ((!design) && (widgets[widgetNum].screen === selScreenNum))
+                                    if ((!g.design) && (widgets[widgetNum].screen === selScreenNum))
                                         widgetAction("widgetObj" + widgetNum, "feed", msg.Instance, msg.Scope, msg.Data);
                                 }
                             }
@@ -1331,7 +1333,7 @@
                 if (myWidget) {                                                                                                         // Not even on the page, ignore message as a new page is loaded
                     if (myWidget.contentDocument && typeof myWidget.contentDocument.defaultView.fw === "object") {                      // function may not exist yet if widget is still loading
                         widgets[widgetNum].loadCnt = 0
-                        if (!design) {                                                                                                  // actions requested from the host: msg.Instance, msg.Scope, msg.Data
+                        if (!g.design) {                                                                                                  // actions requested from the host: msg.Instance, msg.Scope, msg.Data
                             switch (func) {
                                 case "feed":                                    // channel event updates
                                     myWidget.contentDocument.defaultView.feed(param0, param1, param2);
@@ -1378,5 +1380,4 @@
     <script defer src="js/jquery-3.1.0.slim.min.js"></script>
     <script defer src="js/bootstrap.min.js"></script>
 </body>
-
 </html>
