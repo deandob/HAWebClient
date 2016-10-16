@@ -6,7 +6,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Home Automation Client</title>
     <meta name="description" content="Home Automation Framework">
-    <meta id="version" content="1.0">
+    <meta id="version" content="1.0 beta">
     <meta name="author" content="Dean Dobson">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
@@ -116,7 +116,7 @@
         "use strict";
         var profilelog = "";
         var startProfile = new Date().valueOf();
-
+        
         var ws, clientName
         var debugURL = "";
         var wsPort = 1066;
@@ -268,15 +268,6 @@
             }
         }
 
-        //// Display help from the widget .hlp file
-        //function helpWidget() {
-        //    var helpType = widgets[editData.widgetNum].type
-        //    $.get("../widgets/" + helpType + ".hlp", function (data) {
-        //        modalDialog(helpType + " Widget Help", data)
-        //    })
-        //    .fail(function () { modalDialog(helpType + " Widget Help", "No help text available"); });
-        //}
-
         //TODO: Better document how modals work
         // show modal dialog. Global modalFunction used to define callback routine
         function modalDialog(type, title, text, button, callback, param) {
@@ -293,7 +284,7 @@
             document.getElementById("modalTitle").innerHTML = title;
             document.getElementById("modalText").innerHTML = text;
             document.getElementById("cancelButton").style.setProperty("display", "none");
-            if (button) {           // only show cancel button if no button text is specified (OK by default). If text = continue then don't show cancel
+            if (button) {                                                                           // only show cancel button if no button text is specified (OK by default). If text = continue then don't show cancel
                 document.getElementById("modalButton").innerHTML = button;
                 if (button.toLowerCase() != "continue") document.getElementById("cancelButton").style.setProperty("display", "inline");
             } else {
@@ -368,6 +359,7 @@
         }
 
         /////////////////////////////////////// Network
+
         function startNet() {
             try {
                 //TODO: Use wss for secure websockets

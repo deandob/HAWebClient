@@ -1,21 +1,21 @@
 {
     "version": "0.2.0",
-    "configurations": [{
-        "name": "Launch HAClient.html",
-        "type": "chrome",
-        "request": "launch",
-        "file": "${workspaceRoot}/HAClient.html?Debug=192.168.0.2"
-    }, {
-        "name": "Launch localhost with sourcemaps",
-        "type": "chrome",
-        "request": "launch",
-        "url": "http://localhost/HAClient.html",
-        "sourceMaps": true,
-        "webRoot": "wwwroot"
-    }, {
-        "name": "Attach",
-        "type": "chrome",
-        "request": "attach",
-        "port": 9222
-    }]
+    "configurations": [
+        {
+            "name": "Launch Chrome against localhost, with sourcemaps",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://192.168.0.2/haclient.html?debug=192.168.0.2",
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}"
+        },
+        {
+            "name": "Attach to Chrome, with sourcemaps",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "sourceMaps": true,
+            "webRoot": "${workspaceRoot}"
+        }
+    ]
 }
