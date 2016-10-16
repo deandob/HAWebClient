@@ -4,7 +4,7 @@
         "name": "Launch HAClient.html",
         "type": "chrome",
         "request": "launch",
-        "file": "${workspaceRoot}/HAClient.html"
+        "file": "${workspaceRoot}/HAClient.html?Debug=192.168.0.2"
     }, {
         "name": "Launch localhost with sourcemaps",
         "type": "chrome",

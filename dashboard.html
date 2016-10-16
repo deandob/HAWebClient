@@ -160,11 +160,14 @@
         var barList;                                                                // top or side lists
         var widgetToLoadCnt, widgetLoadedCnt;                                       // Counter for when the last widget has finished loading.
         var widgetSubscribe = "";                                                   // list of subscriptions
+        var toolboxParam;                                                           // Save the toolbox parameter for other functions
+        var tabIconSelected = "";                                                   // Save the name of the icon selected for saving
 
         var g = {}                                                                  // used for global boolean flags
         g.design = false                                                            // design mode flag
         g.loadedTB = false;                                                         // toolbox already loaded
         g.dirty = false;                                                            // changed without saving
+        g.menuOpen = false;                                                         // widget edit menu state
 
         var editData = {};                                                          // Global object for tracking edit state
         var dragData = {};                                                          // Global object for tracking dragging state
@@ -232,6 +235,7 @@
             var channelNum = 0;
 
             setEdit(widgetName);                                                                                                        // turn on editing
+            g.menuOpen = true;
 
             while (list.firstChild != divider) list.removeChild(list.firstChild);                                                       // clear list up to the divider
             menuItem.innerHTML = "<h5 class='text-center'><b>Configure Widget</b></h5>";
@@ -309,6 +313,7 @@
             if (option === "cancel") parent.status("Changes to widget '" + widgets[editData.widgetNum].type + "' cancelled.");
             if (option === "save") resetEdit(editData.widgetName);
             document.getElementById("widgetOptionMenu").style.setProperty("display", "none");                                                       // hide option menu
+            g.menuOpen = false;
         }
 
         // Save widget attribute data based on the values set in the widget option menu
@@ -471,7 +476,6 @@
             }
         }
 
-        var toolboxParam;
         function toggleToolbox(toolboxName, openclose, param) {
             toolboxParam = param;
             if (document.getElementById(toolboxName).style.getPropertyValue("left") !== "0px") {
@@ -628,7 +632,6 @@
         }
 
         // selected a new screen tab via tab icon (allows us to change icons when editing screens)
-        var tabIconSelected = "";
         function tabIconClick(e) {
             selScreenNum = parseInt(e.parentNode.id.split("-")[1]);
             selectedTab(selScreenNum);
@@ -1108,7 +1111,7 @@
 
         // Process global keypresses, handle for designer and send to widgets if they want it
         function keyPress(e) {
-            if (g.design && editData.widgetName) {
+            if (g.design && editData.widgetName && !g.menuOpen) {
                 switch (e.keyCode) {
                     case 13:                    // Enter
                         break;
