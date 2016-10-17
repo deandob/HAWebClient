@@ -304,7 +304,7 @@
                 if (typeof editData.widgetView.menuUpdate === "function") editData.widgetView.menuUpdate();                                         // call menu update routine in widget
             }
             if (option === "cancel") parent.status("Changes to widget '" + widgets[editData.widgetNum].type + "' cancelled.");
-            if (option === "save") resetEdit(editData.widgetName);
+            resetEdit(editData.widgetName);
             document.getElementById("widgetOptionMenu").style.setProperty("display", "none");                                                       // hide option menu
             g.menuOpen = false;
         }
@@ -364,11 +364,20 @@
         function deleteWidget() {
             if (editData.widgetName) {
                 parent.status("Deleted widget #" + editData.widgetNum + " (" + widgets[editData.widgetNum].type + ")");
-                g.dirty = true;
                 widgets.splice(editData.widgetNum, 1)                                                                                               // remove widget from widget array
-                closeWidgetMenu("deleted");
                 editData.widgetObj.parentNode.removeChild(editData.widgetObj);                                                                      // remove widget
-                editData = {};
+                var allWidgets = document.querySelectorAll(".widget");
+                for (var widgetNum = 0; widgetNum < allWidgets.length; widgetNum++) {                                                               // shuffle widget ID to adjust for deletion
+                    var myWidgetNum = parseInt(allWidgets[widgetNum].id.replace("widgetObj", ""));
+                    if (myWidgetNum > editData.widgetNum) {
+                        allWidgets[widgetNum].id = "widgetObj" + (myWidgetNum - 1);
+                        allWidgets[widgetNum].contentDocument.defaultView.fw.widgetName = allWidgets[widgetNum].id;
+                        allWidgets[widgetNum].contentDocument.defaultView.fw.widgetNum = myWidgetNum - 1;
+                    }
+                }
+                var allWidgets = document.querySelectorAll(".widget");          //////////////
+                closeWidgetMenu("deleted");
+                g.dirty = true;
             }
         }
 
@@ -402,13 +411,13 @@
                 document.body.setAttribute("spellcheck", "true");
 
                 var nodes = document.getElementById(barList).getElementsByTagName("span");
-                for (var i = 0; i < nodes.length; i++) {
-                    nodes[i].setAttribute("contenteditable", "true");                                                                               // Able to edit tab text
+                for (var nodeNum = 0; nodeNum < nodes.length; nodeNum++) {
+                    nodes[nodeNum].setAttribute("contenteditable", "true");                                                                         // Able to edit tab text
                 }
                 var allWidgets = document.querySelectorAll(".widget");
-                for (var i = 0; i < allWidgets.length; i++) {                                                                                       // Loop through all widgets on screen and run the startdesign routine in the widget
-                    if (typeof allWidgets[i].contentDocument.defaultView.startDesign === "function") allWidgets[i].contentDocument.defaultView.startDesign();
-                    allWidgets[i].contentDocument.defaultView.fw.state = "design";
+                for (var widgetNum = 0; widgetNum < allWidgets.length; widgetNum++) {                                                               // Loop through all widgets on screen and run the startdesign routine in the widget
+                    if (typeof allWidgets[widgetNum].contentDocument.defaultView.startDesign === "function") allWidgets[widgetNum].contentDocument.defaultView.startDesign();
+                    allWidgets[widgetNum].contentDocument.defaultView.fw.state = "design";
                 }
             }
         }
@@ -589,16 +598,13 @@
             if (screens.length !== 0) {
                 for (var screenNum = 0; screenNum < screens.length; screenNum++) {
                     if (screens[screenNum].name === "New Screen") {
-                        alert("Error, screen not saved - A screen has not been given a name, rename 'New Screen' to something else before saving.");
+                        alert("ERROR, screen not saved - A screen has not been given a name, rename 'New Screen' to something else before saving.");
                         return;
                     }
                     for (var widgetNum = 0; widgetNum < widgets.length; widgetNum++) {
                         if (widgets[widgetNum].screen === screenNum) break;
                     }
-                    if (widgetNum === widgets.length) {
-                        alert("Error, screen not saved - Screen '" + screens[screenNum].name + "' does not have widgets. Open toolbox and drag a widget to the screen before saving.");
-                        return;
-                    }
+                    if (widgetNum === widgets.length) alert("WARNING, Screen '" + screens[screenNum].name + "' does not have widgets and will be saved blank. Open toolbox and drag a widget to the screen before saving.");
                 }
                 g.dirty = false;
                 parent.status("Screens saved.");
