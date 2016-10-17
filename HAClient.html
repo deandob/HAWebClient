@@ -145,7 +145,7 @@
             case "clientname":
                 clientName = params[1].toUpperCase();
                 serverName = localStorage.getItem("serverName");
-                deviceHeight = +localStorage.getItem("impHeight");
+                deviceHeight = +localStorage.getItem("impHeight");                                                                                  // If impersonating another client with different width like a phone
                 if (!deviceHeight) deviceHeight = screen.availHeight;
                 deviceWidth = +localStorage.getItem("impWidth");
                 if (!deviceWidth) deviceWidth = screen.availWidth;

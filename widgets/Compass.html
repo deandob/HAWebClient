@@ -16,7 +16,7 @@
     <span id="ontop" data-default="true" />
 
     <div id="group">
-        <svg id="widget" width="100" height="100" style="position: absolute; left: 0px; top: 0px; z-index:4">
+        <svg id="widget" width="100%" height="100%" style="position: absolute; left: 0px; top: 0px; z-index:4">
             <style type="text/css">
                 text {
                     font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -27,19 +27,13 @@
                     pointer-events: none;
                 }
             </style>
-
-            <g id="svgGroup">
-                <g id="noScale">
-
-                </g>
-                <g id="scale">
+            <g id="ring">
                     <circle r="45" cy="50" cx="50" stroke-width="5" stroke="#b2b2b2" fill-opacity="0" fill="#ff0000" />
                     <text xml:space="preserve" y="26" x="50" text-anchor="middle" stroke-width="0" stroke="#000000" fill="#000000" font-weight="bold" font-size="18" font-family="Sans-serif" id="svg_17">N</text>
                     <text xml:space="preserve" y="56" x="22" text-anchor="middle" stroke-width="0" stroke="#000000" fill="#000000" font-weight="bold" font-size="18" font-family="Sans-serif" id="svg_19">W</text>
                     <text xml:space="preserve" y="56" x="80" text-anchor="middle" stroke-width="0" stroke="#000000" fill="#000000" font-weight="bold" font-size="18" font-family="Sans-serif" id="svg_20">E</text>
                     <text xml:space="preserve" y="87" x="50" text-anchor="middle" stroke-width="0" stroke="#000000" fill="#000000" font-weight="bold" font-size="18" font-family="Sans-serif" id="svg_21">S</text>
                     <path id="TBNeedle" d="m50,30 l-10,40 l10,-10 l10,10 l-10,-40z" stroke-width="0" stroke="#000000" fill="#ff0000" />
-                </g>
             </g>
         </svg>
         <svg id="needle" style="position: absolute; left: 0px; top: 0px; z-index:3">
@@ -57,6 +51,7 @@
             fw = new parent.widgetAPI(myName);                                  // widget framework object
         }
 
+        var ringID = document.getElementById("ring");
         var needleID = document.getElementById("needle");		    // id of the path to rotate
         var numID = document.getElementById("numVal");		        // id text field
         var avgID = document.getElementById("avg");                 // id average marker
@@ -87,6 +82,7 @@
         }
 
         function scale(scaleX, scaleY) {
+            ringID.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
             svgNeedle.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
             needleID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
             avgID.style.setProperty("transform-origin", (50 * scaleX) + "px " + (50 * scaleY) + "px");
