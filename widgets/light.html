@@ -16,7 +16,7 @@
     <span id="ontop" data-default="true" />
 
     <div id="group">
-        <svg id="widget" width="50" height="50" style="position: absolute; left: 0px; top: 0px; cursor:pointer">
+        <svg id="widget" width="100%" height="100%" style="position: absolute; left: 0px; top: 0px; height: 50px; width: 50px; cursor:pointer">
             <style type="text/css">
                 .lightColor {
                     fill: rgb(50,50,50);
@@ -32,23 +32,18 @@
                 </radialGradient>
             </defs>
 
-            <g id="svgGroup">
-                <g id="noScale">
-
-                </g>
-                <g id="scale">
-                    <rect id="lightRect" x="0" y="0" width="50" height="50" fill="url(#lightRadialGradient)" opacity="0" />
-                    <g id="icon">
-                        <circle r="5" cy="25" cx="25" class="lightColor" stroke-width="3" id="svg_1" />
-                        <rect ry="1" rx="1" height="8" width="2" y="8.17734" x="24" class="lightColor" stroke-width="2" id="svg_2" />
-                        <rect ry="1" rx="1" height="8" width="2" y="33.7747" x="24" class="lightColor" stroke-width="2" id="svg_3" />
-                        <rect ry="1" rx="1" height="8" width="2" y="21" x="36.767" class="lightColor" transform="rotate(-90 37.7644 25)" stroke-width="2" id="svg_4" />
-                        <rect ry="1" rx="1" height="8" width="2" y="29.6245" x="33.6245" class="lightColor" transform="rotate(-45 34.6246 33.6246)" stroke-width="2" id="svg_5" />
-                        <rect ry="1" rx="1" height="8" width="2" y="11.816" x="33.085" class="lightColor" transform="rotate(45 34.0853 15.8157)" stroke-width="2" id="svg_6" />
-                        <rect ry="1" rx="1" height="8" width="2" y="21" x="11.2112" class="lightColor" transform="rotate(-90 12.2116 25)" stroke-width="2" id="svg_7" />
-                        <rect ry="1" rx="1" height="8" width="2" y="30.1333" x="14.8361" class="lightColor" transform="rotate(45 15.8361 34.1332)" stroke-width="2" id="svg_8" />
-                        <rect ry="1" rx="1" height="8" width="2" y="11.8458" x="14.8458" class="lightColor" transform="rotate(-45 15.8464 15.8464)" stroke-width="2" id="svg_9" />
-                    </g>
+            <g id="scale">
+                <rect id="lightRect" x="0" y="0" width="50" height="50" fill="url(#lightRadialGradient)" opacity="0" />
+                <g id="icon">
+                    <circle r="5" cy="25" cx="25" class="lightColor" stroke-width="3" id="svg_1" />
+                    <rect ry="1" rx="1" height="8" width="2" y="8.17734" x="24" class="lightColor" stroke-width="2" id="svg_2" />
+                    <rect ry="1" rx="1" height="8" width="2" y="33.7747" x="24" class="lightColor" stroke-width="2" id="svg_3" />
+                    <rect ry="1" rx="1" height="8" width="2" y="21" x="36.767" class="lightColor" transform="rotate(-90 37.7644 25)" stroke-width="2" id="svg_4" />
+                    <rect ry="1" rx="1" height="8" width="2" y="29.6245" x="33.6245" class="lightColor" transform="rotate(-45 34.6246 33.6246)" stroke-width="2" id="svg_5" />
+                    <rect ry="1" rx="1" height="8" width="2" y="11.816" x="33.085" class="lightColor" transform="rotate(45 34.0853 15.8157)" stroke-width="2" id="svg_6" />
+                    <rect ry="1" rx="1" height="8" width="2" y="21" x="11.2112" class="lightColor" transform="rotate(-90 12.2116 25)" stroke-width="2" id="svg_7" />
+                    <rect ry="1" rx="1" height="8" width="2" y="30.1333" x="14.8361" class="lightColor" transform="rotate(45 15.8361 34.1332)" stroke-width="2" id="svg_8" />
+                    <rect ry="1" rx="1" height="8" width="2" y="11.8458" x="14.8458" class="lightColor" transform="rotate(-45 15.8464 15.8464)" stroke-width="2" id="svg_9" />
                 </g>
             </g>
         </svg>
@@ -61,10 +56,11 @@
             fw = new parent.widgetAPI(myName);                                  // widget framework object
         }
 
-        var lightIDs, iconID, channelName, channelClass, dimmer, lightRect, startPressTime, timeoutID, aniHandle, aniDelay, lastSendTime;
+        var lightIDs, iconID, channelName, channelClass, dimmer, startPressTime, timeoutID, aniHandle, aniDelay, lastSendTime;
         var iconIDs = document.getElementsByClassName("lightColor");
         var lightID = document.getElementById("lightRect");
         var groupID = document.getElementById("group");
+        var scaleID = document.getElementById("scale");
 
         var lightVal = 0;                           // Light state value
         var dimVal = 0.5;                           // save the dim value as the max value for on for short press
@@ -81,7 +77,6 @@
 
         // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
         function dashStart(mode) {
-            lightRect = document.getElementById("lightRect");
             channelClass = fw.attribs[0].value.split("/")[1];
             channelName = fw.attribs[0].value.split("/")[2]
             dimmer = fw.attribs[1].value;
@@ -109,6 +104,7 @@
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
+            scaleID.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
         }
 
         function toolStart() {           // called when loaded in toolbox

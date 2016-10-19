@@ -11,7 +11,7 @@
     <span id="ontop" data-default="true" />
 
     <div id="group">
-        <svg id="widget" width="100%" height="100%" style="position: absolute; left: 0px; top: 0px; z-index:4">
+        <svg id="widget" width="100%" height="100%" style="position: absolute; left: 0px; top: 0px; height: 80px; width: 100px; z-index:4">
             <style type="text/css">
                 text {
                     font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -98,6 +98,8 @@
         }
 
         function scale(scaleX, scaleY) {    // manage scaling
+            fw.widgetID.style.setProperty("width", fw.iniWidth * scaleX + "px");
+            fw.widgetID.style.setProperty("height", fw.iniHeight * scaleY + "px");
             ringID.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
             numID.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");
             svgNeedle.setAttribute("transform", "scale(" + scaleX + "," + scaleY + ")");    // scale needle
