@@ -905,7 +905,6 @@
 
         // Handle mouse moving over widget depending on mode (drag new widget from toolbox, drag existing widget)
         function mouseMove(event) {
-            parent.status(dragData.widgetName)
             if (dragData.widgetName) {                                                                                                              // Adjust the widget position if dragging
                 if (dragData.widgetName === "new") {                                                                                                // drag new widget from toolbox, create it first
                     var TBWidgetNum = parseInt(event.currentTarget.defaultView.fw.widgetNum);
@@ -940,7 +939,6 @@
                     dragData.widgetObj.style.setProperty("left", parseInt(dragData.widgetObj.style.getPropertyValue("left")) - TBWIDTH + "px");     // adjust for widgetcontainer offset
                     dragData.widgetObj.contentDocument.getElementById("widget").style.setProperty("cursor", "default");
                     document.getElementById("widgetsDiv").appendChild(dragData.widgetObj);                                                          // Move from body to widget container
-                    setEdit(dragData.widgetName);
                     if (typeof dragData.widgetObj.contentDocument.defaultView.newWidget === "function") dragData.widgetObj.contentDocument.defaultView.newWidget();         // widget created routine in widget
                     g.dirty = true;
                 }
@@ -959,68 +957,32 @@
             editData.widgetNum = parseInt(widgetName.slice(9));                                                                                     // Setup various DOM pointers
             editData.widgetName = widgetName;
             editData.widgetObj = document.getElementById(widgetName);
-            editData.widgetDoc = editData.widgetObj.contentDocument;
-            editData.widgetEl = editData.widgetDoc.getElementById("widget");
-            editData.widgetView = editData.widgetDoc.defaultView;
+            //editData.widgetDoc = editData.widgetObj.contentDocument;
+            editData.widgetEl = editData.widgetObj.contentDocument.getElementById("widget");
+            editData.widgetView = editData.widgetObj.contentDocument.defaultView;
 
             parent.status("Editing widget #" + editData.widgetNum + " (" + widgets[editData.widgetNum].type + ")");
             editData.widgetObj.style.setProperty("outline", "gray dotted 1px")
 
-            //var mySVG = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-            //mySVG.id = "dragHdls";
-            //mySVG.appendChild(dragAtts("n-resize", "dragY", 2, 1));
-            //mySVG.appendChild(dragAtts("e-resize", "dragX", 1, 2));
-            //mySVG.appendChild(dragAtts("se-resize", "dragXY", 1, 1));
-            //editData.widgetDoc.getElementById("body").appendChild(mySVG);                   ////// CHROME CRASHES HERE
-            //editData.widgetDoc.getElementById("dragHdls").setAttribute("style", "position: absolute; z-index:998");                       // ensure SVG elements stay on top
-
-            var dragboxes = document.createElement("div");
-            dragboxes.id = "dragHdls";
-            //var dragEl = document.createElement("div");
-            //dragEl.setAttribute("id", "dragY");
-            //editData.widgetDoc.getElementById("body").appendChild(dragEl);
-            //editData.widgetDoc.getElementById("dragY").setAttribute("style", "background:gray; position:absolute; z-index:998; cursor: n-resize; left:" + (editData.widgetView.innerWidth - GRABSIZE) / 2 + "px; width:" + GRABSIZE + "px; top:" + (editData.widgetView.innerHeight - GRABSIZE) / 1 + "px; height:" + GRABSIZE + "px; z-index:998");
-            //alert(editData.widgetDoc.getElementById("dragY").getAttribute("style"))
-            dragboxes.appendChild(createbox("n-resize", "dragY", 2, 1))
-            dragboxes.appendChild(createbox("e-resize", "dragX", 1, 2))
-            dragboxes.appendChild(createbox("se-resize", "dragXY", 1, 1))
-            //editData.widgetDoc.getElementById("body").appendChild(dragboxes);
-            //editData.widgetDoc.getElementById("dragHdls").setAttribute("style", "position:absolute; height:100%; width:100%; z-index:998");                       // ensure SVG elements stay on top
-            document.getElementById("widgetsDiv").appendChild(dragboxes);                   ////// CHROME CRASHES HERE
-            document.getElementById("dragHdls").setAttribute("style", "position:absolute; left:" + widgets[editData.widgetNum].locX + "px; top:" + widgets[editData.widgetNum].locY + "px; height:" + widgets[editData.widgetNum].iniHeight + "px; width:" + widgets[editData.widgetNum].iniWidth + "px; z-index:998");                       // ensure SVG elements stay on top
-
-
+            var dragBoxes = document.createElement("div");                                                                                          // Create drag holders
+            dragBoxes.id = "dragHdls";
+            dragBoxes.appendChild(dragBox("n-resize", "dragY", "50%", "0px"));
+            dragBoxes.appendChild(dragBox("e-resize", "dragX", "0px", "50%"));
+            dragBoxes.appendChild(dragBox("se-resize", "dragXY", "0px", "0px"));
+            dragBoxes.setAttribute("style", "position:absolute; left:" + widgets[editData.widgetNum].locX + "px; top:" + widgets[editData.widgetNum].locY + "px; height:" + editData.widgetView.innerHeight + "px; width:" + editData.widgetView.innerWidth + "px; z-index:998");                       // ensure SVG elements stay on top
+            document.getElementById("widgetsDiv").appendChild(dragBoxes);
+            editData.dragHdls = document.getElementById("dragHdls");
 
             editData.widgetView.fw.state = "edit";
-
             if (typeof editData.widgetView.startEdit === "function") editData.widgetView.startEdit();
         }
 
-        function createbox(cursor, id, widthHalf, heightHalf) {
-            //var dragEl = editData.widgetDoc.createElement("div");
+        function dragBox(cursor, id, right, bottom) {
             var dragEl = document.createElement("div");
             dragEl.setAttribute("id", id);
-            dragEl.setAttribute("style", "background:gray; position:absolute; z-index:998; cursor: " + cursor + "; left: " + (editData.widgetView.innerWidth - GRABSIZE) / widthHalf + "px; width:" + GRABSIZE + "px; top:" + (editData.widgetView.innerHeight - GRABSIZE) / heightHalf + "px; height:" + GRABSIZE + "px");
-            //dragEl.setAttribute("style", "background:gray; position:absolute; z-index:998; cursor: " + cursor + "; right: " + (-GRABSIZE) + "px; width:" + GRABSIZE + "px; bottom:" + (-GRABSIZE) + "px; height:" + GRABSIZE + "px");
-            //alert(dragEl.getAttribute("style"))
-            dragEl.addEventListener("mousedown", widgetResizeStart, false);                                                                        // start resize when pressing mouse on the resize handle
+            dragEl.setAttribute("style", "background:gray; position:absolute; z-index:998; cursor:" + cursor + "; right:" + right + "; width:" + GRABSIZE + "px; bottom:" + bottom + "; height:" + GRABSIZE + "px");
+            dragEl.addEventListener("mousedown", widgetResizeStart, false);                                                                         // start resize when pressing mouse on the resize handle
             return dragEl;
-        }
-
-
-        function dragAtts(cursor, id, widthHalf, heightHalf) {
-            //var svgDrag = editData.widgetDoc.createElementNS("http://www.w3.org/2000/svg", "rect");
-            var svgDrag = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-
-            svgDrag.setAttribute("id", id);
-            svgDrag.setAttribute("height", GRABSIZE);
-            svgDrag.setAttribute("width", GRABSIZE);
-            svgDrag.setAttribute("x", (editData.widgetView.innerWidth - GRABSIZE) / widthHalf);
-            svgDrag.setAttribute("y", (editData.widgetView.innerHeight - GRABSIZE) / heightHalf);
-            svgDrag.setAttribute("style", "fill:gray; stroke-width:0; cursor: " + cursor);
-
-            svgDrag.addEventListener("mousedown", widgetResizeStart, false);                                                                        // start resize when pressing mouse on the resize handle
-            return svgDrag;
         }
 
         function resetEdit(widgetName) {
@@ -1029,7 +991,7 @@
 
             editData.widgetView.fw.state = "design";
             editData.widgetObj.style.setProperty("outline", "none");
-            editData.widgetDoc.getElementById("dragHdls").parentNode.removeChild(editData.widgetDoc.getElementById("dragHdls"));
+            editData.dragHdls.parentNode.removeChild(editData.dragHdls);
             editData = {};
 
             parent.status("Designer mode");
@@ -1044,16 +1006,18 @@
             editData.initialWidth = editData.widgetView.innerWidth / widgets[editData.widgetNum].scaleX;
             editData.initialHeight = editData.widgetView.innerHeight / widgets[editData.widgetNum].scaleY;
 
-            if (editData.dragID === "dragX") editData.widgetEl.style.setProperty("cursor", "e-resize");
-            if (editData.dragID === "dragY") editData.widgetEl.style.setProperty("cursor", "n-resize");
-            if (editData.dragID === "dragXY") editData.widgetEl.style.setProperty("cursor", "se-resize");
+            if (editData.dragID === "dragX") editData.dragHdls.style.setProperty("cursor", "e-resize");
+            if (editData.dragID === "dragY") editData.dragHdls.style.setProperty("cursor", "n-resize");
+            if (editData.dragID === "dragXY") editData.dragHdls.style.setProperty("cursor", "se-resize");
 
             var allWidgets = document.querySelectorAll(".widget");
             for (var i = 0; i < allWidgets.length; i++) {
                 addScaleListeners(allWidgets[i].contentDocument);                                                                                   // As <objects> swallow events, need to put listeners on each widget on the canvas to allow mouse to move over another widget when resizing
             }
-            addScaleListeners(editData.widgetDoc);
+            addScaleListeners(document.getElementById("dragHdls"));
             addScaleListeners(document.getElementById("cvsDesign"));
+            addScaleListeners(document.getElementById("widgetContainer"));
+
             editData.scaling = true;
             event.stopPropagation();                                                                                                                // Don't bubble up to widget mousedown event
         }
@@ -1074,10 +1038,8 @@
                     sizeChange = "Width: " + parseInt(newWidth * 100 / editData.initialWidth) + "%";
                     widgets[editData.widgetNum].scaleX = newWidth / editData.initialWidth;
 
-                    editData.widgetEl.setAttribute("width", newWidth + GRABSIZE / 2);
-                    editData.widgetDoc.getElementById("dragXY").setAttribute("x", newWidth - GRABSIZE);
-                    editData.widgetDoc.getElementById("dragX").setAttribute("x", newWidth - GRABSIZE);
-                    editData.widgetDoc.getElementById("dragY").setAttribute("x", (newWidth - GRABSIZE) / 2);
+                    editData.widgetEl.style.setProperty("width", newWidth + "px");
+                    editData.dragHdls.style.setProperty("width", newWidth + "px");
                 }
                 if (editData.dragID !== "dragX") {
                     var newHeight = Math.round((editData.initialHeight + event.screenY - editData.startY) / DESIGNGRID) * DESIGNGRID;
@@ -1091,13 +1053,13 @@
                     editData.widgetObj.height = newHeight;
                     widgets[editData.widgetNum].scaleY = newHeight / editData.initialHeight;
 
-                    editData.widgetEl.setAttribute("height", newHeight + GRABSIZE / 2);
-                    editData.widgetDoc.getElementById("dragXY").setAttribute("y", newHeight - GRABSIZE);
-                    editData.widgetDoc.getElementById("dragX").setAttribute("y", (newHeight - GRABSIZE) / 2);
-                    editData.widgetDoc.getElementById("dragY").setAttribute("y", newHeight - GRABSIZE);
+                    editData.widgetEl.style.setProperty("height", newHeight + "px");
+                    editData.dragHdls.style.setProperty("height", newHeight + "px");
                 }
                 if (typeof editData.widgetView.scale === "function") editData.widgetView.scale(widgets[editData.widgetNum].scaleX, widgets[editData.widgetNum].scaleY);
                 parent.status(sizeChange);
+                event.preventDefault();
+                //event.stopPropagation();                                                                                                                // Don't bubble up to widget mousedown event
             }
         }
 
@@ -1108,10 +1070,9 @@
                 removeScaleListeners(allWidgets[i].contentDocument);
             }
 
-            removeScaleListeners(editData.widgetDoc);
+            removeScaleListeners(document.getElementById("dragHdls"));
             removeScaleListeners(document.getElementById("cvsDesign"));
             removeScaleListeners(document.getElementById("widgetContainer"));
-            removeScaleListeners(document.getElementById("cvsDesign"));
 
             editData.widgetEl.style.setProperty("cursor", "default");
             g.dirty = true;
