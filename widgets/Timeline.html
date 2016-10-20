@@ -208,7 +208,7 @@
             .attr("transform", "translate(" + margin.left + ",-8)")
 
         // Move the current time marker along axis each second
-        setInterval(function () {
+        var secTimer = setInterval(function () {
             if (dragging === false && fw.state === "dashboard") {
                 currTime[0] = new Date();
                 zoom.x(x.domain([new Date(x.domain()[0].valueOf() + 1000), new Date(x.domain()[1].valueOf() + 1000)]));       // shuffle the chart to the new end point

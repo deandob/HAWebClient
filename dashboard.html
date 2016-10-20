@@ -75,7 +75,7 @@
                     <li id="widgetOptionMenuDivider" class="divider"></li>
                     <li><a tabindex="-1"><input type="checkbox" id="zorder" data-type="zorder" />&nbsp;On Top</a></li>
                     <li><a tabindex="-1" onclick="helpWidget()">Help</a></li>
-                    <li><a tabindex="-1" onclick="parent.modalDialog('text', 'Delete Widget', 'Confirm that you want to delete ' + widgets[editData.widgetNum].type + '?','Delete', 'deleteWidget', editData.widgetNum)">Delete</a></li>
+                    <li><a tabindex="-1" onclick="parent.modalDialog('text', 'Delete Widget', 'Confirm that you want to delete ' + widgets[menuWidgetNum].type + '?','Delete', 'deleteWidget', menuWidgetNum)">Delete</a></li>
                     <li><a tabindex="-1" onclick="closeWidgetMenu('cancel')">Cancel</a></li>
                     <li><a tabindex="-1" onclick="closeWidgetMenu('save')">Close</a></li>
                 </ul>
@@ -154,6 +154,7 @@
         var widgetSubscribe = "";                                                   // list of subscriptions
         var toolboxParam;                                                           // Save the toolbox parameter for other functions
         var tabIconSelected = "";                                                   // Save the name of the icon selected for saving
+        var menuWidgetNum;                                                          // Name of widget with edit window open
 
         var g = {}                                                                  // used for global boolean flags
         g.design = false                                                            // design mode flag
@@ -227,48 +228,50 @@
             var dropSel = [];
             var channelNum = 0;
 
-            setEdit(widgetName);                                                                                                                    // turn on editing
+            //setEdit(widgetName); 
+            menuWidgetNum = widgetName.replace("widgetObj", "");
+            var widgetObj = document.getElementById(widgetName);                                                                                                                   // turn on editing
             g.menuOpen = true;
 
             while (list.firstChild !== divider) list.removeChild(list.firstChild);                                                                  // clear list up to the divider
             menuItem.innerHTML = "<h5 class='text-center'><b>Configure Widget</b></h5>";
             docFrag.appendChild(menuItem)
 
-            for (var i = 0; i < widgets[editData.widgetNum].attribs.length; i++) {
+            for (var i = 0; i < widgets[menuWidgetNum].attribs.length; i++) {
                 menuItem = document.createElement("li")
-                widgetProp = widgets[editData.widgetNum].attribs[i].name;
+                widgetProp = widgets[menuWidgetNum].attribs[i].name;
                 var innerHTML = "";
 
-                switch (widgets[editData.widgetNum].attribs[i].type) {                                                                              // build the widget property menu based on attributes for the widget
+                switch (widgets[menuWidgetNum].attribs[i].type) {                                                                              // build the widget property menu based on attributes for the widget
                     case "dropdown":
                         var options = widgetProp.split(",")                                                                                         // options separated by commas
                         var selectName = "select" + dropSel.length                                                                                  // create an array in case there are multiple dropdowns
                         innerHTML = "<a tabindex='-1' href='#'><select id='" + selectName + "' data-type='dropdown' class='span2'>"
                         for (var j = 0; j < options.length; j++) {
                             innerHTML += "<option>" + options[j].trim() + "</option>";
-                            if (options[j].trim() === widgets[editData.widgetNum].attribs[i].value) dropSel.push(j);
+                            if (options[j].trim() === widgets[menuWidgetNum].attribs[i].value) dropSel.push(j);
                         }
                         innerHTML += "</select></a>";
                         break;
                     case "checkbox":
                         var checked = "";
-                        if (widgets[editData.widgetNum].attribs[i].value === true) checked = "checked";
+                        if (widgets[menuWidgetNum].attribs[i].value === true) checked = "checked";
                         innerHTML = "<a tabindex='-1' href='#'><label class='checkbox'><input type='checkbox' " + checked + " data-type='checkbox' />" + widgetProp + "</label></a>";
                         break;
                     case "channel":                                                                                                                 // if the channel name is blank, don't display it (hidden channel)
-                        var chName = widgets[editData.widgetNum].attribs[i].value;
+                        var chName = widgets[menuWidgetNum].attribs[i].value;
                         if (chName === "") chName = "none";
-                        if (widgetProp !== "") innerHTML = "<a tabindex='-1' id='channelItem" + channelNum + "' href='#' data-selected='" + widgets[editData.widgetNum].attribs[i].value + "' data-type='channel' onclick='toggleToolbox(\"channelToolbox\", \"open\", " + channelNum + ")'>" + widgetProp + ": " + chName + "</a>";
+                        if (widgetProp !== "") innerHTML = "<a tabindex='-1' id='channelItem" + channelNum + "' href='#' data-selected='" + widgets[menuWidgetNum].attribs[i].value + "' data-type='channel' onclick='toggleToolbox(\"channelToolbox\", \"open\", " + channelNum + ")'>" + widgetProp + ": " + chName + "</a>";
                         channelNum = channelNum + 1;
                         break;
                     case "file":
-                        innerHTML = "<a tabindex='-1' id='menuFile' href='#'>" + widgets[editData.widgetNum].attribs[i].value + "&nbsp;&nbsp<input id='selectedFile' type='file' accept='image/jpeg,image/png,image/gif' size='1' data-type='file' style='display: none'/><button onclick='fileInputHelper()'>File</button></a>";
+                        innerHTML = "<a tabindex='-1' id='menuFile' href='#'>" + widgets[menuWidgetNum].attribs[i].value + "&nbsp;&nbsp<input id='selectedFile' type='file' accept='image/jpeg,image/png,image/gif' size='1' data-type='file' style='display: none'/><button onclick='fileInputHelper()'>File</button></a>";
                         break;
                     case "input":
-                        innerHTML = "<a tabindex='-1' href='#'>" + widgets[editData.widgetNum].attribs[i].name + "&nbsp;&nbsp;<input type='text' class='form-control input-sm' value='" + widgets[editData.widgetNum].attribs[i].value + "' data-type='input' placeholder='" + widgets[editData.widgetNum].attribs[i].value + "'></a>";
+                        innerHTML = "<a tabindex='-1' href='#'>" + widgets[menuWidgetNum].attribs[i].name + "&nbsp;&nbsp;<input type='text' class='form-control input-sm' value='" + widgets[menuWidgetNum].attribs[i].value + "' data-type='input' placeholder='" + widgets[menuWidgetNum].attribs[i].value + "'></a>";
                         break;
                     case "data":                                                                                                                    // store widget variables (hidden on option menu)
-                        innerHTML = "<a data-type='data' style='display: none;'>" + widgets[editData.widgetNum].attribs[i].value + "</a>";
+                        innerHTML = "<a data-type='data' style='display: none;'>" + widgets[menuWidgetNum].attribs[i].value + "</a>";
                         break;
                     default:
                 }
@@ -284,11 +287,11 @@
 
             menu.style.setProperty("display", "inline");
 
-            if (widgets[editData.widgetNum].zOrder === 100) document.getElementById("zorder").checked = true;
+            if (widgets[menuWidgetNum].zOrder === 100) document.getElementById("zorder").checked = true;
             else document.getElementById("zorder").checked = false;
 
-            menu.style.setProperty("left", parseInt(editData.widgetObj.offsetLeft) + ((parseInt(editData.widgetObj.offsetLeft) < window.innerWidth / 2) ? (parseInt(editData.widgetObj.width) + 5) : (-1 * (list.clientWidth))) + "px");
-            menu.style.setProperty("top", parseInt(editData.widgetObj.offsetTop) + (((parseInt(editData.widgetObj.offsetTop) >= window.innerHeight / 2) ? (-1 * (list.clientHeight)) : 0)) + "px");  // adjust menu position based on location of widget so menu stays on the screen
+            menu.style.setProperty("left", parseInt(widgetObj.offsetLeft) + ((parseInt(widgetObj.offsetLeft) < window.innerWidth / 2) ? (parseInt(widgetObj.width) + 5) : (-1 * (list.clientWidth))) + "px");
+            menu.style.setProperty("top", parseInt(widgetObj.offsetTop) + (((parseInt(widgetObj.offsetTop) >= window.innerHeight / 2) ? (-1 * (list.clientHeight)) : 0)) + "px");  // adjust menu position based on location of widget so menu stays on the screen
         }
 
         // Helper for menu to select files. click the hidden file input tag and display selected file
@@ -301,10 +304,10 @@
         function closeWidgetMenu(option) {
             if (option === "save") {
                 walkList(document.getElementById("widgetOptionList"), 0);                                                                           // recursive save all the menu settings based on nodes with widget data-type attribute
-                if (typeof editData.widgetView.menuUpdate === "function") editData.widgetView.menuUpdate();                                         // call menu update routine in widget
+                ////////if (typeof editData.widgetView.menuUpdate === "function") editData.widgetView.menuUpdate();                                         // call menu update routine in widget
             }
-            if (option === "cancel") parent.status("Changes to widget '" + widgets[editData.widgetNum].type + "' cancelled.");
-            resetEdit(editData.widgetName);
+            if (option === "cancel") parent.status("Changes to widget '" + widgets[menuWidgetNum].type + "' cancelled.");
+            //resetEdit(editData.widgetName);
             document.getElementById("widgetOptionMenu").style.setProperty("display", "none");                                                       // hide option menu
             g.menuOpen = false;
         }
@@ -364,7 +367,6 @@
         function deleteWidget() {
             if (editData.widgetName) {
                 parent.status("Deleted widget #" + editData.widgetNum + " (" + widgets[editData.widgetNum].type + ")");
-                widgets.splice(editData.widgetNum, 1);                                                                                              // remove widget from widget array
                 editData.widgetObj.parentNode.removeChild(editData.widgetObj);                                                                      // remove widget
                 var allWidgets = document.querySelectorAll(".widget");
                 for (var widgetNum = 0; widgetNum < allWidgets.length; widgetNum++) {                                                               // shuffle widget ID to adjust for deletion
@@ -376,6 +378,8 @@
                     }
                 }
                 closeWidgetMenu("deleted");
+                widgets.splice(editData.widgetNum, 1);                                                                                              // remove widget from widget array
+                resetEdit(editData.widgetName);
                 g.dirty = true;
             }
         }
@@ -400,7 +404,7 @@
                     for (var y = 1; y < parent.deviceHeight; y += DESIGNGRID) {
                         cnt = drawLine(0.5, parent.deviceWidth - 0.5, y - 0.5, y - 0.5, cnt, canvas_ctx);
                     }
-                    setTimeout(loadIcons, 50);                                                                                                      // wait as loadicons can take time
+                    setTimeout(loadIcons, 50);                                                                                                      // Dont let loadicons delay as it can take time
                     g.loadedTB = true;
                 }
                 g.design = true;
@@ -523,7 +527,6 @@
         function newScreen() {
             screens.push(new myScreen("New Screen", "icon-exclamation-sign"));
             var liNum = createTab(screens.length - 1, true);
-            selScreenNum = screens.length - 1;
             selectedTab(liNum);
             var range = document.createRange();                                                                                                     // set edit cursor to new tab
             var sel = window.getSelection();
@@ -546,7 +549,6 @@
 
         // Load widgets onto screen
         function populateScreenWidgets(stopReload) {
-            if (widgets.length > 0) {
                 widgetToLoadCnt = 0;
                 widgetLoadedCnt = 0;
 
@@ -556,11 +558,10 @@
                     return;
                 }
 
-                parent.profiler("startscreenload")
+                parent.profiler("startscreenload")      ////////////////
 
                 var container = document.getElementById("widgetContainer");
                 var newDiv = document.createElement("div");
-                container.style.setProperty("left", "-5000px");                                                                                     // move offscreen to make for clean rendering
                 widgetSubscribe = "";
 
                 for (var item = 0; item < widgets.length; item++) {
@@ -575,6 +576,9 @@
                     }
                 }
 
+                if (widgetSubscribe !== "") container.style.setProperty("left", "-5000px");                                                         // move offscreen to make for clean rendering only if not a new screen (without loading widgets screen back to 0 left won't be invoked)
+                else parent.status("");
+
                 newDiv.id = "widgetsDiv"
                 container.replaceChild(newDiv, container.childNodes[3]);
                 newDiv = null;                                                                                                                      // Garbage collect
@@ -583,8 +587,7 @@
                     widgetSubscribe = widgetSubscribe.slice(0, -1);                                                                                 // remove trailing comma & subscribe
                     parent.send("WIDGETS", "INISUB", widgetSubscribe);
                 }
-                parent.profiler("endscreenload")
-            }
+                parent.profiler("endscreenload")                ///////////////////
         }
 
         // Save the contents of an edited sidebar tab
@@ -897,10 +900,12 @@
                         dragData.widgetObj = document.getElementById(dragData.widgetName);
                         dragData.startX = parseInt(dragData.widgetObj.style.left) - event.screenX;
                         dragData.startY = parseInt(dragData.widgetObj.style.top) - event.screenY;
-                    } else dragData.widgetName = "new";                                                                                             // Dragging new widget from toolbox
+                    } else {
+                        dragData.widgetName = "new";                                                                                                // Dragging new widget from toolbox
+                        event.preventDefault();                                                                                                     // stop HTML5 drag drop (also stops contenteditable)
+                    }                                                                                                
                 }
             } else if (typeof event.currentTarget.clicked === "function") event.currentTarget.clicked(event);                                       // run the click event in the widget
-            event.preventDefault();                                                                                                                 // stop HTML5 drag drop
         }
 
         // Handle mouse moving over widget depending on mode (drag new widget from toolbox, drag existing widget)
@@ -908,13 +913,15 @@
             if (dragData.widgetName) {                                                                                                              // Adjust the widget position if dragging
                 if (dragData.widgetName === "new") {                                                                                                // drag new widget from toolbox, create it first
                     var TBWidgetNum = parseInt(event.currentTarget.defaultView.fw.widgetNum);
-                    dragData.startX = document.getElementById("widgetObjTB" + TBWidgetNum).offsetLeft - event.screenX;
-                    dragData.startY = document.getElementById("widgetObjTB" + TBWidgetNum).offsetTop - document.getElementById("widgetToolbox").scrollTop - event.screenY;
+                    var TBWidget = document.getElementById("widgetObjTB" + TBWidgetNum);
+                    dragData.startX = TBWidget.offsetLeft - event.screenX;
+                    dragData.startY = TBWidget.offsetTop - document.getElementById("widgetToolbox").scrollTop - event.screenY;
                     dragData.newWidget = true;
                     dragData.widgetNum = widgets.length;
                     dragData.widgetName = "widgetObj" + dragData.widgetNum;
 
-                    widgets.push(new widget(TBwidgets[TBWidgetNum].type, TBwidgets[TBWidgetNum].ext, selScreenNum, event.screenX, event.screenY));
+                    //widgets.push(new widget(TBwidgets[TBWidgetNum].type, TBwidgets[TBWidgetNum].ext, selScreenNum, event.screenX, event.screenY));
+                    widgets.push(new widget(TBwidgets[TBWidgetNum].type, TBwidgets[TBWidgetNum].ext, selScreenNum, TBWidget.offsetLeft, TBWidget.offsetTop + document.getElementById("widgetToolbox").scrollTop));
                     var frag = document.createDocumentFragment();
                     loadWidget(frag, dragData.widgetNum);                                                                                           // create new widget if dragging from widget template & don't run widget startup routine as attribs have not been set
                     document.getElementById("mainBody").appendChild(frag);                                                                          // Add object to body so it can be dragged over everything
@@ -980,7 +987,8 @@
         function dragBox(cursor, id, right, bottom) {
             var dragEl = document.createElement("div");
             dragEl.setAttribute("id", id);
-            dragEl.setAttribute("style", "background:gray; position:absolute; z-index:998; cursor:" + cursor + "; right:" + right + "; width:" + GRABSIZE + "px; bottom:" + bottom + "; height:" + GRABSIZE + "px");
+            dragEl.setAttribute("style", "border: solid gray; border-width:2px; position:absolute; z-index:998; cursor:" + cursor + "; right:" + right + "; width:" + GRABSIZE + "px; bottom:" + bottom + "; height:" + GRABSIZE + "px");
+            //dragEl.setAttribute("style", "background:gray; position:absolute; z-index:998; cursor:" + cursor + "; right:" + right + "; width:" + GRABSIZE + "px; bottom:" + bottom + "; height:" + GRABSIZE + "px");
             dragEl.addEventListener("mousedown", widgetResizeStart, false);                                                                         // start resize when pressing mouse on the resize handle
             return dragEl;
         }
@@ -1236,7 +1244,7 @@
                 case "getattrib":
                     return widgets[widgetNum].attribs[param0].value;
                 case "setattrib":
-                    widgets[widgetNum].attribs[param0].value = param1;
+                    if (widgets[widgetNum].attribs[param0]) widgets[widgetNum].attribs[param0].value = param1;
                     break;
                 case "newattrib":
                     widgets[widgetNum].attribs.push(new widgetAttrib(param0, param1, param2));                                                      // Add a new attrib to the widget (eg. for a dynamic channel or state store)

@@ -254,7 +254,7 @@
                     selLive()
                     fw.channelSend("SECURITY/IP Cameras/" + cameraName, "recfiles", "");
                 } else {
-                    if (!_designing) alert("No default camera or camera server not running")
+                    if (fw.state !== "design") alert("No default camera or camera server not running")
                 }
             }
             return "OK";
@@ -467,7 +467,7 @@
 
         // Zoom event
         function zoomed() {
-            if (fw.designing == false) {
+            if (fw.state !== "design") {
                 chart.select(".x.axis").call(xAxis);
                 chart.selectAll("rect.points")
                     .attr("clip-path", "url(#clip)")
