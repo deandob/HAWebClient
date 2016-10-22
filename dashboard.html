@@ -152,7 +152,7 @@
         var barList;                                                                // top or side lists
         var widgetToLoadCnt, widgetLoadedCnt;                                       // Counter for when the last widget has finished loading.
         var widgetSubscribe = "";                                                   // list of subscriptions
-        var toolboxParam;                                                           // Save the toolbox parameter for other functions
+        var toolboxParam = null;                                                    // Save the toolbox parameter for other functions
         var tabIconSelected = "";                                                   // Save the name of the icon selected for saving
         var menuWidgetNum;                                                          // Name of widget with edit window open
 
@@ -676,7 +676,7 @@
 
         // Select the channel based on the global set by the toolbox
         function channelSel(event) {                                                                                                                // category, class and instance names stored in ID as category\class\channel
-            if (event.target.id !== "" && toolboxParam) {                                                                                           // only select the event of the icon selected (other close by elements dont have an id)
+            if (event.target.id !== "" && toolboxParam !== null) {                                                                                           // only select the event of the icon selected (other close by elements dont have an id)
                 var channelItem = document.getElementById("channelItem" + toolboxParam);
                 if (event.target.id === "noChannel") {
                     channelItem.setAttribute("data-selected", "");
@@ -864,7 +864,7 @@
 
         // Display screen as fast as possible, put non essential tasks to finish widget loading here
         function afterRender() {
-            widgetIni(iniStr);                                                                    ///// DO THIS BETTER FOR CHROME
+            //widgetIni(iniStr);                                                                    /////////////////// DO THIS BETTER FOR CHROME
             document.getElementById("fade").style.setProperty("display", "none");                                                                   // finally show the widgets!
             document.getElementById("widgetContainer").style.setProperty("left", "0px");
             parent.status("Ready");
@@ -1147,7 +1147,7 @@
             return false;
         }
 
-        var iniStr;
+       // var iniStr;
         function recvHost(msg) {
             switch (msg.ClassName.toUpperCase()) {
                 case "INITLOAD":
@@ -1189,8 +1189,8 @@
                             widgetAction("widgetObj" + msg.Data, "load")
                             break;
                         case "INISUB":                                                                                                              // initial state information from host plugins widgets subscribed to
-                            //if (msg.Data !== "{}") widgetIni(msg.Data);
-                            if (msg.Data !== "{}") iniStr = msg.Data;
+                            if (msg.Data !== "{}") widgetIni(msg.Data);
+                            //if (msg.Data !== "{}") iniStr = msg.Data;
                             break;
                         default:
                     }

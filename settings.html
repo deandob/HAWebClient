@@ -2962,7 +2962,7 @@
 
         // Process messages received from the host
         function recvHost(msg) {
-            if ($ === undefined) setTimeout(recvHost, 10, msg);                                     // Wait for JQuery if it is slow to load
+            if (typeof $ === "undefined") setTimeout(recvHost, 10, msg);                                     // Wait for JQuery if it is slow to load
             switch (msg.ClassName) {
                 case "CONSOLE":
                     switch (msg.Instance) {

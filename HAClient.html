@@ -132,7 +132,14 @@
                 document.getElementById("connType").setAttribute("class", "tip icon-cloud-download-2 icon-large pull-right");
                 document.getElementById("connType").setAttribute("data-original-title", "remote access");
                 wsPort = 80;
-                connection = "remote"
+                connection = "remote";                                                                                                              // flow onto clientname. parameter is remote=<devicename>
+            case "clientname":
+                clientName = params[1].toUpperCase();
+                serverName = localStorage.getItem("serverName");
+                deviceHeight = +localStorage.getItem("impHeight");                                                                                  // If impersonating another client with different width like a phone
+                if (!deviceHeight) deviceHeight = screen.availHeight;
+                deviceWidth = +localStorage.getItem("impWidth");
+                if (!deviceWidth) deviceWidth = screen.availWidth;
                 break;
             case "clear":
                 if (localStorage.getItem("reloading") !== "true") {
@@ -142,28 +149,20 @@
                 } else {
                     localStorage.setItem("reloading", "false")
                 }
-            case "clientname":
-                clientName = params[1].toUpperCase();
-                serverName = localStorage.getItem("serverName");
-                deviceHeight = +localStorage.getItem("impHeight");                                                                                  // If impersonating another client with different width like a phone
-                if (!deviceHeight) deviceHeight = screen.availHeight;
-                deviceWidth = +localStorage.getItem("impWidth");
-                if (!deviceWidth) deviceWidth = screen.availWidth;
                 break;
             case "debug":
                 debugURL = "?" + Math.random()          // pass any parameter in the URL line to turn on debugging (force cache reloading) and specify remote websockets server
                 if (params.length == 2) serverName = params[1].toUpperCase();
+                clientName = "PHONE"                  ///////////////////////////////////////////
             case "local":
             default:
                 document.getElementById("connType").setAttribute("class", "tip icon-home-4 icon-large pull-right")
                 document.getElementById("connType").setAttribute("data-original-title", "local access")
         }
 
-        ///////////////////////////////////////////////// Replace <system.webServer>  section in web.config when finished debugging
-
         startNet();
 
-        if (clientName === undefined) {
+        if (typeof clientName === "undefined") {
             clientName = localStorage.getItem("clientName");
             if (!clientName) clientName = "";
         }
