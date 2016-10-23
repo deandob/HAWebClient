@@ -1,0 +1,13 @@
+{
+  "name" : "HAClient",
+  "description" : "Home Server Client",
+  "repository" : {"type": "git", "url": "git://www.github.com/deandob/HAWebClient.git"},
+  "main" : "server.js",
+  "version" : "1.0.0",
+  "dependencies": {
+
+  },
+"engines": {
+  "node": "6.9.0"
+  }
+}
