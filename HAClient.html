@@ -130,7 +130,7 @@
             case "remote":
                 document.getElementById("connType").setAttribute("class", "tip icon-cloud-download-2 icon-large pull-right");
                 document.getElementById("connType").setAttribute("data-original-title", "remote access");
-                //wsPort = 80;
+                wsPort = 80;
                 connection = "remote";                                                                                                              // flow onto clientname. parameter is remote=<devicename>
             case "clientname":
                 clientName = params[1].toUpperCase();
