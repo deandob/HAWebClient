@@ -1,0 +1,15 @@
+﻿{
+  "dependencies": {
+    "express": ">= 14.4.0",
+    "ws": ">= 1.1.0"
+  },
+  "description": "Home Server Client",
+  "engine": "node 6.4.0",
+  "main": "server.js",
+  "name": "HAClient",
+  "repository": {
+    "type": "git",
+    "url": "git://www.github.com/deandob/HAWebClient.git"
+  },
+  "version": "1.0.0"
+}

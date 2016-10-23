@@ -128,10 +128,9 @@
         if (params.length > 1) params = params[1].split("=");
         switch (params[0].toLowerCase()) {         // command line options after URL '?'
             case "remote":
-                //                serverName = "haproxy.azurewebsites.net";
                 document.getElementById("connType").setAttribute("class", "tip icon-cloud-download-2 icon-large pull-right");
                 document.getElementById("connType").setAttribute("data-original-title", "remote access");
-                wsPort = 80;
+                //wsPort = 80;
                 connection = "remote";                                                                                                              // flow onto clientname. parameter is remote=<devicename>
             case "clientname":
                 clientName = params[1].toUpperCase();
