@@ -204,11 +204,13 @@
 
         // Move the current time marker along axis
         setInterval(function () {
-            currTime[0] = new Date()
-            chart.selectAll("circle.currtime")
+            if (fw.state === "dashboard") {
+                currTime[0] = new Date()
+                chart.selectAll("circle.currtime")
                     .data(currTime)
                     .attr("clip-path", "url(#clip)")
                     .attr("cx", function (d) { return x(d) })
+            }
         }, 1000)
 
         // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string

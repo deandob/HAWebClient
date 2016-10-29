@@ -75,7 +75,7 @@
                     <li id="widgetOptionMenuDivider" class="divider"></li>
                     <li><a tabindex="-1"><input type="checkbox" id="zorder" data-type="zorder" />&nbsp;On Top</a></li>
                     <li><a tabindex="-1" onclick="helpWidget()">Help</a></li>
-                    <li><a tabindex="-1" onclick="parent.modalDialog('text', 'Delete Widget', 'Confirm that you want to delete ' + widgets[menuWidgetNum].type + '?','Delete', 'deleteWidget', menuWidgetNum)">Delete</a></li>
+                    <li><a tabindex="-1" onclick="parent.modalDialog('text', 'Delete Widget', 'Confirm that you want to delete ' + widgets[editData.widgetNum].type + '?', 'Delete', 'deleteWidget')">Delete</a></li>
                     <li><a tabindex="-1" onclick="closeWidgetMenu('cancel')">Cancel</a></li>
                     <li><a tabindex="-1" onclick="closeWidgetMenu('save')">Close</a></li>
                 </ul>
@@ -154,7 +154,6 @@
         var widgetSubscribe = "";                                                   // list of subscriptions
         var toolboxParam = null;                                                    // Save the toolbox parameter for other functions
         var tabIconSelected = "";                                                   // Save the name of the icon selected for saving
-        var menuWidgetNum;                                                          // Name of widget with edit window open
 
         var g = {}                                                                  // used for global boolean flags
         g.design = false                                                            // design mode flag
@@ -379,7 +378,6 @@
                 }
                 closeWidgetMenu("deleted");
                 widgets.splice(editData.widgetNum, 1);                                                                                              // remove widget from widget array
-                resetEdit(editData.widgetName);
                 g.dirty = true;
             }
         }
@@ -975,6 +973,9 @@
             dragBoxes.appendChild(dragBox("e-resize", "dragX", "0px", "50%"));
             dragBoxes.appendChild(dragBox("se-resize", "dragXY", "0px", "0px"));
             dragBoxes.setAttribute("style", "position:absolute; left:" + widgets[editData.widgetNum].locX + "px; top:" + widgets[editData.widgetNum].locY + "px; height:" + editData.widgetView.innerHeight + "px; width:" + editData.widgetView.innerWidth + "px; z-index:998");                       // ensure SVG elements stay on top
+
+///// STRANGE BUG - WON"T ALLOW EDITING OF WIDGET #0 WHEN DRAGHLDS ATTACHED
+
             document.getElementById("widgetsDiv").appendChild(dragBoxes);
             editData.dragHdls = document.getElementById("dragHdls");
 
@@ -1115,7 +1116,6 @@
                         break;
                     case 27:                    // ESC
                         closeWidgetMenu("cancel");
-                        resetEdit(editData.widgetName);
                         break;
                     case 37:                    // Left arrow
                         editData.widgetObj.style.setProperty("left", (widgets[editData.widgetNum].locX - DESIGNGRID) + "px");                       // move editing widget left by a grid space
