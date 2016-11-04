@@ -26,6 +26,111 @@
             src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
         }
 
+$body--Background: #F0F1F1;
+$icon-rocket--Color: #4F5D75;
+body{
+  background-color: #F0F1F1;
+}
+.page {
+  color: #222;
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+.container {
+  margin-top: -200px;
+}
+
+.box-wrapper {
+  perspective: 800px;
+  perspective-origin: 50% 100px;
+}
+
+.box-faces {
+  position: relative;
+  width: 200px;
+  transform-style: preserve-3d;
+}
+.box-faces p {
+  padding: 40px 0;
+}
+.box-face {
+  outline: 1px solid #999;
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  opacity: 0.98;
+  box-shadow: inset 0px 0px 100px #555;
+}
+
+.box-face--is-back {
+  transform: translateZ(-100px) rotateY(180deg);
+  background-color: #eee;
+}
+.box-face--is-right {
+  transform: rotateY(-270deg) translateX(100px);
+  transform-origin: top right;
+  background-color: #ddd;
+}
+.box-face--is-left {
+  transform: rotateY(270deg) translateX(-100px);
+  transform-origin: center left;
+  background-color: #ddd;
+}
+.box-face--is-top {
+  transform: rotateX(-90deg) translateY(-100px);
+  transform-origin: top center;
+  background-color: #fafafa;
+}
+.box-face--is-bottom {
+  transform: rotateX(90deg) translateY(100px);
+  transform-origin: bottom center;
+  background-color: #bbb;
+}
+.box-face--is-front {
+  transform: translateZ(100px);
+  background-color: #eee;
+}
+
+
+@keyframes spin {
+  from { transform: rotateY(0); }
+  to { transform: rotateY(360deg); }
+}
+
+.box-faces, .shadow {
+  animation: spin 15s infinite linear;
+}
+
+.icon-rocket { color: #4F5D75; }
+
+.shadow-wrapper {
+  perspective: 800px;
+  perspective-origin: 50% 100px;
+/*  -webkit-perspective: 800px;
+  -webkit-perspective-origin: 50% 100px;*/
+}
+
+.shadow {
+  position: relative;
+  width: 200px;
+  transform-style: preserve-3d;
+}
+
+.shadow div{
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  top: 0px;
+  opacity: 0.98;
+  box-shadow: 0px 0px 100px #000;
+  transform: rotateX(90deg) translateY(100px);
+  transform-origin: bottom center;
+}
+
         .yellow {
             border-color: #c09853 !important;
             background-color: #c09853;
@@ -73,39 +178,50 @@
     <span id="TBtooltip" data-default="<TOOLTIP TEXT GOES HERE>" />
     <span id="ontop" data-default="true" />
 
-    <div id="group">
-        <svg id="widget" width="100" height="80" style="position: absolute; left: 0px; top: 0px; z-index:4">
-            <style type="text/css">
-                text {
-                    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-                    font-weight: normal;
-                    font-style: normal;
-                    font-size: 20px;
-                    text-align: center;
-                    pointer-events: none;
-                }
-            </style>
+    <div id="group" style="overflow: hidden;">
+        <div id="widget" style="width: 300px; height: 300px; position: absolute; left: 0px; top: 0px; z-index: 0;">
+            <div class="page">
+                <div class="container">
+                    <div class="shadow-wrapper">
+                        <div class="shadow">
+                            <div>&nbsp;</div>
+                        </div>
+                    </div>
+                    <div class="box-wrapper">
+                        <div class="box-faces">
+                            <div class="box-face box-face--is-front">
+                                <p>
+                                    <i class="icon-rocket icon-4x"></i>
+                                </p>
+                            </div>
+                            <div class="box-face box-face--is-back">
+                                <p>
+                                    <i class="icon-rocket icon-4x"></i>
+                                </p>
+                            </div>
+                            <div class="box-face box-face--is-top">&nbsp;</div>
+                            <div class="box-face box-face--is-bottom">&nbsp;</div>
+                            <div class="box-face box-face--is-left">
+                                <p>
+                                    <i class="icon-rocket icon-4x"></i>
+                                </p>
+                            </div>
+                            <div class="box-face box-face--is-right">
+                                <p>
+                                    <i class="icon-rocket icon-4x"></i>
+                                </p>
+                            </div>
 
-            <g id="scale">
-                <path id="seg1" fill="none" stroke="rgb(0, 134, 0)" d="M13.46,66.27 A40,40,0,0,1,10.1,52.79" stroke-width="20" />
-                <path id="seg2" fill="none" stroke="rgb(50, 134, 0)" d="M10.01,50.7 A40,40,0,0,1,12.18,36.98" stroke-width="20" />
-                <path id="seg3" fill="none" stroke="rgb(100, 134, 0)" d="M12.91,35.02 A40,40,0,0,1,20.27,23.23" stroke-width="20" />
-                <path id="seg4" fill="none" stroke="rgb(150, 134, 0)" d="M21.72,21.72 A40,40,0,0,1,33.1,13.75" stroke-width="20" />
-                <path id="seg5" fill="none" stroke="rgb(200, 134, 0)" d="M35.02,12.91 A40,40,0,0,1,48.6,10.02" stroke-width="20" />
-                <path id="seg6" fill="none" stroke="rgb(255, 134, 0)" d="M50.7,10.01 A40,40,0,0,1,64.33,12.66" stroke-width="20" />
-                <path id="seg7" fill="none" stroke="rgb(255, 100, 0)" d="M66.27,13.46 A40,40,0,0,1,77.79,21.23" stroke-width="20" />
-                <path id="seg8" fill="none" stroke="rgb(255, 70, 0)" d="M79.25,22.72 A40,40,0,0,1,86.82,34.37" stroke-width="20" />
-                <path id="seg9" fill="none" stroke="rgb(255, 35, 0)" d="M87.59,36.32 A40,40,0,0,1,90,50" stroke-width="20" />
-                <path id="seg10" fill="none" stroke="rgb(255, 0, 0)" d="M89.95,52.09 A40,40,0,0,1,86.82,65.63" stroke-width="20" />
-                <polyline id="avg" points="44,0 56,0 50,8 44,0" fill="rgb(20, 20, 230)" stroke-width="0" style="display: none" transform="rotate(-112, 50, 50)"><title id="avgtool">Average: 0</title></polyline>
-                <path id="TBNeedle" fill="rgb(100, 100, 100)" stroke="rgb(255, 255, 255)" stroke-width="1" d="M24.39,54.51 A26,26,0,1,1,27.6,63 l-20,4 Z" />
-                <text id="TBNumVal" x="36" y="58" fill="rgb(255, 255, 255)">0.0</text>
-            </g>
-        </svg>
+                        </div><!-- end of .box -->
+                    </div><!-- end of .box-wrapper -->
+                </div><!-- /.container -->
+            </div><!-- /.page -->
+        </div>
     </div>
-
     <script>
         "use strict";
+
+        // http://codepen.io/cliffpyles/pen/LHlqa
 
         // Initialize widget framework API
         var fw;

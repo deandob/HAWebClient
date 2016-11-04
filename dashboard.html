@@ -125,7 +125,6 @@
             this.screen = screen;
             this.zOrder = 10;
             this.attribs = [];
-            this.iniMsg = [];
             this.loadCnt = 0;
         };
 
@@ -144,7 +143,7 @@
         var DESIGNGRID = 10;                                                        // grid size in design mode
         var TBWIDGETWIDTH = 100;                                                    // width of the objects in the toolbox
         var WIDGETLOADRETRIES = 100;                                                // number of retries waiting for widget to load
-        var ACTION_RETRY_MSEC = 1;                                                  // How long to retry waiting for widget
+        var ACTION_RETRY_MSEC = 2;                                                  // How long to retry waiting for widget
         var TBWIDTH = document.getElementById("widgetSection").offsetLeft;          // size of sidebar
 
         var widgetMax = { width: 1280, height: 900 };                               // maximum screen size for all screens used for UWP client
@@ -154,10 +153,12 @@
         var widgetSubscribe = "";                                                   // list of subscriptions
         var toolboxParam = null;                                                    // Save the toolbox parameter for other functions
         var tabIconSelected = "";                                                   // Save the name of the icon selected for saving
+        var iniStr = "";                                                            // Store ini values for widgets while screen is loading
 
         var g = {}                                                                  // used for global boolean flags
         g.design = false                                                            // design mode flag
         g.loadedTB = false;                                                         // toolbox already loaded
+        g.loadedScreen = false;                                                     // Flag for the screen widgets finished loading
         g.dirty = false;                                                            // changed without saving
         g.menuOpen = false;                                                         // widget edit menu state
 
@@ -227,7 +228,7 @@
             var dropSel = [];
             var channelNum = 0;
 
-            setEdit(widgetName); 
+            setEdit(widgetName);
             g.menuOpen = true;
 
             while (list.firstChild !== divider) list.removeChild(list.firstChild);                                                                  // clear list up to the divider
@@ -376,8 +377,8 @@
                         allWidgets[widgetNum].contentDocument.defaultView.fw.widgetNum = myWidgetNum - 1;
                     }
                 }
-                closeWidgetMenu("deleted");
                 widgets.splice(editData.widgetNum, 1);                                                                                              // remove widget from widget array
+                closeWidgetMenu("deleted");
                 g.dirty = true;
             }
         }
@@ -547,44 +548,48 @@
 
         // Load widgets onto screen
         function populateScreenWidgets(stopReload) {
-                widgetToLoadCnt = 0;
-                widgetLoadedCnt = 0;
+            widgetToLoadCnt = 0;
+            widgetLoadedCnt = 0;
+            g.loadedScreen = false;
 
-                if (!stopReload) {
-                    document.getElementById("fade").style.setProperty("display", "inline");                                                         // move offscreen to make for clean rendering
-                    setTimeout(populateScreenWidgets, 0, true);                                                                                     // Fade the screen by rendering
-                    return;
-                }
+            if (!stopReload) {
+                document.getElementById("fade").style.setProperty("display", "inline");                                                             // move offscreen to make for clean rendering
+                setTimeout(populateScreenWidgets, 0, true);                                                                                         // Fade the screen by rendering
+                return;
+            }
 
-                parent.profiler("startscreenload")      ////////////////
+            parent.profiler("startscreenload")      ////////////////
 
-                var container = document.getElementById("widgetContainer");
-                var newDiv = document.createElement("div");
-                widgetSubscribe = "";
+            var container = document.getElementById("widgetContainer");
+            var newDiv = document.createElement("div");
+            widgetSubscribe = "";
 
-                for (var item = 0; item < widgets.length; item++) {
-                    if ((widgets[item].screen === selScreenNum)) {
-                        loadWidget(newDiv, item);                                                                                                   // Load new widget to our new element
-                        widgetToLoadCnt += 1;
-                        for (var i = 0; i < widgets[item].attribs.length; i++) {                                                                    // cache channel to subscribe to
-                            if (widgets[item].attribs[i].type === "channel" && widgets[item].attribs[i].value !== "") {                             // don't duplicate subscription
-                                if (widgetSubscribe.indexOf(widgets[item].attribs[i].value) === -1) widgetSubscribe = widgetSubscribe + widgets[item].attribs[i].value + ",";
-                            }
+            for (var item = 0; item < widgets.length; item++) {
+                if ((widgets[item].screen === selScreenNum)) {
+                    loadWidget(newDiv, item);                                                                                                       // Load new widget to our new element
+                    widgetToLoadCnt += 1;
+                    for (var i = 0; i < widgets[item].attribs.length; i++) {                                                                        // cache channel to subscribe to
+                        if (widgets[item].attribs[i].type === "channel" && widgets[item].attribs[i].value !== "") {                                 // don't duplicate subscription
+                            if (widgetSubscribe.indexOf(widgets[item].attribs[i].value) === -1) widgetSubscribe = widgetSubscribe + widgets[item].attribs[i].value + ",";
+
+/////// TODO: Work out what widgets from the old page are gone and remove their subscription in AfterRender if the subscription isn't needed by a new widget
+
                         }
                     }
                 }
+            }
 
-                if (widgetSubscribe !== "") container.style.setProperty("left", "-5000px");                                                         // move offscreen to make for clean rendering only if not a new screen (without loading widgets screen back to 0 left won't be invoked)
-                else parent.status("");
+            if (widgetToLoadCnt > 0 ) container.style.setProperty("left", "-5000px");                                                               // move offscreen to make for clean rendering only if not a new screen (without loading widgets screen back to 0 left won't be invoked)
+            else parent.status("");
 
-                newDiv.id = "widgetsDiv"
-                container.replaceChild(newDiv, container.childNodes[3]);
-                newDiv = null;                                                                                                                      // Garbage collect
+            newDiv.id = "widgetsDiv"
+            container.replaceChild(newDiv, container.childNodes[3]);
+            newDiv = null;                                                                                                                          // Garbage collect
 
-                if (widgetSubscribe !== "") {
-                    widgetSubscribe = widgetSubscribe.slice(0, -1);                                                                                 // remove trailing comma & subscribe
-                    parent.send("WIDGETS", "INISUB", widgetSubscribe);
-                }
+            if (widgetSubscribe !== "") {
+                widgetSubscribe = widgetSubscribe.slice(0, -1);                                                                                     // remove trailing comma & subscribe
+                parent.send("WIDGETS", "INISUB", widgetSubscribe);
+            }
         }
 
         // Save the contents of an edited sidebar tab
@@ -695,9 +700,9 @@
             for (var plugin in plugins) {
                 for (var item = 0; item < plugins[plugin].Channels.length; item++) {
                     if (plugins[plugin].Channels[item].Name.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
-                            plugins[plugin].ClassName.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
-                            plugins[plugin].Category.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
-                            filter === "") {                                                                                                        // filter elements
+                        plugins[plugin].ClassName.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
+                        plugins[plugin].Category.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
+                        filter === "") {                                                                                                        // filter elements
                         if (start) channels.push(new channel(plugins[plugin].Category, plugins[plugin].ClassName, plugins[plugin].Channels[item].Name, plugins[plugin].Channels[item].Desc, plugins[plugin].Channels[item].Type, plugins[plugin].Channels[item].IO, plugins[plugin].Channels[item].Min, plugins[plugin].Channels[item].Max, plugins[plugin].Channels[item].Units));
                         var channelIcon = parent.categories[parent.categories.map(function (e) { return e.Cat; }).indexOf(plugins[plugin].Category)].Icon;     // 0 index category is 'ALL' so add 1
                         var IOIcon;
@@ -790,11 +795,9 @@
                     myWidget.iniWidth = +serverWidgets[i].w;
                     myWidget.iniHeight = +serverWidgets[i].h;
                     myWidget.zOrder = serverWidgets[i].z;
-                    var widgetAttribs = [];
                     for (var y = 0; y < serverWidgets[i].a.length; y++) {
-                        widgetAttribs.push({ name: serverWidgets[i].a[y].n, type: serverWidgets[i].a[y].t, value: serverWidgets[i].a[y].v });
+                        myWidget.attribs.push({ name: serverWidgets[i].a[y].n, type: serverWidgets[i].a[y].t, value: serverWidgets[i].a[y].v });
                     }
-                    myWidget.attribs = widgetAttribs;
                     widgets.push(myWidget);                                                                                                         // rehydrate widget compressed for faster network
                 }
                 if (typeof uwpHost !== "undefined") uwpHost.setMaxSize(widgetMax.width, widgetMax.height);                                          // for UWP hosting, set screen size
@@ -815,10 +818,10 @@
 
         // finish widget setup once the widget is loaded
         function widgetLoaded(e) {
-            var loadObj = e.currentTarget;
+            var loadObj = e.currentTarget;                                                                                                          // Object in parent.
             var loadNum = parseInt(loadObj.id.replace("widgetObj", ""));
             var loadDoc = loadObj.contentDocument;
-            var widgetID = loadDoc.getElementById("widget");
+            var widgetID = loadDoc.getElementById("widget");                                                                                        // Main element inside object
             try {
                 if (g.design) {                                                                                                                     // setup initial settings when the widget is first created
                     widgets[loadNum].iniHeight = parseInt(widgetID.style.getPropertyValue("height")) || parseInt(widgetID.getAttribute("height"));
@@ -862,16 +865,15 @@
 
         // Display screen as fast as possible, put non essential tasks to finish widget loading here
         function afterRender() {
-            //widgetIni(iniStr);                                                                    /////////////////// DO THIS BETTER FOR CHROME
+            g.loadedScreen = true;
+            if (iniStr !== "") widgetIni(iniStr);                                                                    /////////////////// DO THIS BETTER FOR CHROME
             document.getElementById("fade").style.setProperty("display", "none");                                                                   // finally show the widgets!
             document.getElementById("widgetContainer").style.setProperty("left", "0px");
             parent.status("Ready");
             parent.enableTooltip();
             parent.send("SETTINGS", "GET:CATEGORIES()", "");
             var myWidgets = document.getElementsByClassName("widget");
-            for (var i = 0; i < myWidgets.length; i++) {
-                widgetListeners(myWidgets[i].contentDocument.defaultView);
-            }
+            for (var i = 0; i < myWidgets.length; i++) widgetListeners(myWidgets[i].contentDocument.defaultView);
             if (!g.design && parent.mode === "Design") setDesign();                                                                                 // Go into design mode if just reloaded after pressing design button
         }
 
@@ -901,7 +903,7 @@
                     } else {
                         dragData.widgetName = "new";                                                                                                // Dragging new widget from toolbox
                         event.preventDefault();                                                                                                     // stop HTML5 drag drop (also stops contenteditable)
-                    }                                                                                                
+                    }
                 }
             } else if (typeof event.currentTarget.clicked === "function") event.currentTarget.clicked(event);                                       // run the click event in the widget
         }
@@ -974,7 +976,7 @@
             dragBoxes.appendChild(dragBox("se-resize", "dragXY", "0px", "0px"));
             dragBoxes.setAttribute("style", "position:absolute; left:" + widgets[editData.widgetNum].locX + "px; top:" + widgets[editData.widgetNum].locY + "px; height:" + editData.widgetView.innerHeight + "px; width:" + editData.widgetView.innerWidth + "px; z-index:998");                       // ensure SVG elements stay on top
 
-///// STRANGE BUG - WON"T ALLOW EDITING OF WIDGET #0 WHEN DRAGHLDS ATTACHED
+            ///// STRANGE BUG - WON"T ALLOW EDITING OF WIDGET #0 WHEN DRAGHLDS ATTACHED
 
             document.getElementById("widgetsDiv").appendChild(dragBoxes);
             editData.dragHdls = document.getElementById("dragHdls");
@@ -1147,7 +1149,6 @@
             return false;
         }
 
-       // var iniStr;
         function recvHost(msg) {
             switch (msg.ClassName.toUpperCase()) {
                 case "INITLOAD":
@@ -1156,7 +1157,7 @@
                     break;
                 case "SCREENS":
                     switch (msg.Scope.toUpperCase()) {
-                        case "LOAD":
+                        case "LOAD":                                                                    //////// ########### IS THIS OLD?>???
                             initScreens(msg.Data);
                             break;
                         default:
@@ -1186,11 +1187,15 @@
                             loadChannels("", true);
                             break;
                         case "IMAGE":                                                                                                   // &&&&&&&&&&&&&&&&&&&&&&&& TODO: Consider making this more generic rather than hard coded for the image widget
-                            widgetAction("widgetObj" + msg.Data, "load")
+                            widgetAction("widgetObj" + msg.Data, "load");
                             break;
                         case "INISUB":                                                                                                              // initial state information from host plugins widgets subscribed to
-                            if (msg.Data !== "{}") widgetIni(msg.Data);
-                            //if (msg.Data !== "{}") iniStr = msg.Data;
+                            //if (msg.Data !== "{}") widgetIni(msg.Data);
+                            if (msg.Data !== "{}") {
+                                if (g.loadedScreen) widgetIni(msg.Data);
+                                else iniStr = msg.Data;
+                            }
+                            if (msg.Data !== "{}") iniStr = msg.Data;
                             break;
                         default:
                     }
@@ -1343,12 +1348,12 @@
                             }
                         } else if (typeof widgetObj.contentDocument.defaultView.designAction === "function") return widgetObj.contentDocument.defaultView.designAction(func, param0, param1, param2);
                     } else {
-                        widgets[widgetNum].loadCnt = widgets[widgetNum].loadCnt + 1;
+                        widgets[widgetNum].loadCnt += 1;
                         setTimeout(widgetAction, ACTION_RETRY_MSEC, widgetName, func, param0, param1, param2, "retry");                             // Not quite finished loading
                     }
                 }
             } else {
-                parent.status("WARNING - Widget " + widgetName + " (" + widgets[widgetNum].type + ") can't receive request'" + func + " ' params:" + param0 + ", " + param1 + ", " + param2 + "). Try reloading the page.");
+                parent.status("WARNING - Widget " + widgetName + " (" + widgets[widgetNum].type + ") can't receive request '" + func + " ' params:" + param0 + ", " + param1 + ", " + param2 + "). Try reloading the page.");
                 return false;
             }
             return true;

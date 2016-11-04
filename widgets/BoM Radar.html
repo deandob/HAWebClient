@@ -296,6 +296,12 @@
             dashStart()
         }
 
+
+        // Called from framework for initial channel status
+        function ini(channel, scope, data) {
+            return feed(channel, scope, data);
+        }
+
         // Called from framework for incoming channel events
         function feed(channel, scope, data) {
             if (scope.toLowerCase() === "json directory listing") {

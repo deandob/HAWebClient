@@ -147,7 +147,7 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <p>Impersonate Client</p>
+                                    <p id="ImpersonateStatus">Impersonate Client</p>
                                     <div class="input-group">
                                         <input id="genImpnameInp" name="textInput" type="text" class="form-control" placeholder="Name">
                                         <span class="input-group-btn">
@@ -155,11 +155,15 @@
                                         </span>
                                     </div>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
+                                    <p>&nbsp;</p>
+                                    <button type="button" id="clearClient" onclick="clearClient()" class="btn btn-primary tip pointer nofocus" data-original-title="Stop impersonation">Clear</button>&nbsp;&nbsp;&nbsp;
+                                </div>
+                                <div class="col-md-2">
                                     <p>Width</p>
                                     <input id="genDevwidthInp" name="textInput" type="text" class="form-control">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-2">
                                     <p>Height</p>
                                     <input id="genDevheightInp" name="textInput" type="text" class="form-control">
                                 </div>
@@ -1659,6 +1663,9 @@
 
         //#region ---------------------------------------- General settings screen functions
         function generalScreenEnter() {
+            var impersonate = localStorage.getItem("oldClient");
+            if (impersonate !== "") $("#ImpersonateStatus").innerText = "Impersonate Client (currently '" + impersonate + "')";
+            else $("#ImpersonateStatus").innerText = "Impersonate Client";
             $("#genDevheightInp").val(localStorage.getItem("impHeight"));
             $("#genDevwidthInp").val(localStorage.getItem("impWidth"));
         }
@@ -1669,10 +1676,16 @@
             if (newClientName != "") {
                 localStorage.setItem("impHeight", $("#genDevheightInp").val().trim());
                 localStorage.setItem("impWidth", $("#genDevwidthInp").val().trim());
-                parent.reload(newClientName.toUpperCase());
+                localStorage.setItem("oldClient", localStorage.getItem("clientName"));
+                parent.reload("haclient.html?clientname=" + newClientName.toUpperCase());
             }
         }
 
+        function clearClient() {
+            var oldClient = localStorage.getItem("oldClient").toUpperCase();
+            localStorage.setItem("oldClient", "");
+            parent.reload("haclient.html?clientname=" + oldClient);
+        }
 
         //#endregion
 
