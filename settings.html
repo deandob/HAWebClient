@@ -508,7 +508,7 @@
                                 <div class="col-md-12">
                                     <p>Date/Time From</p>
                                     <div class="input-group date" id="dtpEventFrom">
-                                        <input id="eventFromDate" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
+                                        <input id="eventFromDateTime" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
                                         <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
                                     </div>
                                 </div>
@@ -518,7 +518,7 @@
                                 <div class="col-md-12">
                                     <p>Date/Time To</p>
                                     <div class="input-group date" id="dtpEventTo">
-                                        <input id="eventToDate" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
+                                        <input id="eventToDateTime" name="textInput" data-format="dd-MM-yyyy HH:mm PP" type="text" class="form-control" />
                                         <span class="input-group-addon pointer"><span class="icon-calendar"></span></span>
                                     </div>
                                 </div>
@@ -2073,17 +2073,12 @@
 
         // Populate the Event object from fields
         function objEvent() {
-            var fromDateTime, toDateTime
-            var fromDate = $('#eventFromDate').val().trim();
-            var fromTime = $('#eventFromTime').val().trim();
-            var toDate = $('#eventToDate').val().trim();
-            var toTime = $('#eventToTime').val().trim();
-            if (fromDate == "") fromDate = new Date(0).toLocaleDateString();
-            if (fromTime == "") fromTime = "12:00 AM";
-            if (toDate == "") toDate = "12-12-2099";
-            if (toTime == "") toTime = "12:00 AM";
-            var fromDateTime = formatDateTime(fromDate + " " + fromTime, "datetime");
-            var toDateTime = formatDateTime(toDate + " " + toTime, "datetime");
+            var fromDateTime = $('#eventFromDateTime').val().trim();
+            var toDateTime = $('#eventToDateTime').val().trim();
+            if (fromDateTime == "") fromDateTime = "12-12-2099 12:00 AM"
+            if (toDateTime == "") toDateTime = "12-12-2099 12:00 AM";
+            var fromDateTime = formatDateTime(fromDateTime, "datetime");
+            var toDateTime = formatDateTime(toDateTime, "datetime");
             if (isNaN(fromDateTime)) {
                 alert("ERROR - Invalid 'From' Time and/or Date. Re-enter.");
                 return [];
@@ -2092,7 +2087,7 @@
                 alert("Invalid 'To' Time and/or Date. Re-enter.");
                 return [];
             }
-            if (fromDateTime.valueOf() >= toDateTime.valueOf()) {
+            if (fromDateTime.valueOf() > toDateTime.valueOf()) {
                 alert("'From' Date / Time should be before 'To' Date / Time. Re-enter.");
                 return [];
             }
