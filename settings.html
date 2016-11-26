@@ -84,7 +84,6 @@
             </div>
             <div class="col-md-3">
                 <p>Log Description</p>
-                <label class="tip" data-toggle="tip" data-placement="top" data-original-title="Only trigger when new value is different to current value"><input id="trigChkDiff" name="chkInput" type="checkbox" /> Diff</label>
                 <input type="text" class="form-control" id="LogDesc" name="textInput" placeholder="" disabled>
             </div>
             <br /><br /><br /><br />
@@ -932,21 +931,26 @@
                     </div>
                 </div>
             </div><br />
-            <div class="col-md-2">
-                <p>Name</p>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="actionName" name="textInput" placeholder="New or Select Action">
-                    <div class="input-group-btn">
-                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
-                        <ul id="actionNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+            <div class="row">
+                <div class="col-md-2">
+                    <p>Name</p>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="actionName" name="textInput" placeholder="New or Select Action">
+                        <div class="input-group-btn">
+                            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="caret" /></button>
+                            <ul id="actionNameList" class="dropdown-menu pull-right dropdown-scroll"></ul>
+                        </div>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <p>Description</p>
+                    <input type="text" class="form-control" id="actionDesc" name="textInput" placeholder="Enter Action description">
+                </div>
+                <div class="col-md-1">
+                    <p>&nbsp;</p>
+                    <button type="button" id="actionButRun" onclick="actionButRun()" class="btn btn-primary tip pointer nofocus" data-original-title="Press to test action">Run Action</button>&nbsp;&nbsp;&nbsp;
+                </div>
             </div>
-            <div class="col-md-3">
-                <p>Description</p>
-                <input type="text" class="form-control" id="actionDesc" name="textInput" placeholder="Enter Action description">
-            </div>
-            <br /><br /><br /><br />
             <div class="row">
                 <div class="col-md-4">
                     <div class="panel panel-info">
@@ -2075,7 +2079,7 @@
         function objEvent() {
             var fromDateTime = $('#eventFromDateTime').val().trim();
             var toDateTime = $('#eventToDateTime').val().trim();
-            if (fromDateTime == "") fromDateTime = "12-12-2099 12:00 AM"
+            if (fromDateTime == "") fromDateTime = "01-01-1970 12:00 AM"
             if (toDateTime == "") toDateTime = "12-12-2099 12:00 AM";
             var fromDateTime = formatDateTime(fromDateTime, "datetime");
             var toDateTime = formatDateTime(toDateTime, "datetime");
@@ -2120,6 +2124,17 @@
         function actionsScreenEnter() {
             loadNames("ACTIONS")
             document.getElementById("editOptions").style.display = "inline";
+        }
+
+        function actionButRun() {
+            var actionToRun = $('#actionName').val().trim();
+            if (actionToRun) {
+                parent.send("ACTION", "RUN", $('#actionName').val().trim());
+                parent.modalDialog("action", "Running Action", "Action '" + actionToRun + "' submitted to run.")
+                parent.status("Action '" + actionToRun + "' run.");
+            } else {
+                parent.modalDialog("action", "No Action selected", "Select an Action before running.")
+            }
         }
 
         // Populate the Action object from fields
@@ -2607,21 +2622,22 @@
         function formatDateTime(JSDateTime, dateTime) {
             if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
             var convStr = JSDateTime.replace(/\u200E/g, "").trim();       // remove hidden unicode left-to-right mark
+            var myDate;
             switch (dateTime.toUpperCase()) {
                 case "DATE":                                // assumes midnight
                     var splitDate = convStr.trim().split("/")
                     if (splitDate.length == 1) splitDate = convStr.trim().split("-");
                     if (navigator.language == "en-US") {
-                        var myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], 0, new Date().getTimezoneOffset(), 0, 0)
+                        myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], 0, new Date().getTimezoneOffset(), 0, 0)
                     } else {
-                        var myDate = new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0], 0, new Date().getTimezoneOffset(), 0, 0)
+                        myDate = new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0], 0, new Date().getTimezoneOffset(), 0, 0)
                     }
                     break;
                 case "TIME":                                // assumes epoc date so we can add
                     var splitTime = convStr.split(":");
                     if (splitTime.length == 0) return nullDate;
                     if (splitTime[0] == "12" && convStr.trim().split(" ")[1].toUpperCase() === "AM") splitTime[0] = 0;              // midnight
-                    var myDate = new Date(1970, 0, 1, convStr.trim().split(" ")[1].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1].split(" ")[0], 0, 0);
+                    myDate = new Date(1970, 0, 1, convStr.trim().split(" ")[1].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1].split(" ")[0], 0, 0);
                     break;
                 case "DATETIME":
                     var splitTD = convStr.split(" ");
@@ -2632,9 +2648,9 @@
                     if (splitTime.length < 2 || splitDate.length < 2) return nullDate;
                     if (splitTime[0] == "12" && splitTD[2].toUpperCase() === "AM") splitTime[0] = 0;              // midnight
                     if (navigator.language == "en-US") {
-                        var myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], splitTD[2].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1], 0, 0)
+                        myDate = new Date(+splitDate[2], +splitDate[0] - 1, +splitDate[1], splitTD[2].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1], 0, 0)
                     } else {
-                        var myDate = new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0], splitTD[2].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1], 0, 0)
+                        myDate = new Date(+splitDate[2], +splitDate[1] - 1, +splitDate[0], splitTD[2].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1], 0, 0)
                     }
                     break;
                 default:
