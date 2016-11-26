@@ -300,6 +300,7 @@
             document.getElementById("selectedFile").files[0] = selFile.files[0];                                                            // re-attach the selected file to the element as it gets destroyed when replacing the HTML
         }
 
+        // Close widget menu and update with changes
         function closeWidgetMenu(option) {
             if (option === "save") {
                 walkList(document.getElementById("widgetOptionList"), 0);                                                                           // recursive save all the menu settings based on nodes with widget data-type attribute
@@ -451,7 +452,7 @@
 
         // Load channel toolbox with just filtered channels
         function filterChannels() {
-            loadChannels(document.getElementById("channelSearchTxt").value.trim(), false)
+            loadChannels(document.getElementById("channelSearchTxt").value.trim(), false);
         }
 
         // Load icon toolbox with just filtered icons
@@ -679,7 +680,7 @@
 
         // Select the channel based on the global set by the toolbox
         function channelSel(event) {                                                                                                                // category, class and instance names stored in ID as category\class\channel
-            if (event.target.id !== "" && toolboxParam !== null) {                                                                                           // only select the event of the icon selected (other close by elements dont have an id)
+            if (event.target.id !== "" && toolboxParam) {                                                                                           // only select the event of the icon selected (other close by elements dont have an id)
                 var channelItem = document.getElementById("channelItem" + toolboxParam);
                 if (event.target.id === "noChannel") {
                     channelItem.setAttribute("data-selected", "");
@@ -726,7 +727,7 @@
                                 IOIcon = "question-mark"
                         }
                         chElem.innerHTML = "<i class='icon-" + IOIcon + "' icon-large>&nbsp;</i><i class='icon-" + channelIcon + " icon-large' id='" + plugins[plugin].Category + "/" + plugins[plugin].ClassName + "/" + plugins[plugin].Channels[item].Name + "'></i><br/>" + plugins[plugin].ClassName + "<br/>" + plugins[plugin].Channels[item].Name + "<br/><br/>"
-                        ChContainer.appendChild(chElem)
+                        ChContainer.appendChild(chElem);
                     }
                 }
             }
@@ -1300,11 +1301,11 @@
                             break;
                         case "topoffset":
                             widgetObj.style.setProperty("top", (parseInt(widgetObj.style.getPropertyValue("top")) + parseInt(param1)) + "px");
-                            widgets[widgetNum].locY = parseInt(widgetObj.style.getAttribute("top"));
+                            widgets[widgetNum].locY = parseInt(widgetObj.style.getPropertyValue("top"));
                             break;
                         case "leftoffset":
                             widgetObj.style.setProperty("left", (parseInt(widgetObj.style.getPropertyValue("left")) + parseInt(param1)) + "px");
-                            widgets[widgetNum].locX = parseInt(widgetObj.style.getAttribute("left"));
+                            widgets[widgetNum].locX = parseInt(widgetObj.style.getPropertyValue("left"));
                             break;
                         case "scalex":
                             widgets[widgetNum].scaleX = +param1;

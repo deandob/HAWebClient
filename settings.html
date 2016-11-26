@@ -84,6 +84,7 @@
             </div>
             <div class="col-md-3">
                 <p>Log Description</p>
+                <label class="tip" data-toggle="tip" data-placement="top" data-original-title="Only trigger when new value is different to current value"><input id="trigChkDiff" name="chkInput" type="checkbox" /> Diff</label>
                 <input type="text" class="form-control" id="LogDesc" name="textInput" placeholder="" disabled>
             </div>
             <br /><br /><br /><br />
@@ -660,9 +661,16 @@
                                             </ul>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-4">
+                                       <p>&nbsp;</p>
+                                       <input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="">
+                                    </div>
+                                    <div class="col-md-4">
                                         <p>&nbsp;</p>
-                                        <input type="text" class="form-control" id="trigChgData" name="textInput" placeholder="">
+                                        <div class="checkbox">
+                                            <label class="tip" data-toggle="tooltip" data-placement="top" data-original-title="Only trigger when new value is different to current value"><input id="trigChgDiff" name="chkInput" type="checkbox"/> Diff</label>
+                                            <label class="tip" data-toggle="tooltip" data-placement="top" data-original-title="Only trigger when new value passes across threshold (greater/less than old value)"><input id="trigChgThresh" name="chkInput" type="checkbox"/> Thresh</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -1589,7 +1597,7 @@
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {
-            enableTooltip()
+            enableTooltip();
             for (var category in parent.categories) {                               // Load up category dropdowns
                 addButtonEntry("trigStateCategoryList", parent.categories[category].Cat, "trigStateCategory");
                 addButtonEntry("trigChgCategoryList", parent.categories[category].Cat, "trigChgCategory");
@@ -1975,16 +1983,6 @@
             setPickers();
         }
 
-        // Radio behaviour for time intervals (fortnightly will imply monthly)
-        /*     function radio(active) {
-                 if ($("#" + active).prop('checked') == true) {
-                     $("#trigChkYear").prop('checked', false)
-                     $("#trigChkFortnight").prop('checked', false)
-                     $("#trigChkMonth").prop('checked', false)
-                     $("#" + active).prop('checked', true)
-                 }
-             }  */
-
         // Populate the Trigger object from the fields. If from date/time field is empty, then send epoc date, if to date/time is empty then means for all future (send back empty string)
         function objTrig() {
             var trigChgNetwork = 0;
@@ -2034,6 +2032,8 @@
                 "trigChgScope": $('#trigChgScope').val().trim(),
                 "trigChgCond": condIndex('trigChgCond'),
                 "trigChgData": $('#trigChgData').val().trim(),
+                "trigChgDiff": $('#trigChgDiff').prop('checked').toString().trim(),
+                "trigChgThresh": $('#trigChgThresh').prop('checked').toString().trim(),
                 "trigFromDate": formatDateTime(fromDate, "date").toISOString(),
                 "trigFromTime": formatDateTime(fromTime, "time").toISOString(),
                 "trigToDate": formatDateTime(toDate, "date").toISOString(),
@@ -2528,6 +2528,9 @@
 
         // Add an entry to the toolbox
         function addToolboxEntry(toolbox, name, desc, list, cat, plugin) {
+
+            //TODO: Get this from dashboard or put in parent.
+
             //if (plugins[plugin].Channels[item].Name.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
             //        plugins[plugin].ClassName.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
             //        plugins[plugin].Category.toLowerCase().trim().indexOf(filter.toLowerCase().trim()) !== -1 ||
@@ -2618,7 +2621,6 @@
                     var splitTime = convStr.split(":");
                     if (splitTime.length == 0) return nullDate;
                     if (splitTime[0] == "12" && convStr.trim().split(" ")[1].toUpperCase() === "AM") splitTime[0] = 0;              // midnight
-                    //var myDate = new Date((convStr.trim().split(" ")[1].toUpperCase() === "PM" && +splitTime[0] < 12 ? +splitTime[0] + 12 : +splitTime[0]) * 3600000 + splitTime[1].split(" ")[0] * 60000);
                     var myDate = new Date(1970, 0, 1, convStr.trim().split(" ")[1].toUpperCase() === "PM" ? +splitTime[0] + 12 : +splitTime[0], +splitTime[1].split(" ")[0], 0, 0);
                     break;
                 case "DATETIME":
@@ -2669,7 +2671,7 @@
 
         // enable bootstrap tooltips
         function enableTooltip() {
-            $(".tip").tooltip({ delay: { show: parent.tooltipDelay } });
+            $(".tip").tooltip({ delay: { show: parent.TOOLTIPDELAY } });
         }
 
         // Clear all fields
@@ -3049,9 +3051,9 @@
                                 var eventFired = new Date(myEvent[0].EventLastFired).toLocaleString().replace(/\u200E/g, "").trim();
                                 if (eventFired == "Invalid Date") eventFired = "never";
                                 var start = removeSec(new Date(myEvent[0].EventStart).toLocaleDateString().replace(/\u200E/g, "").trim());
-                                if (start == "Invalid Date") start = "";
+                                if (start == "Invalid Date" || myEvent[0].EventStart.substr(0,4) === "1970" || myEvent[0].EventStart.substr(0,4) === "1969") start = "";
                                 var stop = removeSec(new Date(myEvent[0].EventStop).toLocaleDateString().replace(/\u200E/g, "").trim());
-                                if (stop == "Invalid Date") stop = "";
+                                if (stop == "Invalid Date" || myEvent[0].EventStop.substr(0,4) === "2099") stop = "";
                                 $('#eventDesc').val(myEvent[0].EventDescription);
                                 $('#eventChkEnabled').prop('checked', myEvent[0].EventActive);
                                 $('#eventChkOneOff').prop('checked', myEvent[0].EventOneOff);
@@ -3077,13 +3079,13 @@
                             case "GET:QUERIES":
                                 var myQuery = JSON.parse(msg.Data);
                                 var queryFromDate = new Date(myQuery[0].QueryFromDate).toLocaleString().replace(/\u200E/g, "").trim();
-                                if (queryFromDate == "Invalid Date") queryFromDate = "";
+                                if (queryFromDate == "Invalid Date" || myQuery[0].QueryFromDate.substr(0,4) === "1970" || myQuery[0].QueryFromDate.substr(0,4) === "1969") queryFromDate = "";
                                 var queryFromTime = new Date(myQuery[0].QueryFromTime).toLocaleString().replace(/\u200E/g, "").trim();
-                                if (queryFromTime == "Invalid Date") queryFromTime = "";
+                                if (queryFromTime == "Invalid Date" || myQuery[0].QueryFromTime.substr(0,4) === "1970" || myQuery[0].QueryFromTime.substr(0,4) === "1969") queryFromTime = "";
                                 var queryToDate = new Date(myQuery[0].QueryToDate).toLocaleString().replace(/\u200E/g, "").trim();
-                                if (queryToDate == "Invalid Date") queryToDate = "";
+                                if (queryToDate == "Invalid Date" || myQuery[0].QueryToDate.substr(0,4) === "2099") queryToDate = "";
                                 var queryToTime = new Date(myQuery[0].QueryToTime).toLocaleString().replace(/\u200E/g, "").trim();
-                                if (queryToTime == "Invalid Date") queryToTime = "";
+                                if (queryToTime == "Invalid Date" || myQuery[0].QueryToTime.substr(0,4) === "1970" || myQuery[0].QueryToTime.substr(0,4) === "1969") queryToTime = "";
                                 $('#queryName').val(myQuery[0].QueryName);
                                 $('#queryDesc').val(myQuery[0].QueryDescription);
                                 pressBut("queryTypeQuestionSel", myQuery[0].QueryType);
@@ -3127,15 +3129,15 @@
                                 var trigFired = new Date(myTrig[0].TrigLastFired).toLocaleString().replace(/\u200E/g, "").trim();
                                 if (trigFired == "Invalid Date") trigFired = "never";
                                 var fromDate = new Date(myTrig[0].TrigDateFrom).toLocaleDateString().replace(/\u200E/g, "").trim();
-                                if (fromDate == "Invalid Date") fromDate = "";
+                                if (fromDate == "Invalid Date" || myTrig[0].TrigDateFrom.substr(0,4) === "1969" || myTrig[0].TrigDateFrom.substr(0,4) === "1970") fromDate = "";
                                 var toDate = new Date(myTrig[0].TrigDateTo).toLocaleDateString().replace(/\u200E/g, "").trim();
-                                if (toDate == "Invalid Date") toDate = "";
+                                if (toDate == "Invalid Date" || myTrig[0].TrigDateTo.substr(0,4) === "2099") toDate = "";
                                 var fromTime = removeSec(myTrig[0].TrigTimeFrom);
-                                if (myTrig[0].TrigTimeFrom == "1970-01-01T00:00Z") fromTime = "";            // Unix epoch = no time
+                                if (myTrig[0].TrigTimeFrom.substr(0,4) === "1969" || myTrig[0].TrigTimeFrom.substr(0,4) === "1970") fromTime = "";            // Unix epoch = no time, compensate for varying UTC vs local 1969/70
                                 var toTime = removeSec(myTrig[0].TrigTimeTo);
-                                if (myTrig[0].TrigTimeTo == "1970-01-01T00:00Z") toTime = "";
+                                if (myTrig[0].TrigTimeTo.substr(0,4) === "1970" || myTrig[0].TrigTimeTo.substr(0,4) === "1969") toTime = "";
                                 var timeOfDay = removeSec(myTrig[0].TrigTimeofDay);
-                                if (myTrig[0].TrigTimeofDay == "1970-01-01T00:00Z") timeOfDay = "";
+                                if (myTrig[0].TrigTimeofDay.substr(0,4) === "1970" || myTrig[0].TrigTimeofDay.substr(0,4) === "1969") timeOfDay = "";
 
                                 $('#trigScriptParam').val(myTrig[0].TrigScriptParam);
                                 $('#trigScriptValue').val(myTrig[0].TrigScriptData);
@@ -3154,6 +3156,8 @@
                                 document.getElementById("trigChgVal").innerText = myTrig[0].TrigChgInstance + " (" + myTrig[0].TrigChgClass + ")"
                                 pressBut("trigChgCond", condStr[parseInt(myTrig[0].TrigChgCond)]);
                                 $('#trigChgData').val(myTrig[0].TrigChgData);
+                                $('#trigChgDiff').prop('checked', myTrig[0].TrigChgDiff);
+                                $('#trigChgThresh').prop('checked', myTrig[0].TrigChgThresh);
                                 $('#trigFromDate').val(fromDate);
                                 $('#trigFromTime').val(fromTime);
                                 $('#trigToDate').val(toDate);
