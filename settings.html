@@ -1016,6 +1016,12 @@
                             <div class="panel-body">
                                 <div class="row">
                                     <div class="col-md-5">
+                                        <p>&nbsp;</p>
+                                        <div class="checkbox">
+                                            <label class="tip" data-toggle="tooltip" data-placement="top" data-original-title="Activate trigger channel instead"><input id="actionTrigTopic" name="chkInput" type="checkbox" /> Use Trigger Channel</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
                                         <p>Value</p>
                                         <input type="text" class="form-control" id="actionData" name="textInput" placeholder="">
                                     </div>
@@ -1592,7 +1598,6 @@
 
         var pcTicks = 10000;
         var unixEpoc = 621355968000000000; // epoch start in .NET time
-        var nullDate = new Date(new Date().getTimezoneOffset());      // UNIX epoc in UTC
         var condStr = ["equals", "greater", "less", "not", "contains", "like", "change"];
         var myCodeMirror;
         var toolboxCB;          // global for callback routine from toolbox load calls
@@ -1922,7 +1927,7 @@
                     if (fromDate == "") fromDate = new Date().toLocaleDateString()
                     if (fromTime == "") fromTime = "12:00 AM"
                     if (toDate == "") toDate = new Date().toLocaleDateString()
-                    if (toTime == "") toTime = new Date().toLocaleTimeString().split("GMT")[0].trim();
+                    if (toTime == "") toTime = new Date(75, 1, 1, 23, 59, 59, 0).toLocaleTimeString().split("GMT")[0].trim();
                     fromDateTime = formatDateTime(fromDate + " " + fromTime, "datetime");
                     toDateTime = formatDateTime(toDate + " " + toTime, "datetime");
                 }
@@ -2039,10 +2044,10 @@
                 "trigChgDiff": $('#trigChgDiff').prop('checked').toString().trim(),
                 "trigChgThresh": $('#trigChgThresh').prop('checked').toString().trim(),
                 "trigFromDate": formatDateTime(fromDate, "date").toISOString(),
-                "trigFromTime": formatDateTime(fromTime, "time").toISOString(),
+                "trigFromTime": formatDateTime($('#trigFromTime').val().trim(), "time").toISOString(),
                 "trigToDate": formatDateTime(toDate, "date").toISOString(),
-                "trigToTime": formatDateTime(toTime, "time").toISOString(),
-                "trigTimeofDay": timeofDay != "" ? formatDateTime(timeofDay, "time").toISOString() : "",
+                "trigToTime": formatDateTime($('#trigToTime').val().trim(), "time").toISOString(),
+                "trigTimeofDay": formatDateTime(timeofDay, "time").toISOString(),
                 "trigChkFortnight": $('#trigChkFortnight').prop('checked').toString().trim(),
                 "trigChkMonth": $('#trigChkMonth').prop('checked').toString().trim(),
                 "trigChkYear": $('#trigChkYear').prop('checked').toString().trim(),
@@ -2152,7 +2157,8 @@
                 "actionScope": $('#actionScope').val().trim(),
                 "actionData": $('#actionData').val().trim(),
                 "actionChkRnd": $('#actionChkRnd').prop('checked').toString().trim(),
-                "actionDelay": $('#actionDelay').val().trim()
+                "actionDelay": $('#actionDelay').val().trim(),
+                "actionTrigTopic": $('#actionTrigTopic').prop('checked').toString().trim()
             }];
         }
         //#endregion
@@ -2620,6 +2626,8 @@
 
         // Convert from general string date format to JS date object in local time. Format 'DD/MM/YY HH:MM:SS PM' with US dates and / or - date delimiters, seconds ignored. No military time
         function formatDateTime(JSDateTime, dateTime) {
+            var nullDate = new Date(new Date().getTimezoneOffset());      // UNIX epoc in UTC
+            if (dateTime.toUpperCase() === "TIME" && JSDateTime === "") return new Date("1975");                               // Magic date indicating no time set
             if (JSDateTime == "" || JSDateTime == undefined || JSDateTime == "Invalid Date") return nullDate;
             var convStr = JSDateTime.replace(/\u200E/g, "").trim();       // remove hidden unicode left-to-right mark
             var myDate;
@@ -2660,6 +2668,7 @@
 
         // Removes the seconds component of a locale time string + adds leading 0
         function removeSec(time) {
+            if (time.substr(0, 4) === "1975") return "";                                                        // 1975 = null time
             var newDate = new Date(time);
             var dateStr = newDate.toLocaleTimeString().replace(/\u200E/g, "");
             var sec = newDate.getSeconds();
@@ -3097,11 +3106,11 @@
                                 var queryFromDate = new Date(myQuery[0].QueryFromDate).toLocaleString().replace(/\u200E/g, "").trim();
                                 if (queryFromDate == "Invalid Date" || myQuery[0].QueryFromDate.substr(0,4) === "1970" || myQuery[0].QueryFromDate.substr(0,4) === "1969") queryFromDate = "";
                                 var queryFromTime = new Date(myQuery[0].QueryFromTime).toLocaleString().replace(/\u200E/g, "").trim();
-                                if (queryFromTime == "Invalid Date" || myQuery[0].QueryFromTime.substr(0,4) === "1970" || myQuery[0].QueryFromTime.substr(0,4) === "1969") queryFromTime = "";
+                                if (queryFromTime == "Invalid Date" || myQuery[0].QueryFromTime.substr(0,4) === "1975") queryFromTime = "";
                                 var queryToDate = new Date(myQuery[0].QueryToDate).toLocaleString().replace(/\u200E/g, "").trim();
                                 if (queryToDate == "Invalid Date" || myQuery[0].QueryToDate.substr(0,4) === "2099") queryToDate = "";
                                 var queryToTime = new Date(myQuery[0].QueryToTime).toLocaleString().replace(/\u200E/g, "").trim();
-                                if (queryToTime == "Invalid Date" || myQuery[0].QueryToTime.substr(0,4) === "1970" || myQuery[0].QueryToTime.substr(0,4) === "1969") queryToTime = "";
+                                if (queryToTime == "Invalid Date" || myQuery[0].QueryToTime.substr(0,4) === "1975") queryToTime = "";
                                 $('#queryName').val(myQuery[0].QueryName);
                                 $('#queryDesc').val(myQuery[0].QueryDescription);
                                 pressBut("queryTypeQuestionSel", myQuery[0].QueryType);
@@ -3136,6 +3145,7 @@
                                 $('#actionData').val(myAction[0].ActionData);
                                 $('#actionChkRnd').prop('checked', myAction[0].ActionRandom);
                                 $('#actionDelay').val(myAction[0].ActionDelay);
+                                $('#actionTrigTopic').prop('checked', myAction[0].ActionTrigTopic);
                                 break;
                             case "GET:TRIGGERS":
                                 var myTrig = JSON.parse(msg.Data);
@@ -3149,11 +3159,8 @@
                                 var toDate = new Date(myTrig[0].TrigDateTo).toLocaleDateString().replace(/\u200E/g, "").trim();
                                 if (toDate == "Invalid Date" || myTrig[0].TrigDateTo.substr(0,4) === "2099") toDate = "";
                                 var fromTime = removeSec(myTrig[0].TrigTimeFrom);
-                                if (myTrig[0].TrigTimeFrom.substr(0,4) === "1969" || myTrig[0].TrigTimeFrom.substr(0,4) === "1970") fromTime = "";            // Unix epoch = no time, compensate for varying UTC vs local 1969/70
                                 var toTime = removeSec(myTrig[0].TrigTimeTo);
-                                if (myTrig[0].TrigTimeTo.substr(0,4) === "1970" || myTrig[0].TrigTimeTo.substr(0,4) === "1969") toTime = "";
                                 var timeOfDay = removeSec(myTrig[0].TrigTimeofDay);
-                                if (myTrig[0].TrigTimeofDay.substr(0,4) === "1970" || myTrig[0].TrigTimeofDay.substr(0,4) === "1969") timeOfDay = "";
 
                                 $('#trigScriptParam').val(myTrig[0].TrigScriptParam);
                                 $('#trigScriptValue').val(myTrig[0].TrigScriptData);
