@@ -654,7 +654,7 @@
             if (fw.state !== "design") {
                 //var tt = xAxis.scale(d3.event.transform.rescaleX(x))
                 x.domain([x.domain()[0], oldDomain[1]])
-                x.domain(d3.extent(data, function (d) { return d.date; }));
+                /////////x.domain(d3.extent(data, function (d) { return d.date; }));             //// there is no data
                 if (x.domain()[1].valueOf() < Date.now()) {                // dont allow panning into the future
                     gX.call(xAxis.scale(d3.event.transform.rescaleX(x)));
                     if (oldDomain[1] - oldDomain[0] !== x.domain()[1] - x.domain()[0]) {

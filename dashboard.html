@@ -154,6 +154,7 @@
         var toolboxParam = null;                                                    // Save the toolbox parameter for other functions
         var tabIconSelected = "";                                                   // Save the name of the icon selected for saving
         var iniStr = "";                                                            // Store ini values for widgets while screen is loading
+        var loadTimer;                                                              // Timeout for loading widgets
 
         var g = {}                                                                  // used for global boolean flags
         g.design = false                                                            // design mode flag
@@ -580,6 +581,9 @@
                 }
             }
 
+            clearTimeout(loadTimer);                                                                                                                // Timeout if missing widgets during load (afterRender won't get called)
+            loadTimer = setTimeout(loadTimeout, 8000);
+
             if (widgetToLoadCnt > 0 ) container.style.setProperty("left", "-5000px");                                                               // move offscreen to make for clean rendering only if not a new screen (without loading widgets screen back to 0 left won't be invoked)
             else parent.status("");
 
@@ -841,7 +845,7 @@
                 loadDoc.defaultView.widgetLoad(loadObj.id);                                                                                         // Run the widget API startup (must be done from parent to pass name)
                 if (g.design && typeof loadDoc.defaultView.startDesign === "function") loadDoc.defaultView.startDesign();
 
-                widgetID.setAttribute("data-type", widgets[loadNum].type);                                                                          // widget type = classname for messages
+   ////             widgetID.setAttribute("data-type", widgets[loadNum].type);                                                                          // widget type = classname for messages
                 loadObj.setAttribute("style", "position:absolute;overflow:hidden;left:" + widgets[loadNum].locX + "px;top:" + widgets[loadNum].locY + "px;z-index:" + widgets[loadNum].zOrder);
                 loadObj.width = widgets[loadNum].scaleX * widgets[loadNum].iniWidth
                 loadObj.height = widgets[loadNum].scaleY * widgets[loadNum].iniHeight
@@ -873,8 +877,9 @@
             parent.status("Ready");
             parent.enableTooltip();
             parent.send("SETTINGS", "GET:CATEGORIES()", "");
+            clearTimeout(loadTimer);
             var myWidgets = document.getElementsByClassName("widget");
-            for (var i = 0; i < myWidgets.length; i++) widgetListeners(myWidgets[i].contentDocument.defaultView);
+            for (var i = 0; i < myWidgets.length; i++) if (myWidgets[i].contentDocument) widgetListeners(myWidgets[i].contentDocument.defaultView);
             if (!g.design && parent.mode === "Design") setDesign();                                                                                 // Go into design mode if just reloaded after pressing design button
         }
 
@@ -884,6 +889,22 @@
             myWidget.addEventListener('mouseup', mouseUp, false);
             myWidget.addEventListener('mousedown', mouseDown, false);
             myWidget.addEventListener("dblclick", widgetDblClick, false);
+        }
+
+        // Not all widgets loaded, handle error
+        function loadTimeout() {
+            var loadedWidgets = document.getElementsByClassName("widget");
+            var screenWidgets = widgets.filter(function (x) { return x.screen === selScreenNum });
+            var counts = {}
+            screenWidgets.forEach(function (x) { counts[x.type] = (counts[x.type] || 0) + 1; });                                                    // Count the number of different widgets defined for screen
+            for (var countWidget in counts) {
+                var foundWidgetNum = 0;
+                for (var i = 0; i < loadedWidgets.length; i++) {
+                    if (loadedWidgets[i].getAttribute("data").indexOf(countWidget) > -1 && loadedWidgets[i].width !== "") foundWidgetNum += 1       // Check to see if I have the same count per widget loaded
+                }
+                if (foundWidgetNum !== counts[countWidget]) alert("WARNING - A widget (" + countWidget + ") is either corrupt or missing and didn't load. Some functionality may not work.")
+            }
+            afterRender();                                                                                                                          // Complete loading minus bad widget
         }
 
         ///////////////////////////////////////////////// Widget mouse events
@@ -1158,7 +1179,7 @@
                     break;
                 case "SCREENS":
                     switch (msg.Scope.toUpperCase()) {
-                        case "LOAD":                                                                    //////// ########### IS THIS OLD?>???
+                        case "LOAD":                                                                    // Not used but could be modified for loading specific screens
                             initScreens(msg.Data);
                             break;
                         default:

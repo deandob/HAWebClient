@@ -1618,6 +1618,7 @@
 
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {                 // Tab Navigation call relevant entry and exit functions
                 clearRecs();
+                parent.status("");
                 var nameToTab = e.target.parentNode.id.substr(3, 1).toLowerCase() + e.target.parentNode.id.substr(4);
                 var nameFromTab = e.relatedTarget.parentNode.id.substr(3, 1).toLowerCase() + e.relatedTarget.parentNode.id.substr(4);
                 if (typeof window[nameFromTab + "ScreenExit"] == "function") window[nameFromTab + "ScreenExit"]();
@@ -3161,7 +3162,6 @@
                                 var fromTime = removeSec(myTrig[0].TrigTimeFrom);
                                 var toTime = removeSec(myTrig[0].TrigTimeTo);
                                 var timeOfDay = removeSec(myTrig[0].TrigTimeofDay);
-
                                 $('#trigScriptParam').val(myTrig[0].TrigScriptParam);
                                 $('#trigScriptValue').val(myTrig[0].TrigScriptData);
                                 pressBut("trigScriptCond", condStr[parseInt(myTrig[0].TrigScriptCond)]);
