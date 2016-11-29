@@ -145,6 +145,7 @@
         var WIDGETLOADRETRIES = 100;                                                // number of retries waiting for widget to load
         var ACTION_RETRY_MSEC = 2;                                                  // How long to retry waiting for widget
         var TBWIDTH = document.getElementById("widgetSection").offsetLeft;          // size of sidebar
+        var WIDGETLOADTIMEOUT = 10000;                                              // Timeout waiting for widgets to load usually due to corrupt widget
 
         var widgetMax = { width: 1280, height: 900 };                               // maximum screen size for all screens used for UWP client
         var selScreenNum = 0;                                                       // selected screen
@@ -494,6 +495,9 @@
 
         // Populate the screen object from initial connection data
         function initScreens(screenJSON) {
+            var myNode = document.getElementById(barList);
+            while (myNode.firstChild) myNode.removeChild(myNode.firstChild);                                                                        // Remove old tabs if reloading due to errors
+
             if (screenJSON !== "") {
                 screens = JSON.parse(screenJSON);
                 for (var screen = 0; screen < screens.length; screen++) {
@@ -582,7 +586,7 @@
             }
 
             clearTimeout(loadTimer);                                                                                                                // Timeout if missing widgets during load (afterRender won't get called)
-            loadTimer = setTimeout(loadTimeout, 8000);
+            loadTimer = setTimeout(loadTimeout, WIDGETLOADTIMEOUT);
 
             if (widgetToLoadCnt > 0 ) container.style.setProperty("left", "-5000px");                                                               // move offscreen to make for clean rendering only if not a new screen (without loading widgets screen back to 0 left won't be invoked)
             else parent.status("");
@@ -857,13 +861,14 @@
 
                 if (typeof loadDoc.defaultView.scale === "function") loadDoc.defaultView.scale(widgets[loadNum].scaleX, widgets[loadNum].scaleY);   // widget handles scaling for internal elements
 
-                if (widgetToLoadCnt === widgetLoadedCnt) {                                                                                          // Finished loading all the widgets on the screen
-                    setTimeout(afterRender, 0);
-                }
+                if (widgetToLoadCnt === widgetLoadedCnt) setTimeout(afterRender, 0);                                                                // Finished loading all the widgets on the screen, use timeout to render screen here
+
             } catch (err) {
                 loadObj.parentNode.removeChild(loadObj);                                                                                            // remove widget
                 if (parent.debugURL !== "") throw err.stack || err;                                                                                 // let debugger catch the error if debugging
+                clearTimeout(loadTimer);
                 alert("WARNING - Problems loading widget #" + loadNum + " (" + widgets[loadNum].type + "). Widget won't be useable. Details: " + err);         // else show the user a nice error box
+                loadTimer = setTimeout(loadTimeout, WIDGETLOADTIMEOUT);                                                                             // Timeout if missing widgets during load (afterRender won't get called)
                 widgets[loadNum].type = null;
             }
         }
@@ -895,14 +900,14 @@
         function loadTimeout() {
             var loadedWidgets = document.getElementsByClassName("widget");
             var screenWidgets = widgets.filter(function (x) { return x.screen === selScreenNum });
-            var counts = {}
+            var counts = {};
             screenWidgets.forEach(function (x) { counts[x.type] = (counts[x.type] || 0) + 1; });                                                    // Count the number of different widgets defined for screen
             for (var countWidget in counts) {
                 var foundWidgetNum = 0;
                 for (var i = 0; i < loadedWidgets.length; i++) {
                     if (loadedWidgets[i].getAttribute("data").indexOf(countWidget) > -1 && loadedWidgets[i].width !== "") foundWidgetNum += 1       // Check to see if I have the same count per widget loaded
                 }
-                if (foundWidgetNum !== counts[countWidget]) alert("WARNING - A widget (" + countWidget + ") is either corrupt or missing and didn't load. Some functionality may not work.")
+                if (foundWidgetNum !== counts[countWidget]) alert("WARNING - Timed out waiting for widget (" + countWidget + ") which is corrupt or missing and didn't load. Some functionality may not work.");
             }
             afterRender();                                                                                                                          // Complete loading minus bad widget
         }
@@ -1113,7 +1118,6 @@
             obj.removeEventListener("mouseup", widgetResizeEnd, false);
         }
 
-        //#endregion
 
         ///////////////////////////////////////////// widget events
 
