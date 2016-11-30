@@ -152,7 +152,7 @@
         var barList;                                                                // top or side lists
         var widgetToLoadCnt, widgetLoadedCnt;                                       // Counter for when the last widget has finished loading.
         var widgetSubscribe = "";                                                   // list of subscriptions
-        var toolboxParam = null;                                                    // Save the toolbox parameter for other functions
+        var toolboxParam;                                                           // Save the toolbox parameter for other functions
         var tabIconSelected = "";                                                   // Save the name of the icon selected for saving
         var iniStr = "";                                                            // Store ini values for widgets while screen is loading
         var loadTimer;                                                              // Timeout for loading widgets
@@ -235,10 +235,10 @@
 
             while (list.firstChild !== divider) list.removeChild(list.firstChild);                                                                  // clear list up to the divider
             menuItem.innerHTML = "<h5 class='text-center'><b>Configure Widget</b></h5>";
-            docFrag.appendChild(menuItem)
+            docFrag.appendChild(menuItem);
 
             for (var i = 0; i < widgets[editData.widgetNum].attribs.length; i++) {
-                menuItem = document.createElement("li")
+                menuItem = document.createElement("li");
                 widgetProp = widgets[editData.widgetNum].attribs[i].name;
                 var innerHTML = "";
 
@@ -496,7 +496,9 @@
         // Populate the screen object from initial connection data
         function initScreens(screenJSON) {
             var myNode = document.getElementById(barList);
-            while (myNode.firstChild) myNode.removeChild(myNode.firstChild);                                                                        // Remove old tabs if reloading due to errors
+            while (myNode.firstChild) {
+                myNode.removeChild(myNode.firstChild);                                                                                               // Remove old tabs if reloading due to errors
+            }
 
             if (screenJSON !== "") {
                 screens = JSON.parse(screenJSON);
@@ -688,7 +690,7 @@
 
         // Select the channel based on the global set by the toolbox
         function channelSel(event) {                                                                                                                // category, class and instance names stored in ID as category\class\channel
-            if (event.target.id !== "" && toolboxParam) {                                                                                           // only select the event of the icon selected (other close by elements dont have an id)
+            if (event.target.id !== "" && typeof toolboxParam !== "undefined") {                                                                                           // only select the event of the icon selected (other close by elements dont have an id)
                 var channelItem = document.getElementById("channelItem" + toolboxParam);
                 if (event.target.id === "noChannel") {
                     channelItem.setAttribute("data-selected", "");
