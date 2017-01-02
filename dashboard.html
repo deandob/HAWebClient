@@ -234,7 +234,7 @@
             g.menuOpen = true;
 
             while (list.firstChild !== divider) list.removeChild(list.firstChild);                                                                  // clear list up to the divider
-            menuItem.innerHTML = "<h5 class='text-center'><b>Configure Widget</b></h5>";
+            menuItem.innerHTML = "<h5 class='text-center'><b>Configure Widget #" + editData.widgetNum + "</b></h5>";
             docFrag.appendChild(menuItem);
 
             for (var i = 0; i < widgets[editData.widgetNum].attribs.length; i++) {
@@ -600,6 +600,7 @@
             if (widgetSubscribe !== "") {
                 widgetSubscribe = widgetSubscribe.slice(0, -1);                                                                                     // remove trailing comma & subscribe
                 parent.send("WIDGETS", "INISUB", widgetSubscribe);
+                iniStr = "";
             }
         }
 
@@ -690,7 +691,7 @@
 
         // Select the channel based on the global set by the toolbox
         function channelSel(event) {                                                                                                                // category, class and instance names stored in ID as category\class\channel
-            if (event.target.id !== "" && typeof toolboxParam !== "undefined") {                                                                                           // only select the event of the icon selected (other close by elements dont have an id)
+            if (event.target.id !== "" && typeof toolboxParam !== "undefined") {                                                                    // only select the event of the icon selected (other close by elements dont have an id)
                 var channelItem = document.getElementById("channelItem" + toolboxParam);
                 if (event.target.id === "noChannel") {
                     channelItem.setAttribute("data-selected", "");
@@ -878,7 +879,7 @@
         // Display screen as fast as possible, put non essential tasks to finish widget loading here
         function afterRender() {
             g.loadedScreen = true;
-            if (iniStr !== "") widgetIni(iniStr);                                                                    /////////////////// DO THIS BETTER FOR CHROME
+            if (iniStr !== "") widgetIni(iniStr);                                                                                                   // Display ini values if server responds faster than client screen render
             document.getElementById("fade").style.setProperty("display", "none");                                                                   // finally show the widgets!
             document.getElementById("widgetContainer").style.setProperty("left", "0px");
             parent.status("Ready");
@@ -1218,12 +1219,10 @@
                             widgetAction("widgetObj" + msg.Data, "load");
                             break;
                         case "INISUB":                                                                                                              // initial state information from host plugins widgets subscribed to
-                            //if (msg.Data !== "{}") widgetIni(msg.Data);
                             if (msg.Data !== "{}") {
                                 if (g.loadedScreen) widgetIni(msg.Data);
-                                else iniStr = msg.Data;
+                                else iniStr = msg.Data;                                                                                             // Save ini values if not loaded
                             }
-                            if (msg.Data !== "{}") iniStr = msg.Data;
                             break;
                         default:
                     }
