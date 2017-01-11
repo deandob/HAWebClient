@@ -28,28 +28,31 @@
     </div>
     <div class="tab-content" style="position: absolute; top: 0px; left: 150px">
         <div class="tab-pane fade in active" id="starting">
-            <h4>Start here</h4><br />
-            Instructions
+            <h4><i>Getting Started</i></h4><br />
+            <p>The Home Automation dashboard has multiple screens that can be selected from the left hand tabs.</p>
+            </p>Use the bottom left icons to toggle the widget toolbox and also create, delete and save screens. Hover over the icons for help with design functions.</p>
+            </p>Widgets can be moved by dragging with the mouse, re-scaled by selecting the widget and dragging the scale handles, and edited by right clicking to display the attributes menu.</p>
+            <img src="images/InitialInstructions.png" />
         </div>
         <div class="tab-pane fade" id="dashboard">
-            <h4>Using the dashboard</h4><br />
-            <br />
+            <h4><i>Using the dashboard</i></h4><br />
         </div>
 
         <div class="tab-pane fade" id="automation">
-            <h4>Automation</h4>
+            <h4><i>Automation</i></h4>
         </div>
 
         <div class="tab-pane fade" id="design">
-            <h4>Design</h4>
+            <h4><i>Design</i></h4>
         </div>
     </div>
     <style>
     </style>
-    <script src="js/jquery-2.1.1.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
     <script>
         "use strict";
+
+        var g = {};
+        g.dirty = false;
 
         // Startup function after DOM is loaded and all content loaded
         window.onload = function () {
@@ -58,14 +61,15 @@
         }
 
         function startHelp() {
-            //alert('console');
+        }
+
+        function dashHelp() {
         }
 
         function autoHelp() {
-            //alert('general');
         }
+
         function designHelp() {
-            //alert('general');
         }
 
         function recvHost(msg) {
@@ -99,6 +103,8 @@
         }
 
     </script>
+    <script src="js/jquery-3.1.0.slim.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
 </body>
 
 </html>

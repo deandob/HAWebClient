@@ -114,6 +114,7 @@
     </div>
     <script>
         "use strict";
+
         var profilelog = "";
         var startProfile = new Date().valueOf();
         
@@ -252,11 +253,6 @@
                         mode = button;
                     }
                 }
-                if (button === "Help") {
-                    document.getElementById("helpButton").className = "active";
-                    status("Help Mode");
-                    mode = "help";
-                } else document.getElementById("helpButton").className = "pointer";
             }
         }
 

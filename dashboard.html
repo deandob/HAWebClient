@@ -812,7 +812,7 @@
                     }
                     widgets.push(myWidget);                                                                                                         // rehydrate widget compressed for faster network
                 }
-                if (typeof uwpHost !== "undefined") uwpHost.setMaxSize(widgetMax.width, widgetMax.height);                                          // for UWP hosting, set screen size
+                if (typeof uwpHost !== "undefined") uwpHost.func("setMaxSize", widgetMax.width, widgetMax.height);                                          // for sett hosting, set screen size
             }
             selectedTab(0, true);                                                                                                                   // load the first screen & don't show screen fade for faster startup
         }
@@ -962,6 +962,7 @@
                     }
                 }
             } else if (typeof event.currentTarget.mouseMove === "function") event.currentTarget.mouseMove(event);                                   // Send mousemove to widget if it wants it
+            if (typeof uwpHost !== "undefined") uwpHost.func(setMaxSize, widgetMax.width, widgetMax.height);
         }
 
         // Handle widget mouse up depending on mode (edit mode set here not on mousedown as we could be dragging with mousedown)
