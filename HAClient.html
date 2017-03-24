@@ -121,6 +121,7 @@
         var ws, clientName
         var debugURL = "";
         var wsPort = 1066;
+        var protocol = location.protocol === "https:" ? "wss:" : "ws:";
         var serverName = document.domain;
         var deviceWidth = screen.availWidth;
         var deviceHeight = screen.availHeight;
@@ -360,7 +361,7 @@
         function startNet() {
             try {
                 //TODO: Use wss for secure websockets
-                ws = new WebSocket("ws://" + serverName + ":" + wsPort + "/HAclient");
+                ws = new WebSocket(protocol + "//" + serverName + ":" + wsPort + "/HAclient");
             } catch (exception) {
                 alert("ERROR: Cannot start web services, either due to a network error or using an older HTML5 incompatible browser")
             }
