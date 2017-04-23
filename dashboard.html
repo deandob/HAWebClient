@@ -655,6 +655,7 @@
         }
 
         // change the screen based on tab clicked
+        //TODO: Needs to test that the screen is in the DOM first, not just the screen array as this errors out on slow machines
         function selectedTab(newScreenNum, firstLoad) {
             if (screens.length > 0) {
                 document.getElementById(barList).childNodes[selScreenNum].className = "pointer";                                                    // make existing selected element not active
