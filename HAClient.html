@@ -40,7 +40,7 @@
                     <li class="divider-vertical"></li>
                     <li id="designButton" class="pointer" style="display:none"><a onclick="adjustNavBar('Design')" class="tip" data-original-title="Manage home automation widgets" data-placement="bottom"><i class="icon-pencil icon-large"></i> Design</a></li>
                     <li class="divider-vertical"></li>
-                    <li id="queryButton" class="pointer" style="display:none"><a onclick="adjustNavBar('Query')" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>
+                    <li id="queryButton" class="pointer" style="display:none"><a onclick="adjustNavBar('Flows')" class="tip" data-original-title="Query current and historical values" data-placement="bottom"><i class="icon-search icon-large"></i> Queries</a></li>
                     <li id="toolboxDropdown" class="dropdown pointer" style="display:none">
                         <a class="dropdown-toggle tip" data-toggle="dropdown" data-original-title="Select toolbox from dropdown" data-placement="right"><i class="icon-edit icon-large"></i> Toolbox <b class="caret"></b></a>
                         <ul class="dropdown-menu" role="menu">
@@ -114,6 +114,8 @@
     </div>
     <script>
         "use strict";
+
+        // console.time("Parsetime") and console.timeEnd("Parsetime") gives you a more accurate measurement then the Date Object,
 
         var profilelog = "";
         var startProfile = new Date().valueOf();
@@ -203,6 +205,7 @@
 
         //localStorage.setItem("serverName", serverName);
         var iFrame = document.getElementById("iFrame");
+        if (debugURL !== "") iFrame.src = "dashboard.html" + debugURL;                                              // Reload dashboard from server not cache if debugging (will make the screen glitch on load)
 
         window.addEventListener("resize", function (e) {
             iFrame.height = window.innerHeight - 110;                                                               // compensate for bootstrap navbar

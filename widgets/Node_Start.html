@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Test Flow Widget</title>
+</head>
+<body id="body">
+    <style>
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .blue {
+            border: 2px solid #bce8f1;
+            background-color: #d9edf7;
+            color: #3a87ad;
+        }
+
+        .grey {
+            border: 2px solid #999;
+            background-color: #e3e3e3;
+            color: #999;
+        }
+
+        .grey:hover {
+            cursor: crosshair
+        }
+    </style>
+
+    <span id="type" data-default="start" />
+    <span id="TBtooltip" data-default="start channel data processing flow" />
+    <span id="attrib0" data-type="channel" data-name="Channel" data-default="" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <div id="widget" style="position: absolute; left: 0px; top: 0px; width: 100px; height: 50px;">
+            <div id="node" class="blue" style="position: absolute; left: 0px; top: 0px; width: 92px; height: 30px; border-radius: 3px 20px 20px 3px;">
+                <div id="header" style="position: absolute; height: 80%; width: 100%; text-align: center; line-height: 30px; border: 0px; overflow: hidden;"><b>Channel</b></div>
+            </div>
+            <div id="outPin0" class="grey" onmouseover="colorPin(this, 'enter')" onmouseout="colorPin(this, 'exit')" onclick="connectLink(this, 'outPin', 0)" style="position: absolute; left: 90px; top: 12px; border-radius: 4px; width:6px; height:6px"></div>
+            <div id="channel" style="position: absolute; top: 35px; left: 0px; width: 100%; text-align: center; font-size: 12px; border: 0px;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
+        var channel = document.getElementById("channel")
+        var outPin = document.getElementById("outPin");
+
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            if (fw.attribs[0].value != "") {
+                var chSplit = fw.attribs[0].value.split("/");
+                channel.innerText = chSplit[2];
+                fw.func("setTooltip", chSplit[2] + " (" + chSplit[1] + ")");
+            }
+            return "OK";
+        }
+
+        // Widget specific startup actions when first created by dropping in design mode. Return "OK" if startup OK else return an error string
+        function newWidget(mode) {
+            return "OK";
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
+        }
+
+        function startEdit() {              // called when editing started
+            return false;                                                               // return false to stop scaling
+        }
+
+        function endEdit(param0) {                // called when editing finishes
+            dashStart()
+        }
+
+        function connectLink(me, type, pinNum) {
+            fw.func("endedit");
+            fw.func("connectlink", type, parseInt(me.style.getPropertyValue("left")) + 5, parseInt(me.style.getPropertyValue("top")) + 5, pinNum);
+        }
+
+        function colorPin(me, enterexit) {
+            color = "rgb(51, 122, 183)"
+            if (enterexit == "exit") color = "#e3e3e3"
+            me.style.setProperty("background-color", color)
+        }
+
+    </script>
+</body>
+</html>

@@ -102,7 +102,7 @@ a.nounderline
 
 .toolbox {
     width:140px; 
-    top: 5px; 
+    top: 0px; 
     bottom: 65px;
     background-color: rgb(244,244,244); 
     position: absolute;
@@ -120,12 +120,21 @@ a.nounderline
     box-shadow:3px 3px 7px 3px rgb(220, 220, 220);
 }
 
+.toolboxContents {
+    position: fixed;
+    top: 80px;
+    bottom: 70px;
+    width: 138px;
+    overflow-y: auto;
+}
+
 .checkbox {
     margin-left: 20px;
 }
 
 .toolboxControls {
-    margin-left: 6px; 
+    margin-left: 6px;
+    margin-right: 6px; 
 }
 
 /* custom inclusion of left right tabs */
