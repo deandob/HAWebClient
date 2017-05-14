@@ -126,7 +126,6 @@
             this.zOrder = 10;
             this.attribs = [];
             this.loadCnt = 0;
-            this.flowNode = false;          //@@@@@@@@@
         };
 
         var plugins = [];
@@ -166,7 +165,7 @@
         g.dirty = false;                                                            // changed without saving
         g.menuOpen = false;                                                         // widget edit menu state
         g.snapToGrid = true;                                                        // Flag to snap to grid for dragging widgets @@@
-        g.flowEditor = false;                                                        // Using the flow editor @@@
+        g.flowEditor = true;                                                        // Using the flow editor @@@
 
         var editData = {};                                                          // Global object for tracking edit state
         var dragData = {};                                                          // Global object for tracking dragging state
@@ -396,7 +395,7 @@
         function setDesign() {
             if (!g.design) {
                 if (g.loadedTB === false) {                                                                                                         // Initialise for the design environment (only run once)
-                    parent.send((g.flowEditor ? "NODES" : "WIDGETS"), "TOOLBOX", "");                                                               // retrieve the available toolbox widget names from server
+                    parent.send("WIDGETS", "TOOLBOX", "");                                                                                          // retrieve the available toolbox widget names from server
                     var cvs = document.getElementById("cvsDesign");
                     var canvas_ctx = cvs.getContext("2d");
                     cvs.width = parent.iFrame.clientWidth;                                                                                          // Actual width/height
@@ -603,7 +602,7 @@
 
             if (widgetSubscribe !== "") {
                 widgetSubscribe = widgetSubscribe.slice(0, -1);                                                                                     // remove trailing comma & subscribe
-                parent.send((g.flowEditor ? "NODES" : "WIDGETS"), "INISUB", widgetSubscribe);
+                parent.send("WIDGETS", "INISUB", widgetSubscribe);
                 iniStr = "";
             }
         }
@@ -668,7 +667,6 @@
                 }
                 g.dirty = false;
                 parent.status("Screens saved.");
-                //TODO: Save widget screens differently to nodes
                 parent.send("SCREENS", "SAVE", JSON.stringify(screens));
                 var saveWidgets = [];                                                                                                               // compress widgets to save bandwidth/speed
                 for (var i = 0; i < widgets.length; i++) {
@@ -678,7 +676,7 @@
                     }
                     saveWidgets.push({ t: widgets[i].type, e: widgets[i].ext, lX: widgets[i].locX, lY: widgets[i].locY, sX: (widgets[i].scaleX).toFixed(2), sY: (widgets[i].scaleY).toFixed(2), w: widgets[i].iniWidth, h: widgets[i].iniHeight, s: widgets[i].screen, d: widgets[i].device, z: widgets[i].zOrder, a: widgetAttribs })
                 }
-                parent.send((g.flowEditor ? "NODES" : "WIDGETS"), "SAVE", JSON.stringify(saveWidgets));
+                parent.send("WIDGETS", "SAVE", JSON.stringify(saveWidgets));
             } else {
                 alert("Error, screen not saved - Create a screen first before saving by pressing the 'add' icon.")
             }
@@ -714,7 +712,7 @@
 
         // End widget sessions
         function endWidgetSess() {
-            if (widgetSubscribe !== "") parent.send((g.flowEditor ? "NODES" : "WIDGETS"), "UNSUB", widgetSubscribe);                                   // TODO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            if (widgetSubscribe !== "") parent.send("WIDGETS", "UNSUB", widgetSubscribe);                                   // TODO @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             //var screenWidgets = document.querySelectorAll(".widget");
             //for (var widgetNum = 0; widgetNum < screenWidgets.length; widgetNum++) {                                                              // Run any end session functions in widgets
             //    if (!g.design && typeof screenWidgets[widgetNum].contentDocument.defaultView.endSession === "function") screenWidgets[widgetNum].contentDocument.defaultView.endSession()
@@ -802,7 +800,7 @@
                     TBwidgets.push(new widget(widgetNameType[0], widgetNameType[1]));
                     var widgetObj = document.createElement("object");
                     widgetObj.type = "text/html";
-                    widgetObj.data = (g.flowEditor ? "nodes/" : "widgets/") + widgetTemplates[widgetNum] + parent.debugURL                                                      // location of widget (and not from cache if debugging)
+                    widgetObj.data = "nodes/" + widgetTemplates[widgetNum] + parent.debugURL                                                      // location of widget (and not from cache if debugging)
                     widgetObj.setAttribute("data-type", widgetNameType[0]);
                     widgetObj.id = "widgetObjTB" + widgetNum;
                     var title = document.createElement("p");
@@ -867,7 +865,7 @@
         function loadWidget(myFrag, widgetNum) {
             var widgetObj = document.createElement("object");
             widgetObj.type = "text/html";
-            widgetObj.data = (g.flowEditor ? "nodes/" : "widgets/") + widgets[widgetNum].type + "." + widgets[widgetNum].ext + parent.debugURL                                  // location of widget
+            widgetObj.data = "widgets/" + widgets[widgetNum].type + "." + widgets[widgetNum].ext + parent.debugURL                                  // location of widget
             widgetObj.className = "widget";
             widgetObj.id = "widgetObj" + widgetNum;
             widgetObj.addEventListener("load", widgetLoaded, false);
@@ -934,7 +932,6 @@
             var myWidgets = document.getElementsByClassName("widget");
             for (var i = 0; i < myWidgets.length; i++) if (myWidgets[i].contentDocument) widgetListeners(myWidgets[i].contentDocument.defaultView);
             if (!g.design && parent.mode === "Design") setDesign();                                                                                 // Go into design mode if just reloaded after pressing design button
-            //parent.profiler("show")
         }
 
         function widgetListeners(myWidget) {
@@ -1181,6 +1178,7 @@
             obj.removeEventListener("mousemove", mouseMoveDrag, false);
             obj.removeEventListener("mouseup", widgetResizeEnd, false);
         }
+
 
         ///////////////////////////////////////////// widget events
 

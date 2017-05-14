@@ -115,19 +115,34 @@
     <script>
         "use strict";
 
-        // console.time("Parsetime") and console.timeEnd("Parsetime") gives you a more accurate measurement then the Date Object,
+        console.time("profile")
 
-        var profilelog = "";
-        var startProfile = new Date().valueOf();
-        
-        var ws, clientName
+        // Global flags
+        var g = {
+            net: {
+                wsMQTT: null,                               // Reference to client WebSocket
+                KEEPALIVE: 60,
+                WSPORT: 80,
+                retain: true,                               // For publish, server to retain (persist) value
+                QoS: 0,                                     // QoS for published messages (0 = no guarantee delivery, 1 = guaranteed delivery, 2 = exactly one delivery). QoS 0 only supported
+                netState: "disconnected",
+                responseTimeout: 10,                             // Timeout waiting for server to respond
+                msgTimer: null,                              // message response setTimeout reference
+                keepAliveInterval: null,                     // keepalive period timer reference
+                connPayload: null,                          // GLobal for connection payload once websocket connection is open
+                sessPresent: null,
+                packetID: 0                             // counter for unique packetID
+            }
+        };
+
+        var ws, clientName;
         var debugURL = "";
         var wsPort = 1066;
         var protocol = location.protocol === "https:" ? "wss:" : "ws:";
         var serverName = document.domain;
         var deviceWidth = screen.availWidth;
         var deviceHeight = screen.availHeight;
-        
+
         var params = document.URL.split("?");
         if (params.length > 1) params = params[1].split("=");
         switch (params[0].toLowerCase()) {         // command line options after URL '?'
@@ -164,12 +179,14 @@
                 document.getElementById("connType").setAttribute("data-original-title", "local access")
         }
 
-        startNet();
-
         if (typeof clientName === "undefined") {
             clientName = localStorage.getItem("clientName");
             if (!clientName) clientName = "";
         }
+
+        if (debugURL !== "") startMQTTSess()
+        else startNet();
+
         var netState = "starting";
         var msg;
 
@@ -350,13 +367,346 @@
 
         // Performance profile string
         function profiler(text) {
-            profilelog = profilelog + " " + text + ":" + (new Date().valueOf() - startProfile)
-            if (text === "show") alert("profile => " + profilelog);
+            console.timeEnd("profile");
         }
 
+        /////////////////////////////////////////// MQTT Client (v3.11 support only)
+
+        var CTRLCODE = {
+            CONNECT: 0x10,
+            CONNACK: 0x20,
+            PUBLISH: 0x30,
+            PUBACK: 0x40,
+            PUBREC: 0x50,
+            PUBREL: 0x62,
+            PUBCOMP: 0x70,
+            SUBSCRIBE: 0x82,
+            SUBACK: 0x90,
+            UNSUBSCRIBE: 0xA2,
+            UNSUBACK: 0xB0,
+            pingSend: 0xC0,
+            PINGRESP: 0xD0,
+            DISCONNECT: 0xE0
+        };
+
+        var CONNACKCODE = {
+            1: "Connection Refused: incorrect protocol version",
+            2: "Connection Refused: identifier rejected",
+            3: "Connection Refused: service unavailable",
+            4: "Connection Refused: bad user name or password",
+            5: "Connection Refused: not authorized"
+        };
+
         function startMQTTSess() {
-            //MQTT connect <16><length><0><4><77><81><84><84><4>connflags><keepalive MSB=0><keepalive LSB=100><str len MSB><str len LSB><<clientname>><str len MSB><str len LSB><<username>><str len MSB><str len LSB><<password>>
-            send("NETWORK", "CONNECT", "");          // Establish initial generic machine session
+            MQTTConnect("localhost", g.net.WSPORT, clientName, "FRED", "NIRKS", g.net.KEEPALIVE)
+        }
+
+        function MQTTConnect(serverName, portNum, clientName, username, password, keepAlive) {
+            // Connflags - Bit 0 reserved: 0, bit 1 Clean session: 1 (purge old state), bit 2 Will flag: 0 (no will), bit 3/4 Will QoS flag: 0 (no QoS), bit 5 Will retain: 0 (no retain), bit 6 Username: 1 (use username), bit 7 Password: 1 (use password)
+            g.net.connPayload = [0, 4, 77, 81, 84, 84, 4, 1 << 7 | 1 << 6 | 0 << 5 | 0 << 4 | 0 << 3 | 0 << 2 | 1 << 1, 0, keepAlive];     // variable header. Connect packet assume less 128 bytes. protocol level 4 MQTT v3.11
+            g.net.connPayload = g.net.connPayload.concat(encodeUTF8(clientName), encodeUTF8(username), encodeUTF8(password));
+
+            try {
+                g.net.wsMQTT = new WebSocket(protocol + "//" + serverName + ":" + portNum, "MQTT");
+                g.net.wsMQTT.binaryType = "arraybuffer";
+            } catch (ex) {
+                MQTTSessEnd("System error starting network. Error: " + ex.toString());
+            }
+
+            g.net.wsMQTT.onopen = function () {
+                MQTTSend(CTRLCODE.CONNECT, g.net.connPayload);
+                g.netState = "WSsession"
+                MQTTSubscribe(["+/SYSTEM/WEBCLIENT/" + clientName]);              // Subscribe to the client channel for this client
+            }
+
+            g.net.wsMQTT.onmessage = function (evt) {
+                MQTTRecvMsg(evt);
+            }
+
+            g.net.wsMQTT.onerror = function (evt) {
+                g.net.netState = "error"
+                MQTTSessEnd("Network error detected. Session with server closed.");
+            }
+
+            g.net.wsMQTT.onclose = function (evt) {
+                g.net.netState = "disconnected"
+                MQTTSessEnd("Network session with server closed.");
+            }
+        }
+
+        // process MQTT messages received
+        function MQTTRecvMsg(evt) {
+            var recvArr = new Uint8Array(evt.data);
+
+            clearTimeout(g.net.msgTimer);
+
+            var recvLen = 0;
+            var lenMult = 1;
+            for (var i = 0; i < recvArr.length; i++) {                                 // Decode MQTT remaining length buffer
+                recvLen += (recvArr[i + 1] & 0x7F) * lenMult;
+                lenMult *= 0x80;
+                if (recvArr[i] < 0x80)
+                    break;          // No more bytes to encode length if value < 128
+                if (i == 3) {
+                    MQTTSessEnd("Incorrect MQTT message length received, length encoded as > 256Mb.");
+                }
+            }
+            if (recvArr.length !== (recvLen + 2)) {
+                MQTTSessEnd("Incorrect MQTT message length received, got " + recvArr.length + " but expecting " + (recvArr[1] + 2) + " bytes.");
+            }
+
+            switch (recvArr[0] & 0xF0) {
+                case CTRLCODE.CONNACK:
+                    g.net.sessPresent = recvArr[2];
+
+                    switch (recvArr[3]) {                                                       // Connect return code
+                        case 0:
+                            g.netState = "MQTTsession";                                         // MQTT Session active
+                            MQTTPublish("+/XXXX/CCCCC", "1234567890")
+                            status("Connected with server " + serverName);
+                            break;
+                        case 1:                                                             // Server couldn't establish the session
+                        case 2:
+                        case 3:
+                        case 4:
+                        case 5:
+                        default:
+                            MQTTSessEnd(CONNACKCODE[recvArr[3]] + " from server " + serverName);            // Connect status code message
+                    }
+                    break;
+
+                case CTRLCODE.PINGRESP:                                                 // No need to handle, message response timer handles any timeout
+                    break;
+
+                case CTRLCODE.PUBLISH:
+                    recvPublish(recvArr, recvLen);
+                    break;
+
+                case CTRLCODE.PUBACK:
+                case CTRLCODE.PUBREL:
+                case CTRLCODE.PUBREC:
+                case CTRLCODE.PUBCOMP:
+                    status("Not supporting publish QoS > 0");
+                    break;
+
+                case CTRLCODE.SUBACK:
+                    // TODO: CHeck for packetID
+                    break;
+
+                case CTRLCODE.UNSUBACK:
+                    // CHeck for packetID
+                    break;
+
+                default:
+                    MQTTSessEnd("Invalid MQTT message received - code: " + recvArr[0]);
+            }
+        }
+
+        // Extract topic and data from publish packet
+        function recvPublish(recvArr, payLen) {
+            var arrPtr = 0;
+            var packetID;
+            var dup = recvArr[arrPtr] & 0x08;                                                               // Duplicate publish, not used
+            var QoS = (recvArr[arrPtr] & 0x06) >> 1;                                                        // QoS not used
+            var retain = recvArr[arrPtr++] & 0x01;                                                          // Retain set by server if the result of a new subscription sending stored state
+            var topicLen = recvArr[++arrPtr] * 0xFF + recvArr[++arrPtr];
+            var topic = decodeUTF8(recvArr, ++arrPtr, topicLen);
+            if (g.net.QoS !== 0)
+                packetID = recvArr[++arrPtr] * 0xFF + recvArr[++arrPtr];                   // Not used
+            var data = decodeUTF8(recvArr, arrPtr + topicLen, recvArr.length - arrPtr - topicLen);
+            procPublish(topic, data, retain);
+        }
+
+        function MQTTPublish(topic, data) {
+            var payload = encodeUTF8(topic);
+            if (g.net.QoS !== 0)
+                payload.push(MQTTGetPacketID());                                                     // Add packetID for QoS > 0
+            payload = payload.concat(encodeUTF8(data).splice(2));                                               // Convert UTF strings (remove MSB/LSB from routine by splice)
+            MQTTSend(CTRLCODE.PUBLISH | (g.net.QoS << 1) | (g.net.retain ? 0x01 : 0x00), payload);                      // Not supporting DUP
+        }
+
+        // Subscribe to array of [topic]
+        function MQTTSubscribe(topicArr) {
+            if (!Array.isArray(topicArr) || topicArr.length == 0)
+                return false;
+            var payload = MQTTGetPacketID();
+            for (var item in topicArr) {
+                payload = payload.concat(encodeUTF8(topicArr[item]));
+                payload.push(g.net.QoS);
+            }
+            return MQTTSend(CTRLCODE.SUBSCRIBE, payload);
+        }
+
+        // Remove subscription(s) array [topic]
+        function MQTTUnsubscribe(topicArr) {
+            if (!Array.isArray(topicArr) || topicArr.length == 0)
+                return false;
+            var payload = MQTTGetPacketID();
+            for (var item in topicArr) {
+                payload = payload.concat(encodeUTF8(topicArr[item]));
+            }
+            return MQTTSend(CTRLCODE.UNSUBSCRIBE, payload);
+        }
+
+        // Send a ping with period set by keepalive, only if no messages sent within ping period, message timeout timer will capture any net/server problems
+        function pingSend() {
+            MQTTSend(CTRLCODE.pingSend, new Array());
+        }
+
+        // Handle message response timeouts
+        function responseTimeout() {
+            MQTTSessEnd("Timed out waiting for Server.");
+        }
+
+        // Orderly shutdown of session layers
+        function MQTTSessEnd(errStr) {
+            if (errStr !== "")
+                status("Closing server session with status: " + errStr)
+            switch (g.net.netState) {
+                case "MQTTsesson":
+                    MQTTSend(CTRLCODE.DISCONNECT, new Array());                         // Disconnect MQTT session on server first
+                case "WSsession":
+                case "error":
+                    g.net.wsMQTT.close;
+            }
+            clearInterval(g.net.keepAliveInterval);
+            clearTimeout(g.net.msgTimer);
+            setTimeout(startMQTTSess, 1000);                         // Try connecting again
+        }
+
+        // PacketID is unique 16 bit returned in MSB/LSB array
+        function MQTTGetPacketID() {
+            var packetID = [g.net.packetID >> 8, g.net.packetID & 0xFF];
+            g.net.packetID++;
+            if (g.net.packetID > 65535)
+                packetID = 0;
+            return packetID;
+        }
+
+        // Send MQTT payload adding the fixed header
+        function MQTTSend(msgType, payload) {
+            if (!Array.isArray(payload)) return false;
+            var encLen;
+            var remLen = payload.length;
+            var lenArr = [];
+            do {                                                                                // Encode MQTT remaining length
+                encLen = remLen % 0x80;
+                remLen = (remLen / 0x80) & 0xFF;
+                if (remLen > 0)
+                    encLen = encLen | 0x80;                                         // if there are more data to encode, set the top bit of this byte
+                lenArr[lenArr.length] = encLen;
+            } while (remLen > 0);
+
+            payload = lenArr.concat(payload);
+            payload.unshift(msgType);
+
+            try {
+                g.net.wsMQTT.send(new Uint8Array(payload));
+            } catch (ex) {
+                MQTTSessEnd("System error sending to server: " + ex.toString());
+                return false;
+            }
+            clearTimeout(g.net.msgTimer);                                                  // set timeout waiting for server response (none for disconnect)
+            clearInterval(g.net.keepAliveInterval);
+            if (msgType !== CTRLCODE.DISCONNECT) {
+                g.net.msgTimer = setTimeout(responseTimeout, g.net.responseTimeout * 1000);
+                if (g.net.KEEPALIVE > 0)
+                    g.net.keepAliveInterval = setInterval(pingSend, g.net.KEEPALIVE * 1000);                                  // reset Ping keepalive period timer
+            }
+            return true;
+        }
+
+        // Payload array for MQTT UTF8 strings, [MSB, LSB length, expand UTF-8 to binary]
+        function encodeUTF8(str) {
+            var UTFArr = [];
+            for (var i = 0; i < str.length; i++) {
+                var charCode = str.charCodeAt(i);
+                if (0xD800 <= charCode && charCode <= 0xDBFF) {                                     // Surrogate pair check
+                    lowCharCode = input.charCodeAt(++i);
+                    if (isNaN(lowCharCode)) {
+                        status("Bad UTF-8 string provided");
+                        return [];
+                    }
+                    charCode = ((charCode - 0xD800) << 10) + (lowCharCode - 0xDC00) + 0x10000;
+                }
+                if (charCode <= 0x7F) {
+                    UTFArr[UTFArr.length] = charCode;
+                } else if (charCode <= 0x7FF) {
+                    UTFArr[UTFArr.length] = charCode >> 6 & 0x1F | 0xC0;
+                    UTFArr[UTFArr.length] = charCode & 0x3F | 0x80;
+                } else if (charCode <= 0xFFFF) {
+                    UTFArr[UTFArr.length] = charCode >> 12 & 0x0F | 0xE0;
+                    UTFArr[UTFArr.length] = charCode >> 6 & 0x3F | 0x80;
+                    UTFArr[UTFArr.length] = charCode & 0x3F | 0x80;
+                } else {
+                    UTFArr[UTFArr.length] = charCode >> 18 & 0x07 | 0xF0;
+                    UTFArr[UTFArr.length] = charCode >> 12 & 0x3F | 0x80;
+                    UTFArr[UTFArr.length] = charCode >> 6 & 0x3F | 0x80;
+                    UTFArr[UTFArr.length] = charCode & 0x3F | 0x80;
+                }
+            }
+            UTFArr.unshift(UTFArr.length & 0xFF);
+            UTFArr.unshift(UTFArr.length  >> 8);
+            return UTFArr;
+        }
+
+        // Decode UTF8 string in publish message
+        function decodeUTF8(input, offset, length) {
+            var output = "";
+            var utf16;
+            var pos = offset;
+
+            while (pos < offset + length) {
+                var byte1 = input[pos++];
+                if (byte1 < 128)
+                    utf16 = byte1;
+                else {
+                    var byte2 = input[pos++] - 128;
+                    if (byte2 < 0) {
+                        status("Malformed UTF decoded byte 2: " + byte2.toString(16));
+                        return "";
+                    }
+                    if (byte1 < 0xE0)             // 2 byte character
+                        utf16 = 64 * (byte1 - 0xC0) + byte2;
+                    else {
+                        var byte3 = input[pos++] - 128;
+                        if (byte3 < 0) {
+                            status("Malformed UTF decoded byte 3: " + byte3.toString(16));
+                            return "";
+                        }
+                        if (byte1 < 0xF0)        // 3 byte character
+                            utf16 = 4096 * (byte1 - 0xE0) + 64 * byte2 + byte3;
+                        else {
+                            var byte4 = input[pos++] - 128;
+                            if (byte4 < 0) {
+                                status("Malformed UTF decoded byte 4: " + byte4.toString(16));
+                                return "";
+                            }
+                            if (byte1 < 0xF8)        // 4 byte character
+                                utf16 = 262144 * (byte1 - 0xF0) + 4096 * byte2 + 64 * byte3 + byte4;
+                            else {
+                                status("Not supporting UTF encoding > 4 bytes");                                                    // longer encodings are not supported
+                                return "";
+                            }
+                        }
+                    }
+                }
+
+                if (utf16 > 0xFFFF)   // 4 byte character - express as a surrogate pair
+                {
+                    utf16 -= 0x10000;
+                    output += String.fromCharCode(0xD800 + (utf16 >> 10)); // lead character
+                    utf16 = 0xDC00 + (utf16 & 0x3FF);  // trail character
+                }
+                output += String.fromCharCode(utf16);
+            }
+            return output;
+        }
+
+        //#region /////////////////////////////////////// Handle Server messages
+
+        function procPublish(topic, data, retain) {
+            status("received topic: " + topic + " Data: " + data);
         }
 
         //#region /////////////////////////////////////// Network
@@ -371,9 +721,9 @@
             try {
                 ws.onopen = function () {
                     profiler("wsopen");
-                    startMQTTSess()
                     netState = "connected"
                     status("Connected to Server. Establishing session...")
+                    send("NETWORK", "CONNECT", "");          // Establish initial generic machine session
                     user = "local_machine"
                     setTimeout(checkSession, 10000);        // If HA Server isn't responding, restart
                 }
