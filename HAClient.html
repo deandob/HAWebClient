@@ -129,6 +129,8 @@
                 responseTimeout: 10,                             // Timeout waiting for server to respond
                 msgTimer: null,                              // message response setTimeout reference
                 keepAliveInterval: null,                     // keepalive period timer reference
+                RECONNECT_TIME: 3,                          // Wait before retrying a failed network connection
+                resetTimer: null,                           // stores timer to reset network connection   
                 connPayload: null,                          // GLobal for connection payload once websocket connection is open
                 sessPresent: null,
                 packetID: 0                             // counter for unique packetID
@@ -398,10 +400,13 @@
         };
 
         function startMQTTSess() {
-            MQTTConnect("localhost", g.net.WSPORT, clientName, "FRED", "NIRKS", g.net.KEEPALIVE)
+            MQTTConnect("localhost", g.net.WSPORT, clientName, "FRED", "NIRKS", g.net.KEEPALIVE);
+            //TODO: localhost failing with chrome, OK with firefox, IE, edge
+            //TODO: username / password
         }
 
         function MQTTConnect(serverName, portNum, clientName, username, password, keepAlive) {
+            status("Connecting to server " + serverName);
             // Connflags - Bit 0 reserved: 0, bit 1 Clean session: 1 (purge old state), bit 2 Will flag: 0 (no will), bit 3/4 Will QoS flag: 0 (no QoS), bit 5 Will retain: 0 (no retain), bit 6 Username: 1 (use username), bit 7 Password: 1 (use password)
             g.net.connPayload = [0, 4, 77, 81, 84, 84, 4, 1 << 7 | 1 << 6 | 0 << 5 | 0 << 4 | 0 << 3 | 0 << 2 | 1 << 1, 0, keepAlive];     // variable header. Connect packet assume less 128 bytes. protocol level 4 MQTT v3.11
             g.net.connPayload = g.net.connPayload.concat(encodeUTF8(clientName), encodeUTF8(username), encodeUTF8(password));
@@ -462,7 +467,7 @@
                     switch (recvArr[3]) {                                                       // Connect return code
                         case 0:
                             g.netState = "MQTTsession";                                         // MQTT Session active
-                            MQTTPublish("+/XXXX/CCCCC", "1234567890")
+                            MQTTPublish("+/SYSTEM/WEBCLIENT/" + clientName.toUpperCase() + "/ACTION", "START");
                             status("Connected with server " + serverName);
                             break;
                         case 1:                                                             // Server couldn't establish the session
@@ -571,7 +576,8 @@
             }
             clearInterval(g.net.keepAliveInterval);
             clearTimeout(g.net.msgTimer);
-            setTimeout(startMQTTSess, 1000);                         // Try connecting again
+            clearTimeout(g.net.resetTimer);
+            g.net.resetTimer = setTimeout(startMQTTSess, g.net.RECONNECT_TIME * 1000);                         // Try connecting again
         }
 
         // PacketID is unique 16 bit returned in MSB/LSB array
@@ -707,6 +713,23 @@
 
         function procPublish(topic, data, retain) {
             status("received topic: " + topic + " Data: " + data);
+            var topics = topic.toUpperCase().split("/");
+            switch (topics[0]) {
+                case "SYSTEM":
+                    switch (topics[1]) {
+                        case "WEBCLIENT":
+                            switch (topics[3]) {
+                                case "START":
+                                    var startData = JSON.parse(data);
+                                    break;
+                                case "ALERT":                           // Server can create alerts (eg. error messages)
+                                    alert(data);
+                                    break;
+                            }
+                            break;
+                    }
+                    break;
+            }
         }
 
         //#region /////////////////////////////////////// Network
