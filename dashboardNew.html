@@ -1238,15 +1238,20 @@
             return false;
         }
 
-        // TEMPORARY WRAPPER UNTIL CUT OVER TO NEW MODEL
-        function recvHostWrap(topic, data) {
-            var topics = topic.split("/")
-            recvHost({ Category: topics[0], ClassName: topics[1], Instance: topics[2], Scope: topics[3], Data: data });
-        }
-
         // Process messages received from host
         //TODO: Refactor to a separate topic & data structure based on new model
-        function recvHost(msg) {
+        function recvHost(topics, data) {
+            switch (topics[1]) {
+                case "$SYS":
+                    switch (topics[4]) {
+                        case "STARTSESS":
+                            initScreens(data.screens);
+                            initWidgets(data.widgets);                                                                                                  // show the tabs then load widgets
+                            break;
+                    }
+                    break;
+            }
+            return;
             switch (msg.ClassName.toUpperCase()) {
                 case "INITLOAD":
                     initScreens(msg.Data.Screens);

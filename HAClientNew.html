@@ -188,8 +188,9 @@
 
         if (typeof clientName === "undefined") {
             clientName = localStorage.getItem("clientName");
-            if (!clientName) clientName = "";
+            if (!clientName) clientName = "GETNAME" + parseInt(Math.random().toString() * 1000);
         }
+        //clientName = "GETNAME" + parseInt(Math.random().toString() * 1000);    // TEST PROBLEM THAT SERVER NEEDS TO KNOW NAME WHEN FIRST STARTING
 
         startMQTTSess();
 
@@ -368,9 +369,6 @@
         //TODO: localhost failing with chrome, OK with firefox, IE, edge
         function MQTTConnect(serverName, clientName, username, password) {
             status("Connecting to server " + serverName + "...");
-            // Connflags - Bit 0 reserved: 0, bit 1 Clean session: 1 (purge old state), bit 2 Will flag: 0 (no will), bit 3/4 Will QoS flag: 0 (no QoS), bit 5 Will retain: 0 (no retain), bit 6 Username: 1 (use username), bit 7 Password: 1 (use password)
-            g.net.connPayload = [0, 4, 77, 81, 84, 84, 4, 1 << 7 | 1 << 6 | 0 << 5 | 0 << 4 | 0 << 3 | 0 << 2 | 1 << 1, 0, g.net.KEEPALIVE];     // variable header. Connect packet assume less 128 bytes. protocol level 4 MQTT v3.11
-            g.net.connPayload = g.net.connPayload.concat(encodeUTF8(clientName), encodeUTF8(username), encodeUTF8(password));
 
             try {
                 g.net.wsMQTT = new WebSocket(protocol + "//" + serverName + ":" + g.net.WSPORT, "MQTT");
@@ -379,12 +377,13 @@
                 MQTTSessEnd("System error starting network. Ensure you are using a current browser. Error: " + ex.toString());
                 return false;
             }
+            // Connflags - Bit 0 reserved: 0, bit 1 Clean session: 1 (purge old state), bit 2 Will flag: 0 (no will), bit 3/4 Will QoS flag: 0 (no QoS), bit 5 Will retain: 0 (no retain), bit 6 Username: 1 (use username), bit 7 Password: 1 (use password)
+            g.net.connPayload = [0, 4, 77, 81, 84, 84, 4, 1 << 7 | 1 << 6 | 0 << 5 | 0 << 4 | 0 << 3 | 0 << 2 | 1 << 1, 0, g.net.KEEPALIVE];     // variable header. Connect packet assume less 128 bytes. protocol level 4 MQTT v3.11
+            g.net.connPayload = g.net.connPayload.concat(encodeUTF8(clientName), encodeUTF8(username), encodeUTF8(password));
 
             g.net.wsMQTT.onopen = function () {
                 MQTTSend(CTRLCODE.CONNECT, g.net.connPayload);
                 g.netState = "WSsession"
-
-                // SERVER SUBSCRIBES TO ALL WEBCLIENT CHANNELS HANDLED BY A WEBCLIENT EXTENSION. CLIENT SUBSCRIBES TO THIS CHANNEL THEN PUBLISHES STARTSESS
 
                 MQTTSubscribe(["$SYS/WEBCLIENT/" + clientName.toUpperCase()]);                                    // Subscribe to the client channel for this client for general system communication
                 MQTTPublish("$SYS/WEBCLIENT/" + clientName.toUpperCase() + "/REQUEST", "STARTSESS");              // Request initial data load
@@ -589,7 +588,8 @@
             clearTimeout(g.net.msgTimer);                                                  // set timeout waiting for server response (none for disconnect)
             clearInterval(g.net.keepAliveInterval);
             if (msgType !== CTRLCODE.DISCONNECT) {
-                g.net.msgTimer = setTimeout(responseTimeout, g.net.responseTimeout * 1000);
+                if (msgType !== (CTRLCODE.PUBLISH | (g.net.QoS << 1) | (g.net.retain ? 0x01 : 0x00)))           // Not expecting response from disconnect or publish QoS=0.
+                    g.net.msgTimer = setTimeout(responseTimeout, g.net.responseTimeout * 1000);
                 if (g.net.KEEPALIVE > 0)
                     g.net.keepAliveInterval = setInterval(pingSend, g.net.KEEPALIVE * 1000);                                  // reset Ping keepalive period timer
             }
@@ -688,7 +688,7 @@
         // Process publish messages received (topics in HA topic structure, data is JSON)
         function procPublish(topic, data, retain) {
             var topicItems = topic.toUpperCase().split("/");
-            if (topicItems.length !== 4) {
+            if (topicItems.length !== 5) {
                 status("WARNING - Invalid message received from Server (topic not formed correctly): " + topic);
                 return false;
             }
@@ -698,13 +698,13 @@
                 status("WARNING - Invalid message received from Server (data not JSON): " + data);
                 return false;
             }
-            switch (topicItems[0]) {
-                case "SYSTEM":
-                    switch (topicItems[1]) {
+            switch (topicItems[1]) {
+                case "$SYS":
+                    switch (topicItems[2]) {
                         case "WEBCLIENT":
-                            switch (topicItems[3]) {
+                            switch (topicItems[4]) {
                                 case "STARTSESS":                       // Server data needed to build initial screen (do as fast as possible)
-                                    startSess(dataObj);
+                                    startSess(topicItems, dataObj);
                                     break;
                                 case "ALERT":                           // Server can create alerts (eg. error messages)
                                     alert(dataObj.text);
@@ -724,7 +724,7 @@
 
         // Handle non system messages to be processed by widgets
         function sendToIframe(topic, data) {
-            if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHostWrap(topic, data);
+            if (typeof iFrame.contentWindow.recvHost === "function") iFrame.contentWindow.recvHost(topic, data);
             else setTimeout(sendToIframe, 5, topic, data);                      // Initially the server responds faster than browser, if so, wait
         }
 
@@ -740,7 +740,7 @@
         }
 
         // Setup navigation bar to online and populate session parameters from server
-        function startSess(dataObj) {
+        function startSess(topicItems, dataObj) {
             clientName = dataObj.clientName;
             if (localStorage.getItem("clientName") != clientName && params[0].toLowerCase() != "clientname") localStorage.setItem("clientName", clientName);       // save clientName from server (local javascript can't get client name) but not if using another clientname (from the http query string)
             netName = dataObj.netName;
@@ -754,7 +754,8 @@
                 queryButton.style.setProperty("display", "inline");
             }
             logonButton.style.setProperty("visibility", "visible");
-            sendToIframe("$SYS/INITLOAD/XX", {Screens: dataObj.screens, Widgets: dataObj.widgets})
+            sendToIframe(topicItems, dataObj)
+            //MQTTPublish("$SYS/WEBCLIENT/" + clientName + "/XXX", "EEE")         /// TEST
         }
 
         function startRest(dataObj) {                                   // Categories, rest of screen/widget data, channel list, flows etc.
