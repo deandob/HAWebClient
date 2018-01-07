@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Automation Widget (Stock Ticker)</title>
+</head>
+<body id="body" spellcheck="false">
+    <style>
+        body {
+            overflow: hidden;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15px;
+            color: #4C4C4C;
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        .yellow {
+            background-color: #fffaf3;
+            color: #c09853;
+        }
+
+        .white {
+            background-color: #ffffff;
+            color: #999;
+        }
+
+        .grey {
+            background-color: #f5f5f5;
+            color: #999;
+        }
+
+        .blue {
+            background-color: #d9edf7;
+            color: #3a87ad;
+        }
+
+        .red {
+            background-color: #f2dede;
+            color: #b94a48;
+        }
+
+        .green {
+            background-color: #dff0d8;
+            color: #468847;
+        }
+
+        .ticker {
+            border-color: #ffffff !important;
+            background-color: #ffffff;
+            color: #4C4C4C;
+            margin: 0 auto;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .scroll {
+            display: inline-block;
+            padding-left: 100%; /* show the marquee just outside the paragraph */
+            animation: marquee 5s linear infinite;
+        }
+
+        /* Make it move */
+        @keyframes marquee {
+            0% {
+                transform: translate(0, 0);
+            }
+
+            100% {
+                transform: translate(-100%, 0);
+            }
+        }
+
+        .circle {
+            float: left;
+            width: 4px;
+            height: 4px;
+            border-radius: 2px;
+            border: 1px double #c09853;
+        }
+
+        .gap {
+            float: left;
+            width: 8px;
+            height: 4px
+        }
+
+        tr {
+            line-height: 12px;
+        }
+    </style>
+
+    <span id="attrib0" data-type="channel" data-name="Stock" data-default="" />
+    <span id="attrib1" data-type="channel" data-name="Stock" data-default="" />
+    <span id="attrib2" data-type="checkbox" data-name="3D Shadow" data-default="false" />
+    <span id="attrib3" data-type="dropdown" data-name="grey, green, red, yellow, blue, white" data-default="yellow" />
+    <span id="TBtooltip" data-default="Scrolling stock prices" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <div id="widget" class="ticker" style="width: 100px; height: 52px; position: absolute; left: 0px; top: 0px; z-index: 0;">
+            <div class="yellow" style="box-shadow: 3px 3px 5px #bbbbbb;">
+                <div id="scroll" class="scroll yellow" >
+                    <div id="topRow" style="border-top:1px dashed #c09853;">
+                    </div>
+                    <table style="width:100%; border-top:1px dashed #c09853; border-bottom:1px dashed #c09853">
+                        <tr id="stockRow"></tr>
+                        <tr id="priceRow"></tr>
+                    </table>
+                    <div id="botRow" style="border-bottom:1px dashed #4C4C4C;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        "use strict";
+        var scroll = document.getElementById("scroll");
+        var topRow = document.getElementById("topRow");
+        var stockRow = document.getElementById("stockRow");
+        var botRow = document.getElementById("botRow");
+        var perf = "<div class='circle'></div><div class='gap'></div>";
+        var width;
+
+        function start() {
+            //width = fw.widgetID.style.width;
+            //alert(width)
+            addStock("MSFT", "88.23");
+            addStock("CSCO", "38.90");
+        }
+
+        function addStock(stock, price) {
+            var perfRoll = "";
+            for (var lp = 0; lp < (scroll.clientWidth / 16); lp++) {
+                perfRoll = perfRoll + perf;   
+            }
+            topRow.innerHTML = perfRoll;
+            stockRow.insertAdjacentHTML("beforeend", "<td><b>" + stock + "<b></td><td>&nbsp;</td><td>&nbsp;</td>");
+            priceRow.insertAdjacentHTML("beforeend", "<td>&nbsp;</td><td>" + price + "</td><td>&nbsp;</td>");
+            botRow.innerHTML = perfRoll;
+        }
+
+
+        // Initialize widget framework API
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            //if (fw.attribs[6].value === true) fw.widgetID.className = fw.attribs[7].value + " noSelect btn btnShadow"
+            //else fw.widgetID.className = fw.attribs[7].value + " noSelect btn btnNoShadow"
+            start();
+            return "OK";
+        }
+
+        // Widget specific startup actions when first created by dropping in design mode. Return "OK" if startup OK else return an error string
+        function newWidget(mode) {
+            return "OK";
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            start();
+            return "OK"
+        }
+
+        function startDesign() {                                // called when switching to design mode
+            return true;
+        }
+
+        function menuUpdate() {                                 // called when widget option menu requires updating
+            return true;
+        }
+
+        function help() {
+            return "Put editing help details here with any HTML formatting"
+        }
+
+        function scale(scaleX, scaleY) {                        // manage scaling
+            width = fw.iniWidth * scaleX;
+            fw.widgetID.style.setProperty("width", width + "px");             
+            return true;
+        }
+
+        function keyPress(keyCode) {                            // handle key presses
+            return true;
+        }
+
+        function feed(channel, scope, data) {                   // Called for incoming channel events
+            switch (scope.toLowerCase()) {
+                case "value":
+
+                    break;
+            }
+            return true;
+        }
+
+        function ini(channel, scope, data) {                    // Called to set initial channel status
+            switch (scope.toLowerCase()) {
+                case "value":
+                    feed(channel, scope, data);
+                    break;
+            }
+        }
+
+                    // Insert other functions here
+
+    </script>
+</body>
+</html>

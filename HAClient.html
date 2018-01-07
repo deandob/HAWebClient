@@ -189,8 +189,9 @@
             if (!clientName) clientName = "";
         }
 
-        if (debugURL !== "") startMQTTSess()
-        else startNet();
+        //if (debugURL !== "") startMQTTSess()
+        //else startNet();
+        startNet();
 
         var headerTitle = document.getElementById("headerTitle");
         var displayUser = document.getElementById("displayUser");

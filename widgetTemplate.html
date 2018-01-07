@@ -27,46 +27,35 @@
         }
 
         .yellow {
-            border-color: #c09853 !important;
-            background-color: #c09853;
+            background-color: #fffaf3;
             color: #c09853;
         }
 
         .white {
-            border-color: #ffffff !important;
             background-color: #ffffff;
-            color: #ffffff;
+            color: #999;
         }
 
         .grey {
-            border-color: #acacac !important;
-            background-color: #acacac;
-            color: #acacac;
-        }
-
-        .black {
-            border-color: #4c4c4c !important;
-            background-color: #4c4c4c;
-            color: #4c4c4c;
+            background-color: #f5f5f5;
+            color: #999;
         }
 
         .blue {
-            border-color: #3a87ad !important;
-            background-color: #3a87ad;
+            background-color: #d9edf7;
             color: #3a87ad;
         }
 
         .red {
-            border-color: #b94a48 !important;
-            background-color: #b94a48;
+            background-color: #f2dede;
             color: #b94a48;
         }
 
         .green {
-            border-color: #468847 !important;
-            background-color: #468847;
+            background-color: #dff0d8;
             color: #468847;
         }
+
     </style>
 
     <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
@@ -107,7 +96,7 @@
     <script>
         "use strict";
 
-        // Initialize widget framework API
+        // Initialize widget framework API - DO NOT DELETE
         var fw;
         function widgetLoad(myName) {
             fw = new parent.widgetAPI(myName);                                  // widget framework object
@@ -120,7 +109,7 @@
 
         // Widget specific startup actions when first created by dropping in design mode. Return "OK" if startup OK else return an error string
         function newWidget(mode) {
-            return dashStart();
+            return "OK";
         }
 
         // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
@@ -128,11 +117,13 @@
             return "OK"
         }
 
-        function startDesign() {                                // called when switching to design mode
+        // called when switching to design mode
+        function startDesign() {
             return true;
         }
 
-        function menuUpdate() {                                 // called when widget option menu requires updating
+        // called when widget option menu requires updating
+        function menuUpdate() {
             return true;
         }
 
@@ -140,15 +131,18 @@
             return "Put editing help details here with any HTML formatting"
         }
 
-        function scale(scaleX, scaleY) {                        // manage scaling
+        // manage scaling
+        function scale(scaleX, scaleY) {
             return true;
         }
 
-        function keyPress(keyCode) {                            // handle key presses
+        // handle key presses
+        function keyPress(keyCode) {
             return true;
         }
 
-        function feed(channel, scope, data) {                   // Called for incoming channel events
+        // Called for incoming channel events
+        function feed(channel, scope, data) {
             switch (scope.toLowerCase()) {
                 case "value":
 
@@ -157,7 +151,8 @@
             return true;
         }
 
-        function ini(channel, scope, data) {                    // Called to set initial channel status
+        // Called to set initial channel status
+        function ini(channel, scope, data) {
             switch (scope.toLowerCase()) {
                 case "value":
                     feed(channel, scope, data);

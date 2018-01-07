@@ -175,22 +175,26 @@
             return "OK"
         }
 
-        function startEdit() {              // called when editing started
+        // called when editing started
+        function startEdit() {                      
             document.body.setAttribute("spellcheck", "true");
         }
 
-        function endEdit(param0) {                // called when editing finishes
+        // called when editing finishes
+        function endEdit(param0) {                  
             document.body.setAttribute("spellcheck", "false");
             fw.func("setAttrib", 5, fw.widgetID.textContent)               // Save any edited text
             dashStart()
         }
 
-        function startDesign() {            // called when switching to design mode
+        // called when switching to design mode
+        function startDesign() {                    
             fw.widgetID.contentEditable = "true";
             fw.widgetID.className = fw.widgetID.className.replace(" noSelect", "");
         }
 
-        function scale(scaleX, scaleY) {    // manage scaling
+        // manage scaling
+        function scale(scaleX, scaleY) {            
             fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 10) + "px");             // Allow space for shadow
             fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY - 10) + "px");
             fw.widgetID.style.setProperty("line-height", fw.iniHeight * scaleY - 10 + "px");
