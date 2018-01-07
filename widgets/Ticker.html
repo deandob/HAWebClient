@@ -160,7 +160,6 @@
             botRow.innerHTML = perfRoll;
         }
 
-
         // Initialize widget framework API - DO NOT DELETE
         var fw;
         function widgetLoad(myName) {
@@ -206,7 +205,6 @@
         }
 
         function scale(scaleX, scaleY) {                        // manage scaling
-            // width = fw.iniWidth * scaleX;
             fw.widgetID.style.setProperty("width", (fw.iniWidth * scaleX - 10) + "px");             // allow space for shadow
             fw.widgetID.style.setProperty("height", (fw.iniHeight * scaleY - 10) + "px");
             return true;

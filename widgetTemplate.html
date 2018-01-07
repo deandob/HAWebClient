@@ -96,11 +96,8 @@
     <script>
         "use strict";
 
-        // Initialize widget framework API - DO NOT DELETE
-        var fw;
-        function widgetLoad(myName) {
-            fw = new parent.widgetAPI(myName);                                  // widget framework object
-        }
+
+        //////////////////// Framework functions
 
         // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
         function dashStart(mode) {
@@ -115,6 +112,11 @@
         // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
         function toolStart(mode) {
             return "OK"
+        }
+
+        // called when switching to edit mode
+        function startEdit() {
+            return true;
         }
 
         // called when switching to design mode
@@ -160,8 +162,11 @@
             }
         }
 
-        // Insert other functions here
-
+        // Initialize widget framework API - DO NOT DELETE
+        var fw;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
     </script>
 </body>
 </html>
