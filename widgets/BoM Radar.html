@@ -177,8 +177,9 @@
             locations = "http://ws.cdn.bom.gov.au/products/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".locations.png";
             //range = "ftp://ftp.bom.gov.au/anon/gen/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".range.png";
             range = "http://ws.cdn.bom.gov.au/products/radar_transparencies/IDR" + (radarID + radarOffset).toString() + ".range.png";
-            rain = "ftp://ftp.bom.gov.au/anon/gen/radar/";
-            rain1 = "http://wac.72dd.edgecastcdn.net/8072DD/radimg/radar/"
+            //rain = "http://wac.72dd.edgecastcdn.net/8072DD/radimg/radar/";
+            rain = "http://www.bom.gov.au/radar/"
+            //rain1 = "http://wac.72dd.edgecastcdn.net/8072DD/radimg/radar/"
             //rain1 = "http://ws.cdn.bom.gov.au/radar/"
             document.getElementById("imgBackground").setAttribute("xlink:href", background);
             document.getElementById("imgLegend").setAttribute("xlink:href", legend);
@@ -309,7 +310,7 @@
 
                 if (radarFiles.length !== 0) {
                     for (var lp = radarFiles.length - 1; lp > (radarFiles.length - 7) ; lp--) {
-                        if (lp >= 0) document.getElementById("imgRain" + (radarFiles.length - 1 - lp)).setAttribute("xlink:href", rain1 + radarFiles[lp].name)  //load images
+                        if (lp >= 0) document.getElementById("imgRain" + (radarFiles.length - 1 - lp)).setAttribute("xlink:href", rain + radarFiles[lp].name)  //load images
                     }
 
                     var latestTime = radarFiles[radarFiles.length - 1].name.substr(radarFiles[radarFiles.length - 1].name.length - 16, 12);
