@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Automation Widget (XXXXXX)</title>
+</head>
+<body id="body" spellcheck="false">
+    <style>
+        body {
+            overflow: hidden;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 15px;
+            color: #4C4C4C;
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans400.woff') format('woff');
+        }
+
+        @font-face {
+            font-family: 'Open Sans';
+            font-style: normal;
+            font-weight: 700;
+            src: local('Open Sans'), local('OpenSans'), url('../fonts/OpenSans700.woff') format('woff');
+        }
+
+        .yellow {
+            background-color: #fffaf3;
+            color: #c09853;
+        }
+
+        .white {
+            background-color: #ffffff;
+            color: #999;
+        }
+
+        .grey {
+            background-color: #f5f5f5;
+            color: #999;
+        }
+
+        .blue {
+            background-color: #d9edf7;
+            color: #3a87ad;
+        }
+
+        .red {
+            background-color: #f2dede;
+            color: #b94a48;
+        }
+
+        .green {
+            background-color: #dff0d8;
+            color: #468847;
+        }
+    </style>
+
+    <span id="attrib0" data-type="channel" data-name="Source" data-default="" />
+    <span id="attrib1" data-type="input" data-name="Latitude" data-default="" />
+    <span id="attrib2" data-type="input" data-name="Longitude" data-default="" />
+    <span id="attrib3" data-type="input" data-name="Zoom" data-default="" />
+    <span id="TBtooltip" data-default="Bing Maps" />
+    <span id="ontop" data-default="true" />
+
+    <div id="group">
+        <div id="widget" width="500" height="500" style="position: absolute; left: 0px; top: 0px; z-index:4">
+
+        </div>
+        <button type="button" style="top: 10px; right: 20px; z-index: 999;">Add</button>
+    </div>
+    <script type='text/javascript' src="http://www.bing.com/api/maps/mapcontrol?key=AvZyeIp5ZxRtYum83Tte6U_fY8XnU8ursX4d6CWzYu3kk9W6HAD6ROZGHICYSXCZ" async defer></script>
+    <script>
+        "use strict";
+        // TODO: Remove key for dist. Move into API key spantag.
+        // Initialize widget framework API - DO NOT DELETE
+        var fw;
+        var map;
+
+        var gLong = 144.7937;
+        var gLat = 13.4443;
+        var gZoom = 10.5;
+        function widgetLoad(myName) {
+            fw = new parent.widgetAPI(myName);                                  // widget framework object
+        }
+
+        // Widget specific startup actions for dashboard. Return "OK" if startup OK else return an error string
+        function dashStart(mode) {
+            map = new Microsoft.Maps.Map(document.getElementById('widget'), {});
+            updateLocation();
+            return "OK";
+        }
+
+        // Widget specific startup actions when first created by dropping in design mode. Return "OK" if startup OK else return an error string
+        function newWidget(mode) {
+            map = new Microsoft.Maps.Map(document.getElementById('widget'), {});
+            updateLocation();
+            // Update attribs    
+            console.log("Set attribs");
+            
+            return "OK";
+        }
+
+        // Widget specific startup actions for toolbox. Return "OK" if startup OK else return an error string
+        function toolStart(mode) {
+            return "OK"
+        }
+
+        // called when switching to design mode
+        function startDesign() {
+            return true;
+        }
+
+        // called when widget option menu requires updating
+        function menuUpdate() {
+            gLat = parseFloat(fw.attribs[1].value);
+            gLong = parseFloat(fw.attribs[2].value);
+            gZoom = parseFloat(fw.attribs[3].value);
+
+            updateLocation();
+            //addPushPin();
+            console.log("Updating location");
+            return true;
+        }
+
+        function help() {
+            return "Put editing help details here with any HTML formatting"
+        }
+
+        // manage scaling
+        function scale(scaleX, scaleY) {
+            return true;
+        }
+
+        // handle key presses
+        function keyPress(keyCode) {
+            return true;
+        }
+
+        // Called for incoming channel events
+        function feed(channel, scope, data) {
+            switch (scope.toLowerCase()) {
+                case "value":
+
+                    break;
+            }
+            return true;
+        }
+
+        // Called to set initial channel status
+        function ini(channel, scope, data) {
+            switch (scope.toLowerCase()) {
+                case "value":
+                    feed(channel, scope, data);
+                    break;
+            }
+        }
+
+        // TODO: Check if parse float is invalid and display error
+        function updateLocation() {
+            console.log(gLong, gLat, gZoom);
+            map.setView({
+                mapTypeId: Microsoft.Maps.MapTypeId.aerial,
+                center: new Microsoft.Maps.Location(gLat, gLong),
+                zoom: gZoom
+            });
+        }
+
+        function addPushPin(lat, long) {
+            var pushpin = new Microsoft.Maps.Pushpin(new Microsoft.Maps.Location(lat, long), null);
+            var layer = new Microsoft.Maps.Layer();
+            layer.add(pushpin)
+            map.entities.push(pushpin);
+        }
+
+
+
+                                // Insert other functions here
+
+    </script>
+</body>
+</html>
